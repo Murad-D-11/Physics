@@ -1,0 +1,3 @@
+C:\mingw64\bin\cmake.exe -E rm -f CMakeFiles\Physics.dir/objects.a
+C:\mingw64\bin\ar.exe qc CMakeFiles\Physics.dir/objects.a @CMakeFiles\Physics.dir\objects1.rsp
+C:\mingw64\bin\c++.exe -g -Wl,--whole-archive CMakeFiles\Physics.dir/objects.a -Wl,--no-whole-archive -o Physics.exe -Wl,--out-implib,libPhysics.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\Physics.dir\linkLibs.rsp

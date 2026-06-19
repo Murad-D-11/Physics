@@ -1,0 +1,3 @@
+C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build/CMakeFiles/Physics.dir
+C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build/CMakeFiles/edit_cache.dir
+C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build/CMakeFiles/rebuild_cache.dir
