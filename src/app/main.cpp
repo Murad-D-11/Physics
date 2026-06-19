@@ -1,5 +1,5 @@
 #include <iostream>
-#include <glad/glad.h>
+#include <glad/glad.h> // must come before glfw
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -7,59 +7,71 @@
 
 using namespace std; 
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
+/** 
+ * Renders the window in the current context
+ * @param window The window in the current context
+*/
+void render(GLFWwindow* window) {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // rgb values of black, make it opaque
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
-int main()
-{
-    // glm test
-    glm::vec4 v(1.0f, 0.0f, 0.0f, 1.0f);
-    glm::mat4 trans = glm::mat4(1.0f); // identity matrix
-    trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f)); // translate by (1, 1, 0)
-    trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
-    v = trans * v;
+/** 
+ * Supports the frame of the window to be changed in real time
+ * @param window The GLFW window in the current context
+ * @param width The updated width
+ * @param height The updated height
+*/
+void framebufferSizeChanged(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+    render(window);
+}
 
-    // trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    std::cout << v.x << ' ' << v.y << ' ' << v.z << std::endl;
-
-    if (!glfwInit())
-    {
-        cout << "Failed to initialize GLFW" << endl;
+int main() {
+    // ensures glfw was initialized
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
         return -1;
     }
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    // opengl version hints
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "ZMMR", NULL, NULL);
-    if (window == NULL)
-    {
-        cout << "Failed to open GLFW window" << endl;
+    // Fixes compatability issues with Mac
+    #ifdef __APPLE__
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
+
+    const GLFWvidmode* VideoMode = glfwGetVideoMode(glfwGetPrimaryMonitor()); // retrieves current viewing specifications of the current monitor
+    const auto ScreenHeight = VideoMode->height; // retreives the current monitor's height (height is the limiting variable in terms of screen dimensions, usually)
+
+    GLFWwindow* window = glfwCreateWindow(ScreenHeight / 2, ScreenHeight / 2, "Hello Physics Engine!", NULL, NULL); // sets up a window that is visible on all monitors
+
+    // if the window object returns null, prevent any errors by closing the program early
+    if (window == NULL) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
         return -1;
     }
-    glfwMakeContextCurrent(window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        cout << "Failed to initialize GLAD" << endl;
+    glfwMakeContextCurrent(window); // important to call before proceeding with any further OpenGL functions
+
+    // ensures glad was initialized
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-    glViewport(0, 0, 800, 600);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeChanged);
 
-    while(!glfwWindowShouldClose(window))
-    {
-        glfwSwapBuffers(window);
-        glfwPollEvents();    
+    // render the window whilst it is open, listen for any inputs
+    while (!glfwWindowShouldClose(window)) {
+        render(window);
+        glfwPollEvents();
     }
 
     glfwTerminate();
     return 0;
 }
+
