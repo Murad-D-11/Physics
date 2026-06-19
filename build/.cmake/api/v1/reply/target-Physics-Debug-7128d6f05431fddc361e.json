@@ -157,13 +157,13 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/main.cpp",
+			"path" : "src/app/main.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 1,
-			"path" : "src/glad.c",
+			"path" : "src/renderer/glad.c",
 			"sourceGroupIndex" : 0
 		}
 	],

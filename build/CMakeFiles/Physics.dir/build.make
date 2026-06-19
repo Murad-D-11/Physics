@@ -68,46 +68,46 @@ include CMakeFiles/Physics.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/Physics.dir/flags.make
 
-CMakeFiles/Physics.dir/src/main.cpp.obj: CMakeFiles/Physics.dir/flags.make
-CMakeFiles/Physics.dir/src/main.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
-CMakeFiles/Physics.dir/src/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/main.cpp
-CMakeFiles/Physics.dir/src/main.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Physics.dir/src/main.cpp.obj"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/main.cpp.obj -MF CMakeFiles\Physics.dir\src\main.cpp.obj.d -o CMakeFiles\Physics.dir\src\main.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\main.cpp"
+CMakeFiles/Physics.dir/src/app/main.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/src/app/main.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/app/main.cpp
+CMakeFiles/Physics.dir/src/app/main.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Physics.dir/src/app/main.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/app/main.cpp.obj -MF CMakeFiles\Physics.dir\src\app\main.cpp.obj.d -o CMakeFiles\Physics.dir\src\app\main.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\app\main.cpp"
 
-CMakeFiles/Physics.dir/src/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/main.cpp.i"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\main.cpp" > CMakeFiles\Physics.dir\src\main.cpp.i
+CMakeFiles/Physics.dir/src/app/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/app/main.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\app\main.cpp" > CMakeFiles\Physics.dir\src\app\main.cpp.i
 
-CMakeFiles/Physics.dir/src/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/main.cpp.s"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\main.cpp" -o CMakeFiles\Physics.dir\src\main.cpp.s
+CMakeFiles/Physics.dir/src/app/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/app/main.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\app\main.cpp" -o CMakeFiles\Physics.dir\src\app\main.cpp.s
 
-CMakeFiles/Physics.dir/src/glad.c.obj: CMakeFiles/Physics.dir/flags.make
-CMakeFiles/Physics.dir/src/glad.c.obj: CMakeFiles/Physics.dir/includes_C.rsp
-CMakeFiles/Physics.dir/src/glad.c.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/glad.c
-CMakeFiles/Physics.dir/src/glad.c.obj: CMakeFiles/Physics.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/Physics.dir/src/glad.c.obj"
-	C:\mingw64\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/glad.c.obj -MF CMakeFiles\Physics.dir\src\glad.c.obj.d -o CMakeFiles\Physics.dir\src\glad.c.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\glad.c"
+CMakeFiles/Physics.dir/src/renderer/glad.c.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/src/renderer/glad.c.obj: CMakeFiles/Physics.dir/includes_C.rsp
+CMakeFiles/Physics.dir/src/renderer/glad.c.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/glad.c
+CMakeFiles/Physics.dir/src/renderer/glad.c.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/Physics.dir/src/renderer/glad.c.obj"
+	C:\mingw64\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/renderer/glad.c.obj -MF CMakeFiles\Physics.dir\src\renderer\glad.c.obj.d -o CMakeFiles\Physics.dir\src\renderer\glad.c.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\glad.c"
 
-CMakeFiles/Physics.dir/src/glad.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/Physics.dir/src/glad.c.i"
-	C:\mingw64\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\glad.c" > CMakeFiles\Physics.dir\src\glad.c.i
+CMakeFiles/Physics.dir/src/renderer/glad.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/Physics.dir/src/renderer/glad.c.i"
+	C:\mingw64\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\glad.c" > CMakeFiles\Physics.dir\src\renderer\glad.c.i
 
-CMakeFiles/Physics.dir/src/glad.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/Physics.dir/src/glad.c.s"
-	C:\mingw64\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\glad.c" -o CMakeFiles\Physics.dir\src\glad.c.s
+CMakeFiles/Physics.dir/src/renderer/glad.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/Physics.dir/src/renderer/glad.c.s"
+	C:\mingw64\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\glad.c" -o CMakeFiles\Physics.dir\src\renderer\glad.c.s
 
 # Object files for target Physics
 Physics_OBJECTS = \
-"CMakeFiles/Physics.dir/src/main.cpp.obj" \
-"CMakeFiles/Physics.dir/src/glad.c.obj"
+"CMakeFiles/Physics.dir/src/app/main.cpp.obj" \
+"CMakeFiles/Physics.dir/src/renderer/glad.c.obj"
 
 # External object files for target Physics
 Physics_EXTERNAL_OBJECTS =
 
-Physics.exe: CMakeFiles/Physics.dir/src/main.cpp.obj
-Physics.exe: CMakeFiles/Physics.dir/src/glad.c.obj
+Physics.exe: CMakeFiles/Physics.dir/src/app/main.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/src/renderer/glad.c.obj
 Physics.exe: CMakeFiles/Physics.dir/build.make
 Physics.exe: CMakeFiles/Physics.dir/linkLibs.rsp
 Physics.exe: CMakeFiles/Physics.dir/objects1.rsp

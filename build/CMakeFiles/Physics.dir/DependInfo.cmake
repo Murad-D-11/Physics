@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/glad.c" "CMakeFiles/Physics.dir/src/glad.c.obj" "gcc" "CMakeFiles/Physics.dir/src/glad.c.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/main.cpp" "CMakeFiles/Physics.dir/src/main.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/main.cpp.obj.d"
+  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/glad.c" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj.d"
+  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/app/main.cpp" "CMakeFiles/Physics.dir/src/app/main.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/app/main.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

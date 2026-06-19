@@ -128,53 +128,53 @@ Physics/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/build
 .PHONY : Physics/fast
 
-src/glad.obj: src/glad.c.obj
-.PHONY : src/glad.obj
+src/app/main.obj: src/app/main.cpp.obj
+.PHONY : src/app/main.obj
 
 # target to build an object file
-src/glad.c.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/glad.c.obj
-.PHONY : src/glad.c.obj
+src/app/main.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/app/main.cpp.obj
+.PHONY : src/app/main.cpp.obj
 
-src/glad.i: src/glad.c.i
-.PHONY : src/glad.i
+src/app/main.i: src/app/main.cpp.i
+.PHONY : src/app/main.i
 
 # target to preprocess a source file
-src/glad.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/glad.c.i
-.PHONY : src/glad.c.i
+src/app/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/app/main.cpp.i
+.PHONY : src/app/main.cpp.i
 
-src/glad.s: src/glad.c.s
-.PHONY : src/glad.s
+src/app/main.s: src/app/main.cpp.s
+.PHONY : src/app/main.s
 
 # target to generate assembly for a file
-src/glad.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/glad.c.s
-.PHONY : src/glad.c.s
+src/app/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/app/main.cpp.s
+.PHONY : src/app/main.cpp.s
 
-src/main.obj: src/main.cpp.obj
-.PHONY : src/main.obj
+src/renderer/glad.obj: src/renderer/glad.c.obj
+.PHONY : src/renderer/glad.obj
 
 # target to build an object file
-src/main.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/main.cpp.obj
-.PHONY : src/main.cpp.obj
+src/renderer/glad.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/glad.c.obj
+.PHONY : src/renderer/glad.c.obj
 
-src/main.i: src/main.cpp.i
-.PHONY : src/main.i
+src/renderer/glad.i: src/renderer/glad.c.i
+.PHONY : src/renderer/glad.i
 
 # target to preprocess a source file
-src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/main.cpp.i
-.PHONY : src/main.cpp.i
+src/renderer/glad.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/glad.c.i
+.PHONY : src/renderer/glad.c.i
 
-src/main.s: src/main.cpp.s
-.PHONY : src/main.s
+src/renderer/glad.s: src/renderer/glad.c.s
+.PHONY : src/renderer/glad.s
 
 # target to generate assembly for a file
-src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/main.cpp.s
-.PHONY : src/main.cpp.s
+src/renderer/glad.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/glad.c.s
+.PHONY : src/renderer/glad.c.s
 
 # Help Target
 help:
@@ -185,12 +185,12 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... Physics
-	@echo ... src/glad.obj
-	@echo ... src/glad.i
-	@echo ... src/glad.s
-	@echo ... src/main.obj
-	@echo ... src/main.i
-	@echo ... src/main.s
+	@echo ... src/app/main.obj
+	@echo ... src/app/main.i
+	@echo ... src/app/main.s
+	@echo ... src/renderer/glad.obj
+	@echo ... src/renderer/glad.i
+	@echo ... src/renderer/glad.s
 .PHONY : help
 
 
