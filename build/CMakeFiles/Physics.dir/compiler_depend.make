@@ -776,9 +776,10 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Des
   C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
   C:/mingw64/x86_64-w64-mingw32/include/wchar.h \
   C:/mingw64/x86_64-w64-mingw32/include/wctype.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/render.cpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/cube.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.h
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/render.h
 
 CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.cpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double2x3.hpp \
@@ -1700,6 +1701,8 @@ C:/mingw64/x86_64-w64-mingw32/include/objidlbase.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/objidl.h:
 
+C:/mingw64/x86_64-w64-mingw32/include/objbase.h:
+
 C:/mingw64/include/c++/13.2.0/bits/string_view.tcc:
 
 C:/mingw64/x86_64-w64-mingw32/include/excpt.h:
@@ -1931,6 +1934,8 @@ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/amxcomplexintrin.h:
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_trigonometric.inl:
 
 C:/mingw64/x86_64-w64-mingw32/include/crtdefs.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/render.cpp:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_vec3.inl:
 
@@ -2454,6 +2459,8 @@ C:/mingw64/include/c++/13.2.0/bits/streambuf.tcc:
 
 C:/mingw64/include/c++/13.2.0/initializer_list:
 
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/render.h:
+
 C:/mingw64/include/c++/13.2.0/iosfwd:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/enqcmdintrin.h:
@@ -2837,5 +2844,3 @@ C:/mingw64/x86_64-w64-mingw32/include/msxml.h:
 C:/mingw64/x86_64-w64-mingw32/include/namedpipeapi.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/namespaceapi.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/objbase.h:

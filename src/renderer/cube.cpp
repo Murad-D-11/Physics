@@ -97,6 +97,7 @@ void Cube::setupBuffers() {
     // Same behaviour
     // Same stride, but starting at byte offset (3 * sizeof(float)) within each vertex (this is where the colour section appears in the vertex data)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1); // enables the colour attrib
     glBindVertexArray(0); // unbinds the VAO so later, unrelated OpenGL calls elsewhere in the program don't accidentally modify this cube's VAO state by mistake
 }
 
