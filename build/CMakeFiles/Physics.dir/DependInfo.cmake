@@ -10,6 +10,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/glad.c" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj.d"
   "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/app/main.cpp" "CMakeFiles/Physics.dir/src/app/main.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/app/main.cpp.obj.d"
+  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Render.cpp" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj.d"
+  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/camera.cpp" "CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj.d"
+  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/cube.cpp" "CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -83,11 +83,56 @@ CMakeFiles/Physics.dir/src/app/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/app/main.cpp.s"
 	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\app\main.cpp" -o CMakeFiles\Physics.dir\src\app\main.cpp.s
 
+CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.cpp
+CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj -MF CMakeFiles\Physics.dir\src\renderer\camera.cpp.obj.d -o CMakeFiles\Physics.dir\src\renderer\camera.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\camera.cpp"
+
+CMakeFiles/Physics.dir/src/renderer/camera.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/renderer/camera.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\camera.cpp" > CMakeFiles\Physics.dir\src\renderer\camera.cpp.i
+
+CMakeFiles/Physics.dir/src/renderer/camera.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/renderer/camera.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\camera.cpp" -o CMakeFiles\Physics.dir\src\renderer\camera.cpp.s
+
+CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/cube.cpp
+CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj -MF CMakeFiles\Physics.dir\src\renderer\cube.cpp.obj.d -o CMakeFiles\Physics.dir\src\renderer\cube.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\cube.cpp"
+
+CMakeFiles/Physics.dir/src/renderer/cube.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/renderer/cube.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\cube.cpp" > CMakeFiles\Physics.dir\src\renderer\cube.cpp.i
+
+CMakeFiles/Physics.dir/src/renderer/cube.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/renderer/cube.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\cube.cpp" -o CMakeFiles\Physics.dir\src\renderer\cube.cpp.s
+
+CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.cpp
+CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj -MF CMakeFiles\Physics.dir\src\renderer\Render.cpp.obj.d -o CMakeFiles\Physics.dir\src\renderer\Render.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Render.cpp"
+
+CMakeFiles/Physics.dir/src/renderer/Render.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/renderer/Render.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Render.cpp" > CMakeFiles\Physics.dir\src\renderer\Render.cpp.i
+
+CMakeFiles/Physics.dir/src/renderer/Render.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/renderer/Render.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Render.cpp" -o CMakeFiles\Physics.dir\src\renderer\Render.cpp.s
+
 CMakeFiles/Physics.dir/src/renderer/glad.c.obj: CMakeFiles/Physics.dir/flags.make
 CMakeFiles/Physics.dir/src/renderer/glad.c.obj: CMakeFiles/Physics.dir/includes_C.rsp
 CMakeFiles/Physics.dir/src/renderer/glad.c.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/glad.c
 CMakeFiles/Physics.dir/src/renderer/glad.c.obj: CMakeFiles/Physics.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/Physics.dir/src/renderer/glad.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/Physics.dir/src/renderer/glad.c.obj"
 	C:\mingw64\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/renderer/glad.c.obj -MF CMakeFiles\Physics.dir\src\renderer\glad.c.obj.d -o CMakeFiles\Physics.dir\src\renderer\glad.c.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\glad.c"
 
 CMakeFiles/Physics.dir/src/renderer/glad.c.i: cmake_force
@@ -101,18 +146,24 @@ CMakeFiles/Physics.dir/src/renderer/glad.c.s: cmake_force
 # Object files for target Physics
 Physics_OBJECTS = \
 "CMakeFiles/Physics.dir/src/app/main.cpp.obj" \
+"CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj" \
+"CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj" \
+"CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj" \
 "CMakeFiles/Physics.dir/src/renderer/glad.c.obj"
 
 # External object files for target Physics
 Physics_EXTERNAL_OBJECTS =
 
 Physics.exe: CMakeFiles/Physics.dir/src/app/main.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/renderer/glad.c.obj
 Physics.exe: CMakeFiles/Physics.dir/build.make
 Physics.exe: CMakeFiles/Physics.dir/linkLibs.rsp
 Physics.exe: CMakeFiles/Physics.dir/objects1.rsp
 Physics.exe: CMakeFiles/Physics.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable Physics.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable Physics.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\Physics.dir\link.txt --verbose=$(VERBOSE)
 	C:\mingw64\bin\cmake.exe -E copy_if_different "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/glfw3.dll" "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build"
 

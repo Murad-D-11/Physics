@@ -37,6 +37,21 @@ const char* Render::vertexShaderSource = R"(
     }
 )";
 
+// The fragment shader runs once per pixel covered by a triangle.
+//   in vec3 vColor;      -> interpolated color value from the vertex shader
+//                           (blended between the 3 triangle corners' colors)
+//   out vec4 FragColor;  -> required output: this pixel's final RGBA color
+//   FragColor = vec4(vColor, 1.0);  -> uses the interpolated color, fully opaque
+const char* Render::fragmentShaderSource = R"(
+    #version 330 core
+    in vec3 vColor;
+    out vec4 FragColor;
+
+    void main() {
+        FragColor = vec4(vColor, 1.0);
+    }
+)";
+
 Render::Render() {
     GLuint vertexShader = compileShader(vertexShaderSource, GL_VERTEX_SHADER); // compiles the vertex shader source into a GPU shader object
     GLuint fragmentShader = compileShader(fragmentShaderSource, GL_FRAGMENT_SHADER); // same thing, but with fragment
