@@ -17,7 +17,7 @@ class Render {
         Render(const Render&) = delete;
         Render& operator=(const Render&) = delete;
 
-        void renderFrame(const Cube& cube, const Camera& camera, float aspectRatio) const; // clears the screen and draws cube as seen through camera
+        void renderFrame(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position) const; // clears the screen and draws cube as seen through camera
 
     private:
         GLuint compileShader(const std::string& source, GLenum shaderType) const; // compiles one shader (vertex or fragment), returns its OpenGL handle

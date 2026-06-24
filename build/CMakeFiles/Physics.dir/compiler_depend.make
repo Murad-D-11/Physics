@@ -195,9 +195,10 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_relational.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/geometric.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/vector_relational.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/cube.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Camera.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.h \
   C:/mingw64/include/c++/13.2.0/array \
   C:/mingw64/include/c++/13.2.0/backward/binders.h \
   C:/mingw64/include/c++/13.2.0/bit \
@@ -391,7 +392,7 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/mingw64/x86_64-w64-mingw32/include/wchar.h \
   C:/mingw64/x86_64-w64-mingw32/include/wctype.h
 
-CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.cpp \
+CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/render.cpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/KHR/khrplatform.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glad/glad.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double2x3.hpp \
@@ -776,10 +777,10 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Des
   C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
   C:/mingw64/x86_64-w64-mingw32/include/wchar.h \
   C:/mingw64/x86_64-w64-mingw32/include/wctype.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/render.cpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/cube.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/render.h
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Camera.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.cpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.h
 
 CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.cpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double2x3.hpp \
@@ -1052,7 +1053,8 @@ CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj: C:/Users/Sobachya\ Morda/Des
   C:/mingw64/x86_64-w64-mingw32/include/stdint.h \
   C:/mingw64/x86_64-w64-mingw32/include/stdlib.h \
   C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.h
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Camera.cpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Camera.h
 
 CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/cube.cpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/KHR/khrplatform.h \
@@ -1312,7 +1314,8 @@ CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj: C:/Users/Sobachya\ Morda/Deskt
   C:/mingw64/x86_64-w64-mingw32/include/stdint.h \
   C:/mingw64/x86_64-w64-mingw32/include/stdlib.h \
   C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/cube.h
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.cpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.h
 
 CMakeFiles/Physics.dir/src/renderer/glad.c.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/glad.c \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/KHR/khrplatform.h \
@@ -1703,6 +1706,8 @@ C:/mingw64/x86_64-w64-mingw32/include/objidl.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/objbase.h:
 
+C:/mingw64/x86_64-w64-mingw32/include/nb30.h:
+
 C:/mingw64/include/c++/13.2.0/bits/string_view.tcc:
 
 C:/mingw64/x86_64-w64-mingw32/include/excpt.h:
@@ -1728,18 +1733,6 @@ C:/mingw64/include/c++/13.2.0/cmath:
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double2x2_precision.hpp:
 
 C:/mingw64/include/c++/13.2.0/bits/range_access.h:
-
-C:/mingw64/include/c++/13.2.0/bits/stl_construct.h:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat2x2.hpp:
-
-C:/mingw64/x86_64-w64-mingw32/include/ctype.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/sec_api/sys/timeb_s.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/mciapi.h:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float4x3_precision.hpp:
 
 C:/mingw64/include/c++/13.2.0/bits/istream.tcc:
 
@@ -1785,7 +1778,23 @@ C:/mingw64/include/c++/13.2.0/array:
 
 C:/mingw64/include/c++/13.2.0/bits/stl_algobase.h:
 
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.h:
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/glad.c:
+
+C:/mingw64/include/c++/13.2.0/bits/stl_construct.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat2x2.hpp:
+
+C:/mingw64/x86_64-w64-mingw32/include/ctype.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/sec_api/sys/timeb_s.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/mciapi.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float4x3_precision.hpp:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/wchar.h:
 
@@ -1827,6 +1836,10 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/mingw64/include/c++/13.2.0/bits/hashtable_policy.h:
 
+C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vbmiintrin.h:
+
+C:/mingw64/include/c++/13.2.0/bits/stl_uninitialized.h:
+
 C:/mingw64/include/c++/13.2.0/bits/functexcept.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vpopcntdqintrin.h:
@@ -1862,8 +1875,6 @@ C:/mingw64/include/c++/13.2.0/limits:
 C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float2x3_precision.hpp:
-
-C:/mingw64/include/c++/13.2.0/bits/stringfwd.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/compute_common.hpp:
 
@@ -1911,6 +1922,10 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_mat4x4.inl:
 
+C:/mingw64/include/c++/13.2.0/ext/type_traits.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_uint2_sized.hpp:
+
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_uint1_sized.hpp:
 
 C:/mingw64/x86_64-w64-mingw32/include/float.h:
@@ -1945,8 +1960,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_vec4.inl:
 
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_transform.hpp:
-
 C:/mingw64/x86_64-w64-mingw32/include/systemtopologyapi.h:
 
 C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h:
@@ -1980,8 +1993,6 @@ C:/mingw64/x86_64-w64-mingw32/include/assert.h:
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_uint4_sized.hpp:
 
 C:/mingw64/include/c++/13.2.0/tr1/poly_hermite.tcc:
-
-C:/mingw64/x86_64-w64-mingw32/include/nb30.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/matrix.hpp:
 
@@ -2185,6 +2196,8 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float2x2.hpp:
 
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Camera.h:
+
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/smmintrin.h:
@@ -2212,8 +2225,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/mingw64/include/c++/13.2.0/bits/uniform_int_dist.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_half.inl:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/cube.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/mmiscapi.h:
 
@@ -2391,6 +2402,8 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/f16cintrin.h:
 
+C:/mingw64/include/c++/13.2.0/bits/stringfwd.h:
+
 C:/mingw64/x86_64-w64-mingw32/include/windows.h:
 
 C:/mingw64/include/c++/13.2.0/bits/uses_allocator_args.h:
@@ -2449,17 +2462,9 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/mingw64/include/c++/13.2.0/ext/numeric_traits.h:
 
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_uint2_sized.hpp:
-
-C:/mingw64/include/c++/13.2.0/ext/type_traits.h:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/glad.c:
-
 C:/mingw64/include/c++/13.2.0/bits/streambuf.tcc:
 
 C:/mingw64/include/c++/13.2.0/initializer_list:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/render.h:
 
 C:/mingw64/include/c++/13.2.0/iosfwd:
 
@@ -2551,6 +2556,10 @@ C:/mingw64/include/c++/13.2.0/bits/specfun.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/corecrt_startup.h:
 
+C:/mingw64/x86_64-w64-mingw32/include/pthread_compat.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/apisetcconv.h:
+
 C:/mingw64/x86_64-w64-mingw32/include/corecrt_stdio_config.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/rtmintrin.h:
@@ -2570,14 +2579,6 @@ C:/mingw64/x86_64-w64-mingw32/include/locale.h:
 C:/mingw64/x86_64-w64-mingw32/include/processthreadsapi.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/malloc.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/apisetcconv.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/pthread_compat.h:
-
-C:/mingw64/include/c++/13.2.0/bits/stl_uninitialized.h:
-
-C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vbmiintrin.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/process.h:
 
@@ -2620,6 +2621,14 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/mingw64/include/c++/13.2.0/algorithm:
 
 C:/mingw64/include/c++/13.2.0/pstl/glue_algorithm_defs.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_transform.hpp:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Camera.cpp:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.cpp:
+
+C:/mingw64/x86_64-w64-mingw32/include/dlgs.h:
 
 C:/mingw64/include/c++/13.2.0/cerrno:
 
@@ -2693,9 +2702,9 @@ C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/bmi2intrin.h:
 
-C:/mingw64/include/c++/13.2.0/climits:
-
 C:/mingw64/x86_64-w64-mingw32/include/math.h:
+
+C:/mingw64/include/c++/13.2.0/climits:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/bmiintrin.h:
 
@@ -2796,8 +2805,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/mingw64/x86_64-w64-mingw32/include/debugapi.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/heapapi.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/dlgs.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_int4_sized.hpp:
 

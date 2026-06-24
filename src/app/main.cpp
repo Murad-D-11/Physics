@@ -8,6 +8,7 @@
 #include "../renderer/render.h"
 #include "../renderer/camera.h"
 #include "../renderer/cube.h"
+#include "../physics/rigidbody.h"
 
 using namespace std; 
 
@@ -123,6 +124,8 @@ int main() {
     Camera camera;
     activeCamera = &camera;
 
+    RigidBody body;
+
     // Render the window whilst it is open, listen for any inputs
     while (!glfwWindowShouldClose(window)) {
         int width, height;
@@ -130,7 +133,9 @@ int main() {
         glfwGetFramebufferSize(window, &width, &height); // queries the window's current framebuffer size, so that every frame during resizing of the window updates the aspect ratio immediately
         const float aspectRatio = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f; // avoids a divide-by-zero crash if the window is minimized (height becomes zero)
 
-        renderer.renderFrame(cube, camera, aspectRatio); // clears the screen and draws the cube using the camera's current view/projection matrices and this frame's aspect ratio
+        body.position += glm::vec3 {0.0001, 0.0001, 0.0001}; // rigidbody test
+
+        renderer.renderFrame(cube, camera, aspectRatio, body.position); // clears the screen and draws the cube using the camera's current view/projection matrices and this frame's aspect ratio
         glfwSwapBuffers(window); // OpenGL renders to an off-screen "back buffer", so this swapts it with the visible "front buffer" in order for the newly-drawn frame to actually appear on screen
         glfwPollEvents(); // process any pending window/input events
     }

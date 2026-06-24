@@ -152,30 +152,6 @@ src/app/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/app/main.cpp.s
 .PHONY : src/app/main.cpp.s
 
-src/renderer/Render.obj: src/renderer/Render.cpp.obj
-.PHONY : src/renderer/Render.obj
-
-# target to build an object file
-src/renderer/Render.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj
-.PHONY : src/renderer/Render.cpp.obj
-
-src/renderer/Render.i: src/renderer/Render.cpp.i
-.PHONY : src/renderer/Render.i
-
-# target to preprocess a source file
-src/renderer/Render.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Render.cpp.i
-.PHONY : src/renderer/Render.cpp.i
-
-src/renderer/Render.s: src/renderer/Render.cpp.s
-.PHONY : src/renderer/Render.s
-
-# target to generate assembly for a file
-src/renderer/Render.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Render.cpp.s
-.PHONY : src/renderer/Render.cpp.s
-
 src/renderer/camera.obj: src/renderer/camera.cpp.obj
 .PHONY : src/renderer/camera.obj
 
@@ -248,6 +224,30 @@ src/renderer/glad.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/glad.c.s
 .PHONY : src/renderer/glad.c.s
 
+src/renderer/render.obj: src/renderer/render.cpp.obj
+.PHONY : src/renderer/render.obj
+
+# target to build an object file
+src/renderer/render.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/render.cpp.obj
+.PHONY : src/renderer/render.cpp.obj
+
+src/renderer/render.i: src/renderer/render.cpp.i
+.PHONY : src/renderer/render.i
+
+# target to preprocess a source file
+src/renderer/render.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/render.cpp.i
+.PHONY : src/renderer/render.cpp.i
+
+src/renderer/render.s: src/renderer/render.cpp.s
+.PHONY : src/renderer/render.s
+
+# target to generate assembly for a file
+src/renderer/render.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/render.cpp.s
+.PHONY : src/renderer/render.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -260,9 +260,6 @@ help:
 	@echo ... src/app/main.obj
 	@echo ... src/app/main.i
 	@echo ... src/app/main.s
-	@echo ... src/renderer/Render.obj
-	@echo ... src/renderer/Render.i
-	@echo ... src/renderer/Render.s
 	@echo ... src/renderer/camera.obj
 	@echo ... src/renderer/camera.i
 	@echo ... src/renderer/camera.s
@@ -272,6 +269,9 @@ help:
 	@echo ... src/renderer/glad.obj
 	@echo ... src/renderer/glad.i
 	@echo ... src/renderer/glad.s
+	@echo ... src/renderer/render.obj
+	@echo ... src/renderer/render.i
+	@echo ... src/renderer/render.s
 .PHONY : help
 
 

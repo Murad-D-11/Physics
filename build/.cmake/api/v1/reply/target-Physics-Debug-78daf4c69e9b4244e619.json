@@ -181,7 +181,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/renderer/Render.cpp",
+			"path" : "src/renderer/render.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

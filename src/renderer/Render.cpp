@@ -61,7 +61,7 @@ Render::Render() {
     glDeleteShader(vertexShader); // frees the vertex shader container
     glDeleteShader(fragmentShader); // does the same with the fragment
 
-    glEnable(GL_DEPTH_TEST); // turns on depth testing: OpenGL will nwo use the depth buffer to figure out which fragments are closest to camera, for correct drawing purposes
+    glEnable(GL_DEPTH_TEST); // turns on depth testing: OpenGL will now use the depth buffer to figure out which fragments are closest to camera, for correct drawing purposes
 }
 
 Render::~Render() {
@@ -112,13 +112,13 @@ GLuint Render::linkProgram(GLuint vertexShader, GLuint fragmentShader) const {
     return program;
 }
 
-void Render::renderFrame(const Cube& cube, const Camera& camera, float aspectRatio) const {
+void Render::renderFrame(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position) const {
     glClearColor(0.08f, 0.08f, 0.1f, 1.0f); // dark blue-gray for the screen, opaque
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clears two buffers: color and depth buffer (so that depth testing starts fresh with each frame)
 
     glUseProgram(shaderProgram); // makes this shader program the active one
 
-    glm::mat4 model = glm::mat4(1.0f); // 4x4 identity matrix, no additional repositioning
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), position); // 4x4 identity matrix, no additional repositioning (now includes translation for RigidBody test)
     glm::mat4 view = camera.getViewMatrix(); // current view matrix (depends on its yaw, pitch, distance, since last frame from input)
     glm::mat4 projection = camera.getProjectionMatrix(aspectRatio); // projection matrix from the camera object
 

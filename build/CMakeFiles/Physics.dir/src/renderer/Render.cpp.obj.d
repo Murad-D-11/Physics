@@ -1,5 +1,5 @@
-CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\Render.cpp \
+CMakeFiles/Physics.dir/src/renderer/render.cpp.obj: \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\render.cpp \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\render.h \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glad/glad.h \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/KHR/khrplatform.h \
