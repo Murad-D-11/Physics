@@ -152,53 +152,101 @@ src/app/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/app/main.cpp.s
 .PHONY : src/app/main.cpp.s
 
-src/renderer/camera.obj: src/renderer/camera.cpp.obj
-.PHONY : src/renderer/camera.obj
+src/physics/PhysicsSolver.obj: src/physics/PhysicsSolver.cpp.obj
+.PHONY : src/physics/PhysicsSolver.obj
 
 # target to build an object file
-src/renderer/camera.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj
-.PHONY : src/renderer/camera.cpp.obj
+src/physics/PhysicsSolver.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj
+.PHONY : src/physics/PhysicsSolver.cpp.obj
 
-src/renderer/camera.i: src/renderer/camera.cpp.i
-.PHONY : src/renderer/camera.i
+src/physics/PhysicsSolver.i: src/physics/PhysicsSolver.cpp.i
+.PHONY : src/physics/PhysicsSolver.i
 
 # target to preprocess a source file
-src/renderer/camera.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/camera.cpp.i
-.PHONY : src/renderer/camera.cpp.i
+src/physics/PhysicsSolver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.i
+.PHONY : src/physics/PhysicsSolver.cpp.i
 
-src/renderer/camera.s: src/renderer/camera.cpp.s
-.PHONY : src/renderer/camera.s
+src/physics/PhysicsSolver.s: src/physics/PhysicsSolver.cpp.s
+.PHONY : src/physics/PhysicsSolver.s
 
 # target to generate assembly for a file
-src/renderer/camera.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/camera.cpp.s
-.PHONY : src/renderer/camera.cpp.s
+src/physics/PhysicsSolver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.s
+.PHONY : src/physics/PhysicsSolver.cpp.s
 
-src/renderer/cube.obj: src/renderer/cube.cpp.obj
-.PHONY : src/renderer/cube.obj
+src/renderer/Camera.obj: src/renderer/Camera.cpp.obj
+.PHONY : src/renderer/Camera.obj
 
 # target to build an object file
-src/renderer/cube.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj
-.PHONY : src/renderer/cube.cpp.obj
+src/renderer/Camera.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj
+.PHONY : src/renderer/Camera.cpp.obj
 
-src/renderer/cube.i: src/renderer/cube.cpp.i
-.PHONY : src/renderer/cube.i
+src/renderer/Camera.i: src/renderer/Camera.cpp.i
+.PHONY : src/renderer/Camera.i
 
 # target to preprocess a source file
-src/renderer/cube.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/cube.cpp.i
-.PHONY : src/renderer/cube.cpp.i
+src/renderer/Camera.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Camera.cpp.i
+.PHONY : src/renderer/Camera.cpp.i
 
-src/renderer/cube.s: src/renderer/cube.cpp.s
-.PHONY : src/renderer/cube.s
+src/renderer/Camera.s: src/renderer/Camera.cpp.s
+.PHONY : src/renderer/Camera.s
 
 # target to generate assembly for a file
-src/renderer/cube.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/cube.cpp.s
-.PHONY : src/renderer/cube.cpp.s
+src/renderer/Camera.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Camera.cpp.s
+.PHONY : src/renderer/Camera.cpp.s
+
+src/renderer/Cube.obj: src/renderer/Cube.cpp.obj
+.PHONY : src/renderer/Cube.obj
+
+# target to build an object file
+src/renderer/Cube.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj
+.PHONY : src/renderer/Cube.cpp.obj
+
+src/renderer/Cube.i: src/renderer/Cube.cpp.i
+.PHONY : src/renderer/Cube.i
+
+# target to preprocess a source file
+src/renderer/Cube.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Cube.cpp.i
+.PHONY : src/renderer/Cube.cpp.i
+
+src/renderer/Cube.s: src/renderer/Cube.cpp.s
+.PHONY : src/renderer/Cube.s
+
+# target to generate assembly for a file
+src/renderer/Cube.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Cube.cpp.s
+.PHONY : src/renderer/Cube.cpp.s
+
+src/renderer/Render.obj: src/renderer/Render.cpp.obj
+.PHONY : src/renderer/Render.obj
+
+# target to build an object file
+src/renderer/Render.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj
+.PHONY : src/renderer/Render.cpp.obj
+
+src/renderer/Render.i: src/renderer/Render.cpp.i
+.PHONY : src/renderer/Render.i
+
+# target to preprocess a source file
+src/renderer/Render.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Render.cpp.i
+.PHONY : src/renderer/Render.cpp.i
+
+src/renderer/Render.s: src/renderer/Render.cpp.s
+.PHONY : src/renderer/Render.s
+
+# target to generate assembly for a file
+src/renderer/Render.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Render.cpp.s
+.PHONY : src/renderer/Render.cpp.s
 
 src/renderer/glad.obj: src/renderer/glad.c.obj
 .PHONY : src/renderer/glad.obj
@@ -224,30 +272,6 @@ src/renderer/glad.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/glad.c.s
 .PHONY : src/renderer/glad.c.s
 
-src/renderer/render.obj: src/renderer/render.cpp.obj
-.PHONY : src/renderer/render.obj
-
-# target to build an object file
-src/renderer/render.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/render.cpp.obj
-.PHONY : src/renderer/render.cpp.obj
-
-src/renderer/render.i: src/renderer/render.cpp.i
-.PHONY : src/renderer/render.i
-
-# target to preprocess a source file
-src/renderer/render.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/render.cpp.i
-.PHONY : src/renderer/render.cpp.i
-
-src/renderer/render.s: src/renderer/render.cpp.s
-.PHONY : src/renderer/render.s
-
-# target to generate assembly for a file
-src/renderer/render.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/render.cpp.s
-.PHONY : src/renderer/render.cpp.s
-
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -260,18 +284,21 @@ help:
 	@echo ... src/app/main.obj
 	@echo ... src/app/main.i
 	@echo ... src/app/main.s
-	@echo ... src/renderer/camera.obj
-	@echo ... src/renderer/camera.i
-	@echo ... src/renderer/camera.s
-	@echo ... src/renderer/cube.obj
-	@echo ... src/renderer/cube.i
-	@echo ... src/renderer/cube.s
+	@echo ... src/physics/PhysicsSolver.obj
+	@echo ... src/physics/PhysicsSolver.i
+	@echo ... src/physics/PhysicsSolver.s
+	@echo ... src/renderer/Camera.obj
+	@echo ... src/renderer/Camera.i
+	@echo ... src/renderer/Camera.s
+	@echo ... src/renderer/Cube.obj
+	@echo ... src/renderer/Cube.i
+	@echo ... src/renderer/Cube.s
+	@echo ... src/renderer/Render.obj
+	@echo ... src/renderer/Render.i
+	@echo ... src/renderer/Render.s
 	@echo ... src/renderer/glad.obj
 	@echo ... src/renderer/glad.i
 	@echo ... src/renderer/glad.s
-	@echo ... src/renderer/render.obj
-	@echo ... src/renderer/render.i
-	@echo ... src/renderer/render.s
 .PHONY : help
 
 

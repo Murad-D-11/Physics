@@ -9,6 +9,7 @@
 #include "../renderer/camera.h"
 #include "../renderer/cube.h"
 #include "../physics/rigidbody.h"
+#include "../physics/physicssolver.h"
 
 using namespace std; 
 
@@ -124,21 +125,47 @@ int main() {
     Camera camera;
     activeCamera = &camera;
 
-    RigidBody body;
+    RigidBody body; // body.position starts at (0, 5, 0) as set in rigidbody.h, so that it falls
+    PhysicsSolver physicsSolver; // floor collision logic
 
-    // Render the window whilst it is open, listen for any inputs
+    // vvvvv Fixed timestep setup + accumulator vvvvv
+
+    static constexpr float FIXED_DT = 1.0f / 60.0f; // simulation always "steps" in exactly 1/60 second increments, regardless of the frame rendering speed
+    float accumulator = 0.0f; // tracks the leftover real time that hasn't been consumed by the physics steps yet
+    float lastTime = static_cast<float>(glfwGetTime()); // records the previous frame started, so we can compute how long this frame actually took
+
+    // Render whilst the window is open, listen for any inputs
     while (!glfwWindowShouldClose(window)) {
+        const float currentTime = static_cast<float>(glfwGetTime());
+        float frameTime = currentTime - lastTime; // how many real seconds have elapsed sinced the last frame
+
+        frameTime = std::min(frameTime, 0.25f); // if the frame took more than 0.25 seconds (e.g. the window was dragged), clamp it. The accumulator could build up so much time that the loop may run hundreds of steps at once, causing the cube to teleport
+        lastTime = currentTime; // updates the reference point
+        accumulator += frameTime; // adds this frame's real elapsed time to the pool of time waiting to be simulate
+
+        /**
+         * Drains the accumulator in fixed 1/60 second chunks, stepping physics sinulation once per chunk.
+         * If the frame was fast (e.g. 1/120 seconds), this runs once or none at all.
+         * If the frame was slow (e.g. 1/20 seconds), this runs 3 times to catch up, always using the fixed step size.
+         */
+        while (accumulator >= FIXED_DT) {
+            physicsSolver.step(body, FIXED_DT);
+            accumulator -= FIXED_DT; // subtracts one consumed step
+        }
+
+        // ===== Render ===== //
+
         int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        const float aspectRatio = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f; // avoids the divide by zero, preventing crash from minimilizing the window
+        
+        renderer.renderFrame(cube, camera, aspectRatio, body.position);
 
-        glfwGetFramebufferSize(window, &width, &height); // queries the window's current framebuffer size, so that every frame during resizing of the window updates the aspect ratio immediately
-        const float aspectRatio = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f; // avoids a divide-by-zero crash if the window is minimized (height becomes zero)
-
-        body.position += glm::vec3 {0.0001, 0.0001, 0.0001}; // rigidbody test
-
-        renderer.renderFrame(cube, camera, aspectRatio, body.position); // clears the screen and draws the cube using the camera's current view/projection matrices and this frame's aspect ratio
-        glfwSwapBuffers(window); // OpenGL renders to an off-screen "back buffer", so this swapts it with the visible "front buffer" in order for the newly-drawn frame to actually appear on screen
-        glfwPollEvents(); // process any pending window/input events
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
+
+    // ^^^^^ Fixed timestep setup + accumulator ^^^^^
 
     glfwTerminate();
     return 0;
