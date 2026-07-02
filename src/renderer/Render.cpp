@@ -1,5 +1,4 @@
 #include "render.h"
-#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
@@ -112,10 +111,12 @@ GLuint Render::linkProgram(GLuint vertexShader, GLuint fragmentShader) const {
     return program;
 }
 
-void Render::renderFrame(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position) const {
-    glClearColor(0.08f, 0.08f, 0.1f, 1.0f); // dark blue-gray for the screen, opaque
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clears two buffers: color and depth buffer (so that depth testing starts fresh with each frame)
+void Render::beginFrame() const {
+    glClearColor(0.08f, 0.08f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
+void Render::drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, bool isColliding) const {
     glUseProgram(shaderProgram); // makes this shader program the active one
 
     glm::mat4 model = glm::translate(glm::mat4(1.0f), position); // 4x4 identity matrix, no additional repositioning (now includes translation for RigidBody test)
@@ -128,6 +129,8 @@ void Render::renderFrame(const Cube& cube, const Camera& camera, float aspectRat
 
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view)); // same process, uploading 'view' matrix to shader's "view" uniform
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection)); // same process, but with projection
+
+    glUniform1i(glGetUniformLocation(shaderProgram, "colliding"), isColliding ? 1 : 0); // the fragment shader reads this to decide from red (collision) and normal colours (no collision)
 
     cube.draw(); // finally issues the actual GPU draw call, binds the cube's VAO and calls glDrawElements, using the program and unfirom set up above
 }
