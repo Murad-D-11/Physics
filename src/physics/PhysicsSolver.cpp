@@ -1,7 +1,6 @@
 #include "physicssolver.h"
 #include "aabb.h"
 #include "collision.h"
-#include "collisioninfo.h"
 
 PhysicsSolver::PhysicsSolver() {} // nothing to initalize (yet): no GPU resources, no memory, etc.
 PhysicsSolver::~PhysicsSolver() {} // same ye olde reasoning for the destructor
