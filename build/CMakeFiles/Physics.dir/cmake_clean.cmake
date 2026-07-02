@@ -1,6 +1,10 @@
 file(REMOVE_RECURSE
   "CMakeFiles/Physics.dir/src/app/main.cpp.obj"
   "CMakeFiles/Physics.dir/src/app/main.cpp.obj.d"
+  "CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj"
+  "CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj.d"
+  "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj"
+  "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj.d"
   "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj"
   "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj.d"
   "CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj"

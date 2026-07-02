@@ -152,6 +152,54 @@ src/app/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/app/main.cpp.s
 .PHONY : src/app/main.cpp.s
 
+src/physics/AABB.obj: src/physics/AABB.cpp.obj
+.PHONY : src/physics/AABB.obj
+
+# target to build an object file
+src/physics/AABB.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj
+.PHONY : src/physics/AABB.cpp.obj
+
+src/physics/AABB.i: src/physics/AABB.cpp.i
+.PHONY : src/physics/AABB.i
+
+# target to preprocess a source file
+src/physics/AABB.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/AABB.cpp.i
+.PHONY : src/physics/AABB.cpp.i
+
+src/physics/AABB.s: src/physics/AABB.cpp.s
+.PHONY : src/physics/AABB.s
+
+# target to generate assembly for a file
+src/physics/AABB.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/AABB.cpp.s
+.PHONY : src/physics/AABB.cpp.s
+
+src/physics/Collision.obj: src/physics/Collision.cpp.obj
+.PHONY : src/physics/Collision.obj
+
+# target to build an object file
+src/physics/Collision.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj
+.PHONY : src/physics/Collision.cpp.obj
+
+src/physics/Collision.i: src/physics/Collision.cpp.i
+.PHONY : src/physics/Collision.i
+
+# target to preprocess a source file
+src/physics/Collision.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.i
+.PHONY : src/physics/Collision.cpp.i
+
+src/physics/Collision.s: src/physics/Collision.cpp.s
+.PHONY : src/physics/Collision.s
+
+# target to generate assembly for a file
+src/physics/Collision.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.s
+.PHONY : src/physics/Collision.cpp.s
+
 src/physics/PhysicsSolver.obj: src/physics/PhysicsSolver.cpp.obj
 .PHONY : src/physics/PhysicsSolver.obj
 
@@ -284,6 +332,12 @@ help:
 	@echo ... src/app/main.obj
 	@echo ... src/app/main.i
 	@echo ... src/app/main.s
+	@echo ... src/physics/AABB.obj
+	@echo ... src/physics/AABB.i
+	@echo ... src/physics/AABB.s
+	@echo ... src/physics/Collision.obj
+	@echo ... src/physics/Collision.i
+	@echo ... src/physics/Collision.s
 	@echo ... src/physics/PhysicsSolver.obj
 	@echo ... src/physics/PhysicsSolver.i
 	@echo ... src/physics/PhysicsSolver.s

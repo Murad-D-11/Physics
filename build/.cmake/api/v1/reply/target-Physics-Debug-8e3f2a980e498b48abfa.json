@@ -84,7 +84,9 @@
 				1,
 				2,
 				3,
-				5
+				5,
+				6,
+				7
 			]
 		},
 		{
@@ -156,7 +158,9 @@
 				2,
 				3,
 				4,
-				5
+				5,
+				6,
+				7
 			]
 		}
 	],
@@ -196,6 +200,18 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/physics/PhysicsSolver.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/physics/AABB.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/physics/Collision.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

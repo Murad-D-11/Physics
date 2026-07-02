@@ -258,16 +258,6 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/integer.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/func_integer.inl \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\rigidbody.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/matrix_transform.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_projection.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/../gtc/constants.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/../gtc/../ext/scalar_constants.hpp \
- C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/setup.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/../gtc/../ext/scalar_constants.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/../gtc/constants.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_projection.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_clip_space.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_clip_space.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_transform.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_transform.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/matrix_transform.inl
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\aabb.h \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\collision.h \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\CollisionInfo.h

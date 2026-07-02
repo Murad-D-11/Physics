@@ -1,19 +1,6 @@
-CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\Render.cpp \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\render.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glad/glad.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/KHR/khrplatform.h \
- C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stdint.h \
- C:/mingw64/x86_64-w64-mingw32/include/stdint.h \
- C:/mingw64/x86_64-w64-mingw32/include/crtdefs.h \
- C:/mingw64/x86_64-w64-mingw32/include/corecrt.h \
- C:/mingw64/x86_64-w64-mingw32/include/_mingw.h \
- C:/mingw64/x86_64-w64-mingw32/include/_mingw_mac.h \
- C:/mingw64/x86_64-w64-mingw32/include/_mingw_secapi.h \
- C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
- C:/mingw64/x86_64-w64-mingw32/include/sdks/_mingw_ddk.h \
- C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stddef.h \
- C:/mingw64/x86_64-w64-mingw32/include/stddef.h \
+CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj: \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\AABB.cpp \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\aabb.h \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/glm.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/_fixes.hpp \
  C:/mingw64/include/c++/13.2.0/cmath \
@@ -25,6 +12,13 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: \
  C:/mingw64/include/c++/13.2.0/bits/cpp_type_traits.h \
  C:/mingw64/include/c++/13.2.0/ext/type_traits.h \
  C:/mingw64/x86_64-w64-mingw32/include/math.h \
+ C:/mingw64/x86_64-w64-mingw32/include/crtdefs.h \
+ C:/mingw64/x86_64-w64-mingw32/include/corecrt.h \
+ C:/mingw64/x86_64-w64-mingw32/include/_mingw.h \
+ C:/mingw64/x86_64-w64-mingw32/include/_mingw_mac.h \
+ C:/mingw64/x86_64-w64-mingw32/include/_mingw_secapi.h \
+ C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
+ C:/mingw64/x86_64-w64-mingw32/include/sdks/_mingw_ddk.h \
  C:/mingw64/include/c++/13.2.0/bits/std_abs.h \
  C:/mingw64/x86_64-w64-mingw32/include/stdlib.h \
  C:/mingw64/x86_64-w64-mingw32/include/corecrt_wstdlib.h \
@@ -71,8 +65,12 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: \
  C:/mingw64/x86_64-w64-mingw32/include/assert.h \
  C:/mingw64/include/c++/13.2.0/cstdlib \
  C:/mingw64/include/c++/13.2.0/cstddef \
+ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stddef.h \
+ C:/mingw64/x86_64-w64-mingw32/include/stddef.h \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/../simd/platform.h \
  C:/mingw64/include/c++/13.2.0/cstdint \
+ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stdint.h \
+ C:/mingw64/x86_64-w64-mingw32/include/stdint.h \
  C:/mingw64/include/c++/13.2.0/climits \
  C:/mingw64/include/c++/13.2.0/cfloat \
  C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/float.h \
@@ -259,132 +257,4 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/type_half.inl \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/integer.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/func_integer.inl \
- C:/mingw64/include/c++/13.2.0/string \
- C:/mingw64/include/c++/13.2.0/bits/stringfwd.h \
- C:/mingw64/include/c++/13.2.0/bits/char_traits.h \
- C:/mingw64/include/c++/13.2.0/bits/postypes.h \
- C:/mingw64/include/c++/13.2.0/cwchar \
- C:/mingw64/x86_64-w64-mingw32/include/wchar.h \
- C:/mingw64/x86_64-w64-mingw32/include/corecrt_stdio_config.h \
- C:/mingw64/x86_64-w64-mingw32/include/_mingw_off_t.h \
- C:/mingw64/x86_64-w64-mingw32/include/_mingw_stat64.h \
- C:/mingw64/x86_64-w64-mingw32/include/swprintf.inl \
- C:/mingw64/x86_64-w64-mingw32/include/sec_api/wchar_s.h \
- C:/mingw64/include/c++/13.2.0/bits/localefwd.h \
- C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++locale.h \
- C:/mingw64/include/c++/13.2.0/clocale \
- C:/mingw64/x86_64-w64-mingw32/include/locale.h \
- C:/mingw64/x86_64-w64-mingw32/include/stdio.h \
- C:/mingw64/x86_64-w64-mingw32/include/sec_api/stdio_s.h \
- C:/mingw64/include/c++/13.2.0/iosfwd \
- C:/mingw64/include/c++/13.2.0/cctype \
- C:/mingw64/x86_64-w64-mingw32/include/ctype.h \
- C:/mingw64/include/c++/13.2.0/bits/ostream_insert.h \
- C:/mingw64/include/c++/13.2.0/bits/cxxabi_forced.h \
- C:/mingw64/include/c++/13.2.0/bits/basic_string.h \
- C:/mingw64/include/c++/13.2.0/string_view \
- C:/mingw64/include/c++/13.2.0/bits/string_view.tcc \
- C:/mingw64/include/c++/13.2.0/ext/string_conversions.h \
- C:/mingw64/include/c++/13.2.0/cstdio \
- C:/mingw64/include/c++/13.2.0/cerrno \
- C:/mingw64/include/c++/13.2.0/bits/charconv.h \
- C:/mingw64/include/c++/13.2.0/bits/basic_string.tcc \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\cube.h \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\camera.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/matrix_transform.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_projection.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/../gtc/constants.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/../gtc/../ext/scalar_constants.hpp \
- C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/setup.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/../gtc/../ext/scalar_constants.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/../gtc/constants.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_projection.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_clip_space.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_clip_space.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_transform.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../ext/matrix_transform.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/matrix_transform.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/type_ptr.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/quaternion.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_relational.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_relational.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/../detail/type_float.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/../detail/setup.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_common.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/../ext/quaternion_geometric.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/../ext/quaternion_geometric.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_common.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_float.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/../detail/type_quat.hpp \
- C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_relational.hpp \
- C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_relational.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/../detail/type_quat.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_float_precision.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_double.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_double_precision.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_trigonometric.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_trigonometric.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_transform.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/quaternion_transform.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/quaternion.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/epsilon.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../detail/setup.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/epsilon.inl \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/vec1.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_bool1.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_bool1_precision.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_float1.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_float1_precision.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_double1.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_double1_precision.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_int1.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_int1_sized.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_uint1.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../gtc/../ext/vector_uint1_sized.hpp \
- C:/mingw64/include/c++/13.2.0/cstring \
- C:/mingw64/x86_64-w64-mingw32/include/string.h \
- C:/mingw64/x86_64-w64-mingw32/include/sec_api/string_s.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/type_ptr.inl \
- C:/mingw64/include/c++/13.2.0/iostream \
- C:/mingw64/include/c++/13.2.0/ostream C:/mingw64/include/c++/13.2.0/ios \
- C:/mingw64/include/c++/13.2.0/exception \
- C:/mingw64/include/c++/13.2.0/bits/exception_ptr.h \
- C:/mingw64/include/c++/13.2.0/bits/cxxabi_init_exception.h \
- C:/mingw64/include/c++/13.2.0/bits/nested_exception.h \
- C:/mingw64/include/c++/13.2.0/bits/ios_base.h \
- C:/mingw64/include/c++/13.2.0/ext/atomicity.h \
- C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h \
- C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
- C:/mingw64/x86_64-w64-mingw32/include/pthread.h \
- C:/mingw64/x86_64-w64-mingw32/include/sys/types.h \
- C:/mingw64/x86_64-w64-mingw32/include/process.h \
- C:/mingw64/x86_64-w64-mingw32/include/corecrt_startup.h \
- C:/mingw64/x86_64-w64-mingw32/include/signal.h \
- C:/mingw64/x86_64-w64-mingw32/include/pthread_signal.h \
- C:/mingw64/x86_64-w64-mingw32/include/time.h \
- C:/mingw64/x86_64-w64-mingw32/include/sys/timeb.h \
- C:/mingw64/x86_64-w64-mingw32/include/sec_api/sys/timeb_s.h \
- C:/mingw64/x86_64-w64-mingw32/include/_timeval.h \
- C:/mingw64/x86_64-w64-mingw32/include/pthread_time.h \
- C:/mingw64/x86_64-w64-mingw32/include/pthread_compat.h \
- C:/mingw64/x86_64-w64-mingw32/include/pthread_unistd.h \
- C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/atomic_word.h \
- C:/mingw64/include/c++/13.2.0/bits/locale_classes.h \
- C:/mingw64/include/c++/13.2.0/bits/locale_classes.tcc \
- C:/mingw64/include/c++/13.2.0/system_error \
- C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/error_constants.h \
- C:/mingw64/include/c++/13.2.0/stdexcept \
- C:/mingw64/include/c++/13.2.0/streambuf \
- C:/mingw64/include/c++/13.2.0/bits/streambuf.tcc \
- C:/mingw64/include/c++/13.2.0/bits/basic_ios.h \
- C:/mingw64/include/c++/13.2.0/bits/locale_facets.h \
- C:/mingw64/include/c++/13.2.0/cwctype \
- C:/mingw64/x86_64-w64-mingw32/include/wctype.h \
- C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
- C:/mingw64/include/c++/13.2.0/bits/streambuf_iterator.h \
- C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
- C:/mingw64/include/c++/13.2.0/bits/locale_facets.tcc \
- C:/mingw64/include/c++/13.2.0/bits/basic_ios.tcc \
- C:/mingw64/include/c++/13.2.0/bits/ostream.tcc \
- C:/mingw64/include/c++/13.2.0/istream \
- C:/mingw64/include/c++/13.2.0/bits/istream.tcc
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\rigidbody.h
