@@ -149,14 +149,19 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: \
  C:/mingw64/include/c++/13.2.0/bits/stl_tempbuf.h \
  C:/mingw64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
  C:/mingw64/include/c++/13.2.0/pstl/execution_defs.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glad/glad.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/KHR/khrplatform.h \
- C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stdint.h \
- C:/mingw64/x86_64-w64-mingw32/include/stdint.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/GLFW/glfw3.h \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/glm.hpp \
- C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/_fixes.hpp \
- C:/mingw64/include/c++/13.2.0/cmath \
+ C:/mingw64/include/c++/13.2.0/iomanip \
+ C:/mingw64/include/c++/13.2.0/locale \
+ C:/mingw64/include/c++/13.2.0/bits/locale_facets_nonio.h \
+ C:/mingw64/include/c++/13.2.0/ctime \
+ C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/time_members.h \
+ C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/messages_members.h \
+ C:/mingw64/include/c++/13.2.0/bits/codecvt.h \
+ C:/mingw64/include/c++/13.2.0/bits/locale_facets_nonio.tcc \
+ C:/mingw64/include/c++/13.2.0/bits/locale_conv.h \
+ C:/mingw64/include/c++/13.2.0/bits/quoted_string.h \
+ C:/mingw64/include/c++/13.2.0/sstream \
+ C:/mingw64/include/c++/13.2.0/bits/sstream.tcc \
+ C:/mingw64/include/c++/13.2.0/random C:/mingw64/include/c++/13.2.0/cmath \
  C:/mingw64/x86_64-w64-mingw32/include/math.h \
  C:/mingw64/include/c++/13.2.0/bits/specfun.h \
  C:/mingw64/include/c++/13.2.0/limits \
@@ -172,11 +177,29 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: \
  C:/mingw64/include/c++/13.2.0/tr1/poly_hermite.tcc \
  C:/mingw64/include/c++/13.2.0/tr1/poly_laguerre.tcc \
  C:/mingw64/include/c++/13.2.0/tr1/riemann_zeta.tcc \
+ C:/mingw64/include/c++/13.2.0/cstdint \
+ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stdint.h \
+ C:/mingw64/x86_64-w64-mingw32/include/stdint.h \
+ C:/mingw64/include/c++/13.2.0/bits/random.h \
+ C:/mingw64/include/c++/13.2.0/vector \
+ C:/mingw64/include/c++/13.2.0/bits/stl_uninitialized.h \
+ C:/mingw64/include/c++/13.2.0/bits/stl_vector.h \
+ C:/mingw64/include/c++/13.2.0/bits/stl_bvector.h \
+ C:/mingw64/include/c++/13.2.0/bits/vector.tcc \
+ C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/opt_random.h \
+ C:/mingw64/include/c++/13.2.0/bits/random.tcc \
+ C:/mingw64/include/c++/13.2.0/numeric \
+ C:/mingw64/include/c++/13.2.0/bits/stl_numeric.h \
+ C:/mingw64/include/c++/13.2.0/pstl/glue_numeric_defs.h \
+ C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glad/glad.h \
+ C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/KHR/khrplatform.h \
+ C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/GLFW/glfw3.h \
+ C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/glm.hpp \
+ C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/_fixes.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/setup.hpp \
  C:/mingw64/include/c++/13.2.0/cassert \
  C:/mingw64/x86_64-w64-mingw32/include/assert.h \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/../simd/platform.h \
- C:/mingw64/include/c++/13.2.0/cstdint \
  C:/mingw64/include/c++/13.2.0/climits \
  C:/mingw64/include/c++/13.2.0/cfloat \
  C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/float.h \
@@ -217,11 +240,6 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: \
  C:/mingw64/include/c++/13.2.0/bits/enable_special_members.h \
  C:/mingw64/include/c++/13.2.0/bits/node_handle.h \
  C:/mingw64/include/c++/13.2.0/bits/erase_if.h \
- C:/mingw64/include/c++/13.2.0/vector \
- C:/mingw64/include/c++/13.2.0/bits/stl_uninitialized.h \
- C:/mingw64/include/c++/13.2.0/bits/stl_vector.h \
- C:/mingw64/include/c++/13.2.0/bits/stl_bvector.h \
- C:/mingw64/include/c++/13.2.0/bits/vector.tcc \
  C:/mingw64/include/c++/13.2.0/array \
  C:/mingw64/include/c++/13.2.0/compare \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/./ext/../detail/_vectorize.hpp \
@@ -394,4 +412,5 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: \
  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/cube.h \
  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/camera.h \
  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h \
- C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h
+ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h \
+ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/collisioninfo.h

@@ -258,6 +258,6 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/integer.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/func_integer.inl \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\rigidbody.h \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\collisioninfo.h \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\aabb.h \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\collision.h \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\CollisionInfo.h
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\collision.h

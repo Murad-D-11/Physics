@@ -1,5 +1,7 @@
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
+#include <random>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -93,75 +95,131 @@ int main() {
 
     PhysicsSolver physicsSolver;
 
-    // Spawn 10 bodies at varied positions (stress test)
+    /**
+     * Spawn 20 bodies: 4 columns x 5 rows (stress test)
+     * 
+     * Each column is a different material to demonstrate different restitution properties
+     * To stress-test with more bodies, increase BODY_ROWS
+     * 
+     * Col 0 - heavy steel: mass=5, resititution=0.10 (barely bounces)
+     * Col 1 - standard: mass=1, restitution=0.40 (normal)
+     * Col 2 - light rubber: mass=0.3, restitution=0.85 (very bouncy)
+     * Col 3 - heavy rubber: mass=4, restitution=0.60 (bouncy)
+     */
 
-    // Default-constructs 10 RigidBodies. All fields get their default values (position=(0,5,0), velocity=0, scale=1, mass=1, isColliding=false).
-    // We then overwrite each body's position individually since RigidBody has no constructor (it's plain data, no functions).
-    std::vector<RigidBody> bodies(10);
+    // const int BODY_COLS = 4;
+    // const int BODY_ROWS = 5;
 
-    // Left cluster: three cubes in a vertical column, will stack on the floor
-    bodies[0].position = glm::vec3(-3.0f, 10.0f, 0.0f);
-    bodies[1].position = glm::vec3(-3.0f,  7.0f, 0.0f);
-    bodies[2].position = glm::vec3(-3.0f,  4.0f, 0.0f);
+    // struct MaterialDef { float mass, inverseMass, restitution; };
+    // const MaterialDef materials[BODY_COLS] = {
+    //     { 5.0f, 1.0f / 5.0f, 0.10f },
+    //     { 1.0f, 1.0f, 0.40f },
+    //     { 0.3f, 1.0f / 0.3f, 0.85f },
+    //     { 4.0f, 1.0f / 4.0f, 0.60f },
+    // };
 
-    // Center cluster: two cubes placed only 0.6 units apart on X even though each cube is 1 unit wide they already overlap and will turn red
-    bodies[3].position = glm::vec3( 0.0f, 8.0f, 0.0f);
-    bodies[4].position = glm::vec3( 0.6f, 6.5f, 0.0f);
-    bodies[5].position = glm::vec3( 0.0f, 3.5f, 0.0f);
+    // std::vector<RigidBody> bodies(BODY_COLS * BODY_ROWS);
+    // for (int row = 0; row < BODY_ROWS; ++row) {
+    //     for (int col = 0; col < BODY_COLS; ++col) {
+    //         const int idx = row * BODY_COLS + col;
+    //         bodies[idx].position = glm::vec3((col - (BODY_COLS - 1) * 0.5f) * 2.5f, 1.5f + row * 2.8f, 0.0f); // centers columns around x=0, with 2.5 unit spacing + first body sits just above the floor --> each row is 2.8 units higher
+            
+    //         bodies[idx].mass = materials[col].mass;
+    //         bodies[idx].inverseMass = materials[col].inverseMass;
+    //         bodies[idx].restitution = materials[col].restitution;
+    //     }
+    // }
 
-    // Right cluster: three cubes at staggered depths (z offsets) so they spread visually and don't all collide at once
-    bodies[6].position = glm::vec3( 3.0f, 9.0f,  1.0f);
-    bodies[7].position = glm::vec3( 3.0f, 6.0f, -1.0f);
-    bodies[8].position = glm::vec3( 3.0f, 3.0f,  0.0f);
+    const int BODY_COUNT = 20;
 
-    // Lone outlier far to the left should stay its normal colors until it eventually hits the floor. Useful to verify non-colliding bodies are not incorrectly flagged red.
-    bodies[9].position = glm::vec3(-6.5f, 5.0f, 0.0f);
+    struct MaterialDef {
+        float mass;
+        float inverseMass;
+        float restitution;
+    };
 
-    // Fixed timestep setup
+    const MaterialDef materials[4] = {
+        {5.0f, 1.0f / 5.0f, 0.10f},
+        {1.0f, 1.0f,        0.40f},
+        {0.3f, 1.0f / 0.3f, 0.85f},
+        {4.0f, 1.0f / 4.0f, 0.60f},
+    };
 
-    // All physics steps are exactly this long, regardless of frame rate.
-    // This makes the simulation deterministic: same inputs always produce the same trajectory.
+    std::vector<RigidBody> bodies(BODY_COUNT);
+
+    // Random number generator
+    std::random_device rd;
+    std::mt19937 rng(rd());
+
+    // Spawn region
+    std::uniform_real_distribution<float> xDist(-4.0f, 4.0f);
+    std::uniform_real_distribution<float> zDist(-4.0f, 4.0f);
+    std::uniform_real_distribution<float> yOffset(0.0f, 0.5f);
+
+    for (int i = 0; i < BODY_COUNT; ++i)
+    {
+        const MaterialDef& mat = materials[i % 4];
+
+        bodies[i].position = glm::vec3(
+            xDist(rng),
+            8.0f + i * 2.2f + yOffset(rng),
+            zDist(rng)
+        );
+
+        bodies[i].mass = mat.mass;
+        bodies[i].inverseMass = mat.inverseMass;
+        bodies[i].restitution = mat.restitution;
+    }
+
+    // Fixed timestep 
     static constexpr float FIXED_DT = 1.0f / 60.0f;
-
     float accumulator = 0.0f;
-    // Pool of real time waiting to be consumed by physics steps.
-
     float lastTime = static_cast<float>(glfwGetTime());
-    // Timestamp of the previous frame, for computing frameTime.
-
+    float lastDebugTime = static_cast<float>(glfwGetTime());
+ 
     while (!glfwWindowShouldClose(window)) {
-        // Fixed timestep accumulator
-
+ 
+        // Frame time 
         const float currentTime = static_cast<float>(glfwGetTime());
-        float frameTime = currentTime - lastTime; // How many real seconds elapsed since the last frame.
-        frameTime = std::min(frameTime, 0.25f);
-        // Cap at 0.25s if the window is dragged, a breakpoint fires, or the machine stutters badly, the accumulator could overflow and the physics
-        // loop would run hundreds of steps in one frame, causing the simulation to effectively teleport. The cap limits "catch-up" to 15 steps max.
-        lastTime = currentTime;
-        accumulator += frameTime;
-
+        float frameTime         = currentTime - lastTime;
+        frameTime               = std::min(frameTime, 0.25f);
+        lastTime                = currentTime;
+        accumulator            += frameTime;
+ 
+        // Physics loop 
+        const float physicsStart = static_cast<float>(glfwGetTime());
+ 
         while (accumulator >= FIXED_DT) {
-            // Physics pipeline: three ordered passes
-
-            // Pass 1: apply gravity and integrate velocity into position.
-            // All bodies integrate before any collision handling, so no body gets an unfair advantage from being processed first.
             for (auto& body : bodies) {
                 physicsSolver.integrate(body, FIXED_DT);
+                // Pass 1: gravity + Euler integration, per body.
             }
 
-            // Pass 2: floor collision -> done as a separate pass so integration is complete for all bodies before any floor responses fire.
             for (auto& body : bodies) {
                 physicsSolver.floorCollision(body);
+                // Pass 2: floor response per body (uses per-body restitution).
             }
 
-            // Pass 3: test all N*(N-1)/2 unique body pairs, set isColliding flags, and correct positions. Order matters: this runs
-            // after integration and floor so AABBs are computed from fully-updated positions.
             physicsSolver.detectAndResolve(bodies);
-
+            // Pass 3: pairwise detection + penetration correction + impulse iterations (all inside detectAndResolve).
             accumulator -= FIXED_DT;
         }
+ 
+        const float physicsTimeMs = (static_cast<float>(glfwGetTime()) - physicsStart) * 1000.0f;
+ 
+        // Debug statistics (printed once per 1/10th of a second)
+        if (currentTime - lastDebugTime >= 0.1f) {
+            const int pairCount = static_cast<int>(bodies.size() * (bodies.size() - 1) / 2);
+            std::cout << "[Physics] "
+                      << "Bodies: "        << bodies.size()
+                      << "  |  Pairs: "    << pairCount
+                      << "  |  Contacts: " << physicsSolver.lastContactCount
+                      << "  |  Time: "     << std::fixed << std::setprecision(2)
+                      << physicsTimeMs     << " ms\n";
+            lastDebugTime = currentTime;
+        }
 
-        // Render all 10 bodies into the same frame
+        // Render all bodies into the same frame
 
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
@@ -175,7 +233,7 @@ int main() {
         /** 
          * Draws this body at its current physics position with its collisiondebug color. 
          * Each call sets its own model matrix uniform, so the same cube mesh gets "stamped" at each body's position in turn.
-         * The depth buffer accumulates all 10 cubes: a face of body[7] can correctly occlude a face of body[3] that's behind it.
+         * The depth buffer accumulates all cubes: a face of body[7] can correctly occlude a face of body[3] that's behind it.
          */
         for (const auto& body : bodies) {
             renderer.drawBody(cube, camera, aspectRatio, body.position, body.isColliding);
