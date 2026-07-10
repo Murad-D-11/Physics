@@ -15,9 +15,9 @@
 using namespace std;
 
 Camera* activeCamera = nullptr;
-bool isDragging      = false;
-double lastMouseX    = 0.0;
-double lastMouseY    = 0.0;
+bool isDragging = false;
+double lastMouseX = 0.0;
+double lastMouseY = 0.0;
 
 void framebufferSizeChanged(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
