@@ -61,8 +61,8 @@ int main() {
     #endif
 
     const GLFWvidmode* VideoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    const auto ScreenHeight      = VideoMode->height;
-    GLFWwindow* window           = glfwCreateWindow(ScreenHeight / 2, ScreenHeight / 2, "Hello Physics Engine!", NULL, NULL);
+    const auto ScreenHeight = VideoMode->height;
+    GLFWwindow* window = glfwCreateWindow(ScreenHeight / 2, ScreenHeight / 2, "Hello Physics Engine!", NULL, NULL);
 
     if (window == NULL) {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -133,11 +133,11 @@ int main() {
         // Fixed timestep accumulator
 
         const float currentTime = static_cast<float>(glfwGetTime());
-        float frameTime         = currentTime - lastTime; // How many real seconds elapsed since the last frame.
-        frameTime               = std::min(frameTime, 0.25f);
+        float frameTime = currentTime - lastTime; // How many real seconds elapsed since the last frame.
+        frameTime = std::min(frameTime, 0.25f);
         // Cap at 0.25s if the window is dragged, a breakpoint fires, or the machine stutters badly, the accumulator could overflow and the physics
         // loop would run hundreds of steps in one frame, causing the simulation to effectively teleport. The cap limits "catch-up" to 15 steps max.
-        lastTime    = currentTime;
+        lastTime = currentTime;
         accumulator += frameTime;
 
         while (accumulator >= FIXED_DT) {
@@ -165,9 +165,7 @@ int main() {
 
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
-        const float aspectRatio = height > 0
-            ? static_cast<float>(width) / static_cast<float>(height)
-            : 1.0f;
+        const float aspectRatio = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f;
 
         // Clears the color and depth buffers ONCE for this frame.
         // Must happen before any drawBody() calls; the clear resets the
