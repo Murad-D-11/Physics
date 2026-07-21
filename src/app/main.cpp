@@ -89,8 +89,8 @@ int main() {
     // One shared cube mesh. Every body uses this same VAO, just drawn at a
     // different world position via a different model matrix each draw call.
 
-    Camera camera(14.0f, -45.0f, 25.0f);
-    // Pulled back to 14 units and angled so all 10 falling cubes are visible.
+    Camera camera(26.0f, -90.0f, 0.0f);
+    // pulled back and facing down the x-axis so all four test lanes are visible side-by-side
     activeCamera = &camera;
 
     PhysicsSolver physicsSolver;
@@ -130,46 +130,128 @@ int main() {
     //     }
     // }
 
-    const int BODY_COUNT = 20;
+    // vvvv 20 random cube bodies falling from above onto the floor and onto each other vvvv
 
-    struct MaterialDef {
-        float mass;
-        float inverseMass;
-        float restitution;
-    };
+    // const int BODY_COUNT = 20;
 
-    const MaterialDef materials[4] = {
-        {5.0f, 1.0f / 5.0f, 0.10f},
-        {1.0f, 1.0f,        0.40f},
-        {0.3f, 1.0f / 0.3f, 0.85f},
-        {4.0f, 1.0f / 4.0f, 0.60f},
-    };
+    // struct MaterialDef {
+    //     float mass;
+    //     float inverseMass;
+    //     float restitution;
+    // };
 
-    std::vector<RigidBody> bodies(BODY_COUNT);
+    // const MaterialDef materials[4] = {
+    //     {5.0f, 1.0f / 5.0f, 0.10f},
+    //     {1.0f, 1.0f,        0.40f},
+    //     {0.3f, 1.0f / 0.3f, 0.85f},
+    //     {4.0f, 1.0f / 4.0f, 0.60f},
+    // };
 
-    // Random number generator
-    std::random_device rd;
-    std::mt19937 rng(rd());
+    // std::vector<RigidBody> bodies(BODY_COUNT);
 
-    // Spawn region
-    std::uniform_real_distribution<float> xDist(-4.0f, 4.0f);
-    std::uniform_real_distribution<float> zDist(-4.0f, 4.0f);
-    std::uniform_real_distribution<float> yOffset(0.0f, 0.5f);
+    // // Random number generator
+    // std::random_device rd;
+    // std::mt19937 rng(rd());
 
-    for (int i = 0; i < BODY_COUNT; ++i)
-    {
-        const MaterialDef& mat = materials[i % 4];
+    // // Spawn region
+    // std::uniform_real_distribution<float> xDist(-4.0f, 4.0f);
+    // std::uniform_real_distribution<float> zDist(-4.0f, 4.0f);
+    // std::uniform_real_distribution<float> yOffset(0.0f, 0.5f);
 
-        bodies[i].position = glm::vec3(
-            xDist(rng),
-            8.0f + i * 2.2f + yOffset(rng),
-            zDist(rng)
-        );
+    // for (int i = 0; i < BODY_COUNT; ++i) {
+    //     const MaterialDef& mat = materials[i % 4];
 
-        bodies[i].mass = mat.mass;
-        bodies[i].inverseMass = mat.inverseMass;
-        bodies[i].restitution = mat.restitution;
+    //     bodies[i].position = glm::vec3(
+    //         xDist(rng),
+    //         8.0f + i * 2.2f + yOffset(rng),
+    //         zDist(rng)
+    //     );
+
+    //     bodies[i].mass = mat.mass;
+    //     bodies[i].inverseMass = mat.inverseMass;
+    //     bodies[i].restitution = mat.restitution;
+    // }
+
+    /**
+     * Four isolated test scenarios
+     * Each lane demonstrates the impulse solver resolving a collision along a different direction
+     */
+
+    std::vector<RigidBody> bodies;
+
+    // // Test A: head-on collision (x-axis only)
+    // // Two equal-mass cubes on a direct collision course
+    // {
+    //     RigidBody left;
+    //     left.position = glm::vec3(-8.5f, 4.0f, 6.0f);
+    //     left.velocity = glm::vec3(3.0f, 0.0f, 0.0f);
+    //     left.mass = 1.0f;
+    //     left.inverseMass = 1.0f;
+    //     left.restitution = 0.5f;
+    //     bodies.push_back(left);
+
+    //     RigidBody right;
+    //     right.position = glm::vec3(-3.5f, 4.0f, 6.0f);
+    //     right.mass = 1.0f;
+    //     right.inverseMass = 1.0f;
+    //     right.restitution = 0.5f;
+    //     bodies.push_back(right);
+    // }
+
+    // // Test B: vertical collision (body-body, not the floor)
+    // // One cube rests near the floor; a second drops straight down onto it; y-axis body-body impulse demonstration, separate from floorCollision() path
+    // {
+    //     RigidBody bottom;
+    //     bottom.position = glm::vec3(6.0f, 0.0f, 6.0f);
+    //     bottom.velocity = glm::vec3(0.0f);
+    //     bottom.mass = 1.0f;
+    //     bottom.inverseMass = 1.0f;
+    //     bottom.restitution = 0.3f;
+    //     bodies.push_back(bottom);
+
+    //     RigidBody dropper;
+    //     dropper.position = glm::vec3(6.0f, 6.0f, 6.0f);
+    //     dropper.velocity = glm::vec3(0.0f, -4.0f, 0.0f);
+    //     dropper.mass = 1.0f;
+    //     dropper.inverseMass = 1.0f;
+    //     dropper.restitution = 0.3f;
+    //     bodies.push_back(dropper);
+    // }
+
+    // Test C: diagonal collision (x, y, z components at once)
+    // Exercises the non-vertical-only impulse formula most thoroughly
+        {
+        RigidBody diagA;
+        diagA.position = glm::vec3(-8.0f, 5.0f, -7.5f);
+        diagA.velocity = glm::vec3(2.0f, -1.0f, 2.0f);
+        diagA.mass = 1.0f; diagA.inverseMass = 1.0f; diagA.restitution = 0.5f;
+        bodies.push_back(diagA);
+ 
+        RigidBody diagB;
+        diagB.position = glm::vec3(-4.0f, 4.0f, -4.0f);
+        diagB.velocity = glm::vec3(-2.0f, 0.5f, -2.0f);
+        diagB.mass = 1.0f; diagB.inverseMass = 1.0f; diagB.restitution = 0.5f;
+        bodies.push_back(diagB);
     }
+ 
+    // Test D: Different masses (momentum transfer)
+    // A heavy cube (mass 8) barrels into a light, stationary cube (mass 0.5).
+    // Because the impulse each body receives is scaled by its own inverseMass, the light cube should fly off much faster than the heavy cube slows down
+    // It demonstrates mass-dependent response, still resolved along the same collision-normal formula as every other test here.
+    {
+        RigidBody heavy;
+        heavy.position = glm::vec3(3.0f, 0.0f, -6.0f);
+        heavy.velocity = glm::vec3(3.0f, 0.0f, 0.0f);
+        heavy.mass = 8.0f; heavy.inverseMass = 1.0f / 8.0f; heavy.restitution = 0.4f;
+        bodies.push_back(heavy);
+ 
+        RigidBody light;
+        light.position = glm::vec3(6.0f + 1.0f, 0.0f, 9.0f);
+        light.velocity = glm::vec3(0.0f);
+        light.mass = 0.5f; light.inverseMass = 1.0f / 0.5f; light.restitution = 0.4f;
+        bodies.push_back(light);
+    }
+
 
     // Fixed timestep 
     static constexpr float FIXED_DT = 1.0f / 60.0f;
