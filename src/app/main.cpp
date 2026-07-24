@@ -49,6 +49,262 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
     activeCamera->processScroll(static_cast<float>(yOffset));
 }
 
+// ===========================================================================
+// Test scenarios
+// ===========================================================================
+// Each function returns a self-contained scene, and every scenario is
+// centered near the world origin (x and z close to 0) so the same static
+// camera frames whichever one is active -- no per-test camera tuning needed.
+//
+// To demonstrate one at a time: in main(), uncomment exactly ONE of the
+// `bodies = spawnXxx();` lines below and leave the rest commented out.
+// Uncommenting more than one at once will not compile (both would try to
+// initialize the same 'bodies' variable) -- that's intentional, it forces
+// exactly one active scenario at a time.
+//
+// Friction tests, specifically:
+//   spawnTestSlidingCube()        - Test 1: cube-floor friction alone
+//   spawnTestCubeOnCube()         - Test 2: cube-cube friction, both affected
+//   spawnTestCubeStack()          - Test 3a: stack stability at rest
+//   spawnTestPushStack()          - Test 3b: stack stability when pushed
+//   spawnTestFrictionComparison() - Test 4: low vs. high friction side by side
+// ===========================================================================
+ 
+std::vector<RigidBody> spawnTestHeadOn() {
+    // Test A: head-on collision, pure X-axis, equal masses.
+    // Two cubes on a direct collision course, dropped from the same height
+    // so gravity is identical for both -- isolates the horizontal response.
+    std::vector<RigidBody> bodies;
+ 
+    RigidBody left;
+    left.position  = glm::vec3(-2.5f, 4.0f, 0.0f);
+    left.velocity  = glm::vec3(3.0f, 0.0f, 0.0f);
+    left.mass = 1.0f; left.inverseMass = 1.0f; left.restitution = 0.5f;
+    bodies.push_back(left);
+ 
+    RigidBody right;
+    right.position = glm::vec3(2.5f, 4.0f, 0.0f);
+    right.velocity = glm::vec3(-3.0f, 0.0f, 0.0f);
+    right.mass = 1.0f; right.inverseMass = 1.0f; right.restitution = 0.5f;
+    bodies.push_back(right);
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestVertical() {
+    // Test B: vertical collision, body-body (not the floor).
+    // One cube rests near the floor; a second drops straight down onto it.
+    std::vector<RigidBody> bodies;
+ 
+    RigidBody bottom;
+    bottom.position = glm::vec3(0.0f, 0.5f, 0.0f);
+    bottom.velocity = glm::vec3(0.0f);
+    bottom.mass = 1.0f; bottom.inverseMass = 1.0f; bottom.restitution = 0.3f;
+    bodies.push_back(bottom);
+ 
+    RigidBody dropper;
+    dropper.position = glm::vec3(0.0f, 6.0f, 0.0f);
+    dropper.velocity = glm::vec3(0.0f, -4.0f, 0.0f);
+    dropper.mass = 1.0f; dropper.inverseMass = 1.0f; dropper.restitution = 0.3f;
+    bodies.push_back(dropper);
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestDiagonal() {
+    // Test C: diagonal collision, X, Y, and Z velocity components at once.
+    // Note the AABB collision normal is still always axis-aligned (SAT picks whichever single axis has the smallest overlap), that's correct
+    // behaviour for box-vs-box collision, but the approach here is diagonal, which exercises the general impulse formula well.
+    std::vector<RigidBody> bodies;
+ 
+    RigidBody diagA;
+    diagA.position = glm::vec3(-2.0f, 5.0f, -2.0f);
+    diagA.velocity = glm::vec3(2.0f, -1.0f, 2.0f);
+    diagA.mass = 1.0f; diagA.inverseMass = 1.0f; diagA.restitution = 0.5f;
+    bodies.push_back(diagA);
+ 
+    RigidBody diagB;
+    diagB.position = glm::vec3(2.0f, 4.0f, 2.0f);
+    diagB.velocity = glm::vec3(-2.0f, 0.5f, -2.0f);
+    diagB.mass = 1.0f; diagB.inverseMass = 1.0f; diagB.restitution = 0.5f;
+    bodies.push_back(diagB);
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestDifferentMasses() {
+    // Test D: momentum transfer between different masses.
+    // A heavy cube (mass 8) barrels into a light, stationary cube (mass 0.5).
+    // Because the impulse each body receives is scaled by its own
+    // inverseMass, the light cube should fly off much faster than the
+    // heavy cube slows down.
+    std::vector<RigidBody> bodies;
+ 
+    RigidBody heavy;
+    heavy.position = glm::vec3(-2.5f, 6.0f, 0.0f);
+    heavy.velocity = glm::vec3(3.0f, 0.0f, 0.0f);
+    heavy.mass = 8.0f; heavy.inverseMass = 1.0f / 8.0f; heavy.restitution = 0.4f;
+    bodies.push_back(heavy);
+ 
+    RigidBody light;
+    light.position = glm::vec3(1.5f, 6.0f, 0.0f);
+    light.velocity = glm::vec3(0.0f);
+    light.mass = 0.5f; light.inverseMass = 1.0f / 0.5f; light.restitution = 0.4f;
+    bodies.push_back(light);
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestSlidingCube() {
+    // Test 1: Sliding cube.
+    // A single cube is given horizontal velocity right at floor height (no fall, no bounce -- isolates friction's deceleration effect). 
+    // Expected: the cube slides, gradually slows, and eventually comes to a full stop.
+    std::vector<RigidBody> bodies;
+ 
+    RigidBody cube;
+    cube.position = glm::vec3(-3.5f, 0.5f, 0.0f);
+    cube.velocity = glm::vec3(4.0f, 0.0f, 0.0f);
+    cube.mass = 1.0f;
+    cube.inverseMass = 1.0f;
+    cube.restitution = 0.1f;
+    // Low restitution so it doesn't hop on the small initial floor contact.
+    cube.friction = 0.4f;
+    // Moderate friction --> should visibly decelerate over roughly a second.
+    bodies.push_back(cube);
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestCubeOnCube() {
+    // Test 2: Cube on cube.
+    // Cube A slides along the floor and hits stationary Cube B. Expected:
+    // friction affects their relative motion both while sliding beforehand (floor friction slows A down before impact) and at the contact
+    // between A and B (the two share momentum, then both decelerate from floor friction afterward). Both cubes are visibly affected.
+    std::vector<RigidBody> bodies;
+ 
+    RigidBody a;
+    a.position = glm::vec3(-3.5f, 0.5f, 0.0f);
+    a.velocity = glm::vec3(10.0f, 0.0f, 0.0f);
+    a.mass = 1.0f;
+    a.inverseMass = 1.0f;
+    a.restitution = 0.2f;
+    a.friction = 0.4f;
+    bodies.push_back(a);
+ 
+    RigidBody b;
+    b.position = glm::vec3(0.0f, 0.5f, 0.0f);
+    b.velocity = glm::vec3(0.0f);
+    b.mass = 1.0f;
+    b.inverseMass = 1.0f;
+    b.restitution = 0.2f;
+    b.friction = 0.4f;
+    bodies.push_back(b);
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestCubeStack() {
+    // Test 3 (part 1): Cube stack stability.
+    // Four cubes stacked exactly on top of each other and dropped a short distance onto the floor. Expected: the stack remains standing with
+    // minimal jitter once SOLVER_ITERATIONS propagates the contact forces all the way down to the floor.
+    std::vector<RigidBody> bodies;
+ 
+    for (int i = 0; i < 4; ++i) {
+        RigidBody cube;
+        cube.position = glm::vec3(0.0f, 0.55f + static_cast<float>(i) * 1.02f, 0.0f);
+        // Tiny 0.02 gap between cubes so they start just barely separated (avoids beginning the simulation already overlapping, which would
+        // otherwise trigger one large correction on the very first step).
+        cube.velocity = glm::vec3(0.0f);
+        cube.mass = 1.0f;
+        cube.inverseMass = 1.0f;
+        cube.restitution = 0.1f;
+        // Low restitution --> stacked cubes shouldn't bounce off each other.
+        cube.friction = 0.6f;
+        // Higher friction helps the stack resist toppling sideways.
+        bodies.push_back(cube);
+    }
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestPushStack() {
+    // Test 3 (part 2): Push the bottom cube of a stack.
+    // Same 4-cube stack as spawnTestCubeStack(), but the bottom cube starts with horizontal velocity, as if it had just been shoved. Expected:
+    // friction between the cubes should make the stack resist sliding coherently -- the bottom cube shouldn't shoot out from under the
+    // others; the whole stack should drag together and settle, rather than the top cubes staying behind while the bottom one escapes.
+    std::vector<RigidBody> bodies;
+ 
+    for (int i = 0; i < 4; ++i) {
+        RigidBody cube;
+        cube.position = glm::vec3(0.0f, 0.55f + static_cast<float>(i) * 1.02f, 0.0f);
+        cube.velocity = (i == 0) ? glm::vec3(3.0f, 0.0f, 0.0f) : glm::vec3(0.0f);
+        // Only the bottom cube (i == 0) gets the initial push.
+        cube.mass = 1.0f;
+        cube.inverseMass = 1.0f;
+        cube.restitution = 0.1f;
+        cube.friction = 0.6f;
+        bodies.push_back(cube);
+    }
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestFallingCubes() {
+    // Test 3: Falling cubes.
+    // Several cubes spawn above the floor in a loose scattered cluster (not perfectly aligned, so they don't all land in a single neat column) and
+    // fall together. Expected: they collide with each other and the floor, then settle into a stable pile without exploding apart.
+    std::vector<RigidBody> bodies;
+ 
+    const glm::vec3 offsets[] = {
+        { -1.0f, 3.0f,  0.6f}, { 0.8f, 3.6f, -0.5f}, {-0.4f, 4.4f,  0.9f},
+        {  1.1f, 5.0f,  0.2f}, {-1.2f, 5.6f, -0.8f}, { 0.3f, 6.4f,  0.5f},
+    };
+ 
+    for (const auto& offset : offsets) {
+        RigidBody cube;
+        cube.position = offset;
+        cube.velocity = glm::vec3(0.0f);
+        cube.mass = 1.0f;
+        cube.inverseMass = 1.0f;
+        cube.restitution = 0.2f;
+        cube.friction = 0.5f;
+        bodies.push_back(cube);
+    }
+ 
+    return bodies;
+}
+ 
+std::vector<RigidBody> spawnTestFrictionComparison() {
+    // Test 4: Different friction values, side by side.
+    // Two identical cubes given the same starting horizontal velocity, but one has very low friction and the other very high friction. They're
+    // offset in Z so they don't collide with each other; both are visible in the same shot. 
+    // Expected: the low-friction cube slides much farther than the high-friction cube, which stops almost immediately.
+    std::vector<RigidBody> bodies;
+ 
+    RigidBody lowFriction;
+    lowFriction.position = glm::vec3(-3.0f, 0.5f, -1.5f);
+    lowFriction.velocity = glm::vec3(4.0f, 0.0f, 0.0f);
+    lowFriction.mass = 1.0f;
+    lowFriction.inverseMass = 1.0f;
+    lowFriction.restitution = 0.1f;
+    lowFriction.friction = 0.03f;
+    // Nearly frictionless --> should slide most of the way across the scene.
+    bodies.push_back(lowFriction);
+ 
+    RigidBody highFriction;
+    highFriction.position = glm::vec3(-3.0f, 0.5f, 1.5f);
+    highFriction.velocity = glm::vec3(4.0f, 0.0f, 0.0f);
+    highFriction.mass = 1.0f;
+    highFriction.inverseMass = 1.0f;
+    highFriction.restitution = 0.1f;
+    highFriction.friction = 1.2f;
+    // High friction --> should stop within a fraction of a second.
+    bodies.push_back(highFriction);
+ 
+    return bodies;
+}
+
+
 int main() {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -89,170 +345,28 @@ int main() {
     // One shared cube mesh. Every body uses this same VAO, just drawn at a
     // different world position via a different model matrix each draw call.
 
-    Camera camera(26.0f, -90.0f, 0.0f);
-    // pulled back and facing down the x-axis so all four test lanes are visible side-by-side
+    Camera camera(11.0f, -55.0f, 18.0f);
+    // A single static framing that works for every test above: all
+    // scenarios keep their action within roughly x∈[-4,4], z∈[-2,2],
+    // y∈[0,9], centered near the origin the camera already orbits.
     activeCamera = &camera;
-
+ 
     PhysicsSolver physicsSolver;
-
-    /**
-     * Spawn 20 bodies: 4 columns x 5 rows (stress test)
-     * 
-     * Each column is a different material to demonstrate different restitution properties
-     * To stress-test with more bodies, increase BODY_ROWS
-     * 
-     * Col 0 - heavy steel: mass=5, resititution=0.10 (barely bounces)
-     * Col 1 - standard: mass=1, restitution=0.40 (normal)
-     * Col 2 - light rubber: mass=0.3, restitution=0.85 (very bouncy)
-     * Col 3 - heavy rubber: mass=4, restitution=0.60 (bouncy)
-     */
-
-    // const int BODY_COLS = 4;
-    // const int BODY_ROWS = 5;
-
-    // struct MaterialDef { float mass, inverseMass, restitution; };
-    // const MaterialDef materials[BODY_COLS] = {
-    //     { 5.0f, 1.0f / 5.0f, 0.10f },
-    //     { 1.0f, 1.0f, 0.40f },
-    //     { 0.3f, 1.0f / 0.3f, 0.85f },
-    //     { 4.0f, 1.0f / 4.0f, 0.60f },
-    // };
-
-    // std::vector<RigidBody> bodies(BODY_COLS * BODY_ROWS);
-    // for (int row = 0; row < BODY_ROWS; ++row) {
-    //     for (int col = 0; col < BODY_COLS; ++col) {
-    //         const int idx = row * BODY_COLS + col;
-    //         bodies[idx].position = glm::vec3((col - (BODY_COLS - 1) * 0.5f) * 2.5f, 1.5f + row * 2.8f, 0.0f); // centers columns around x=0, with 2.5 unit spacing + first body sits just above the floor --> each row is 2.8 units higher
-            
-    //         bodies[idx].mass = materials[col].mass;
-    //         bodies[idx].inverseMass = materials[col].inverseMass;
-    //         bodies[idx].restitution = materials[col].restitution;
-    //     }
-    // }
-
-    // vvvv 20 random cube bodies falling from above onto the floor and onto each other vvvv
-
-    // const int BODY_COUNT = 20;
-
-    // struct MaterialDef {
-    //     float mass;
-    //     float inverseMass;
-    //     float restitution;
-    // };
-
-    // const MaterialDef materials[4] = {
-    //     {5.0f, 1.0f / 5.0f, 0.10f},
-    //     {1.0f, 1.0f,        0.40f},
-    //     {0.3f, 1.0f / 0.3f, 0.85f},
-    //     {4.0f, 1.0f / 4.0f, 0.60f},
-    // };
-
-    // std::vector<RigidBody> bodies(BODY_COUNT);
-
-    // // Random number generator
-    // std::random_device rd;
-    // std::mt19937 rng(rd());
-
-    // // Spawn region
-    // std::uniform_real_distribution<float> xDist(-4.0f, 4.0f);
-    // std::uniform_real_distribution<float> zDist(-4.0f, 4.0f);
-    // std::uniform_real_distribution<float> yOffset(0.0f, 0.5f);
-
-    // for (int i = 0; i < BODY_COUNT; ++i) {
-    //     const MaterialDef& mat = materials[i % 4];
-
-    //     bodies[i].position = glm::vec3(
-    //         xDist(rng),
-    //         8.0f + i * 2.2f + yOffset(rng),
-    //         zDist(rng)
-    //     );
-
-    //     bodies[i].mass = mat.mass;
-    //     bodies[i].inverseMass = mat.inverseMass;
-    //     bodies[i].restitution = mat.restitution;
-    // }
-
-    /**
-     * Four isolated test scenarios
-     * Each lane demonstrates the impulse solver resolving a collision along a different direction
-     */
-
-    std::vector<RigidBody> bodies;
-
-    // // Test A: head-on collision (x-axis only)
-    // // Two equal-mass cubes on a direct collision course
-    // {
-    //     RigidBody left;
-    //     left.position = glm::vec3(-8.5f, 4.0f, 6.0f);
-    //     left.velocity = glm::vec3(3.0f, 0.0f, 0.0f);
-    //     left.mass = 1.0f;
-    //     left.inverseMass = 1.0f;
-    //     left.restitution = 0.5f;
-    //     bodies.push_back(left);
-
-    //     RigidBody right;
-    //     right.position = glm::vec3(-3.5f, 4.0f, 6.0f);
-    //     right.mass = 1.0f;
-    //     right.inverseMass = 1.0f;
-    //     right.restitution = 0.5f;
-    //     bodies.push_back(right);
-    // }
-
-    // // Test B: vertical collision (body-body, not the floor)
-    // // One cube rests near the floor; a second drops straight down onto it; y-axis body-body impulse demonstration, separate from floorCollision() path
-    // {
-    //     RigidBody bottom;
-    //     bottom.position = glm::vec3(6.0f, 0.0f, 6.0f);
-    //     bottom.velocity = glm::vec3(0.0f);
-    //     bottom.mass = 1.0f;
-    //     bottom.inverseMass = 1.0f;
-    //     bottom.restitution = 0.3f;
-    //     bodies.push_back(bottom);
-
-    //     RigidBody dropper;
-    //     dropper.position = glm::vec3(6.0f, 6.0f, 6.0f);
-    //     dropper.velocity = glm::vec3(0.0f, -4.0f, 0.0f);
-    //     dropper.mass = 1.0f;
-    //     dropper.inverseMass = 1.0f;
-    //     dropper.restitution = 0.3f;
-    //     bodies.push_back(dropper);
-    // }
-
-    // Test C: diagonal collision (x, y, z components at once)
-    // Exercises the non-vertical-only impulse formula most thoroughly
-        {
-        RigidBody diagA;
-        diagA.position = glm::vec3(-8.0f, 5.0f, -7.5f);
-        diagA.velocity = glm::vec3(2.0f, -1.0f, 2.0f);
-        diagA.mass = 1.0f; diagA.inverseMass = 1.0f; diagA.restitution = 0.5f;
-        bodies.push_back(diagA);
  
-        RigidBody diagB;
-        diagB.position = glm::vec3(-4.0f, 4.0f, -4.0f);
-        diagB.velocity = glm::vec3(-2.0f, 0.5f, -2.0f);
-        diagB.mass = 1.0f; diagB.inverseMass = 1.0f; diagB.restitution = 0.5f;
-        bodies.push_back(diagB);
-    }
+    // -----------------------------------------------------------------
+    // Uncomment exactly ONE line below to choose which test scenario runs.
+    // -----------------------------------------------------------------
+    // std::vector<RigidBody> bodies = spawnTestHeadOn();
+    // std::vector<RigidBody> bodies = spawnTestVertical();
+    // std::vector<RigidBody> bodies = spawnTestDiagonal();
+    // std::vector<RigidBody> bodies = spawnTestDifferentMasses();
+    // std::vector<RigidBody> bodies = spawnTestSlidingCube();
+    // std::vector<RigidBody> bodies = spawnTestCubeOnCube();
+    // std::vector<RigidBody> bodies = spawnTestCubeStack();
+    // std::vector<RigidBody> bodies = spawnTestPushStack();
+    // std::vector<RigidBody> bodies = spawnTestFallingCubes();
+    std::vector<RigidBody> bodies = spawnTestFrictionComparison();
  
-    // Test D: Different masses (momentum transfer)
-    // A heavy cube (mass 8) barrels into a light, stationary cube (mass 0.5).
-    // Because the impulse each body receives is scaled by its own inverseMass, the light cube should fly off much faster than the heavy cube slows down
-    // It demonstrates mass-dependent response, still resolved along the same collision-normal formula as every other test here.
-    {
-        RigidBody heavy;
-        heavy.position = glm::vec3(3.0f, 0.0f, -6.0f);
-        heavy.velocity = glm::vec3(3.0f, 0.0f, 0.0f);
-        heavy.mass = 8.0f; heavy.inverseMass = 1.0f / 8.0f; heavy.restitution = 0.4f;
-        bodies.push_back(heavy);
- 
-        RigidBody light;
-        light.position = glm::vec3(6.0f + 1.0f, 0.0f, 9.0f);
-        light.velocity = glm::vec3(0.0f);
-        light.mass = 0.5f; light.inverseMass = 1.0f / 0.5f; light.restitution = 0.4f;
-        bodies.push_back(light);
-    }
-
-
     // Fixed timestep 
     static constexpr float FIXED_DT = 1.0f / 60.0f;
     float accumulator = 0.0f;
@@ -263,10 +377,10 @@ int main() {
  
         // Frame time 
         const float currentTime = static_cast<float>(glfwGetTime());
-        float frameTime         = currentTime - lastTime;
-        frameTime               = std::min(frameTime, 0.25f);
-        lastTime                = currentTime;
-        accumulator            += frameTime;
+        float frameTime = currentTime - lastTime;
+        frameTime = std::min(frameTime, 0.25f);
+        lastTime = currentTime;
+        accumulator += frameTime;
  
         // Physics loop 
         const float physicsStart = static_cast<float>(glfwGetTime());
@@ -292,12 +406,7 @@ int main() {
         // Debug statistics (printed once per 1/10th of a second)
         if (currentTime - lastDebugTime >= 0.1f) {
             const int pairCount = static_cast<int>(bodies.size() * (bodies.size() - 1) / 2);
-            std::cout << "[Physics] "
-                      << "Bodies: "        << bodies.size()
-                      << "  |  Pairs: "    << pairCount
-                      << "  |  Contacts: " << physicsSolver.lastContactCount
-                      << "  |  Time: "     << std::fixed << std::setprecision(2)
-                      << physicsTimeMs     << " ms\n";
+            std::cout << "[Physics] " << "Bodies: "        << bodies.size() << "  |  Pairs: "    << pairCount << "  |  Contacts: " << physicsSolver.lastContactCount << "  |  Time: "     << std::fixed << std::setprecision(2) << physicsTimeMs     << " ms\n";
             lastDebugTime = currentTime;
         }
 
