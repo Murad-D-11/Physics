@@ -1,6 +1,8 @@
 #include "physicssolver.h"
 #include "aabb.h"
 #include "collision.h"
+#include <algorithm>
+#include <cmath>
 
 PhysicsSolver::PhysicsSolver() {} // nothing to initalize (yet): no GPU resources, no memory, etc.
 PhysicsSolver::~PhysicsSolver() {} // same ye olde reasoning for the destructor
@@ -24,23 +26,67 @@ void PhysicsSolver::integrate(RigidBody& body, float deltaTime) {
 }
 
 void PhysicsSolver::floorCollision(RigidBody& body) {
+    if (body.inverseMass == 0.0f) {
+        return; // static body --> infinite mass, nothing can push it. Dividing by inverseMass below would be a division by zero
+    }
+
     const float halfHeight = body.scale.y * 0.5f;
     const float bottom = body.position.y - halfHeight; // the object's lowest point's y-coordinate
 
-    // if object touches the ground
-    if (bottom < FLOOR_Y) {
-        body.position.y = FLOOR_Y + halfHeight;
+    if (bottom >= FLOOR_Y) {
+        return; // no penetration, nothing to resolve
+    }
 
-        if (body.velocity.y < 0.0f) {
-            float e = body.restitution; // use this body's own restitution value rather than its global constant, as each material bounces differently
+    // build collision info for this contact
+    CollisionInfo info;
+    info.collided = true;
+    info.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+    info.penetration = FLOOR_Y - bottom; // how far below the floor plane the body's bottom edge currently sits
 
-            // kill the bounce to prevent endless micro-vibrations
-            if (std::abs(body.velocity.y) < REST_THRESHOLD) {
-                e = 0.0f;
-            }
+    // position correction
+    const float excess = info.penetration - PENETRATION_SLOP;
+    
+    if (excess > 0.0f) {
+        body.position.y += excess * PENETRATION_CORRECTION;
+    }
 
-            body.velocity.y *= -e; // allows the object to "bounce" off the ground until it stops (velocity.y = 0)
-        }
+    // normal impulse
+    /**
+     * General Two-body impulse formula, specialized for an immovable floor:
+     * invMassSum = body.inverseMass + floorInverseMass(=0) = body.inverseMass
+     * j = -(1+e) * vRelN / invMassSum
+     * body.velocity += j * normal * body.inverseMass
+     */
+    const float vRelN = glm::dot(body.velocity, info.normal); // body's velocity component along the floor's normal (+y) --> negative means the body is moving down into the floor
+
+    if (vRelN >= 0.0f) {
+        return; // body isn't moving into the floor --> no normal impulse, and therefore no normal force for friction to act against either
+    }
+
+    float e = body.restitution;
+
+    if (std::abs(vRelN) < REST_THRESHOLD) {
+        e = 0.0f; // resting contact --> suppress the bounce so the body doesn't micro-vibrate forever
+    }
+
+    const float j = -(1.0f + e) * vRelN / body.inverseMass; // scalar impulse magnitude; dividing by inverseMass here is what makes this the floor-specialized case
+    body.velocity += (j * info.normal) * body.inverseMass; // applying and unapplying body.inverseMass looks redundant, but keeping it explicit means j is available below in proper impulse units for the friction Coulomb-law cap
+
+    const glm::vec3 tangentialVel = body.velocity - glm::dot(body.velocity, info.normal) * info.normal; // removes the vertical component from velocity (normal), leaving whatever horizontal sliding motion remains
+    const float tangentialSpeed = glm::length(tangentialVel);
+
+    if (tangentialSpeed > 0.0001f) {
+        const glm::vec3 tangent = tangentialVel / tangentialSpeed; // unit vector pointing in direction the body is sliding
+        const float vRelT = tangentialSpeed; // relative to a stationary floor, the tangential speed IS the relative tangential velocity along the tangent by construction
+        const float jt = -vRelT / body.inverseMass; // tangential impulse magnitude needed to fully stop the sliding (mirrors the normal impulse derivation above)
+        const float maxFriction = body.friction * j; // Coulomb's law: the maximum friction impulse is proportional to the normal impulse --> more downward force = more normal force = more friction generated
+        const float frictionMag = std::min(std::abs(jt), maxFriction);
+        // ^^^^ Static case (|jt| <= maxFriction): enough friction to stop sliding completely this step
+        // Kinetic case (|jt| > maxFriction): friction can only remove part of the sliding speed, so the body keeps sliding but slower
+
+        const glm::vec3 frictionImpulse = -frictionMag * tangent; // opposes the sliding direction
+
+        body.velocity += frictionImpulse * body.inverseMass;
     }
 }
 
@@ -51,7 +97,7 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         body.isColliding = false;
     }
 
-    // detect all colliding pairs
+    // detect all colliding pairs, appending them to a list
     std::vector<Contact> contacts;
     for (std::size_t i = 0; i < bodies.size(); i++) {
         for (std::size_t j = i + 1; j < bodies.size(); j++) {
@@ -102,8 +148,8 @@ void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo
     if (invMassSum == 0.0f) return; // both bodies are static, no impulse can move them
 
     // relative velocity
-    const glm::vec3 relVel = b.velocity - a.velocity; // component of relative velocity along the collision normal (negative is approaching, positive is separating)
-    const float vRelN = glm::dot(relVel, info.normal);
+    const glm::vec3 relVel = b.velocity - a.velocity; 
+    const float vRelN = glm::dot(relVel, info.normal); // component of relative velocity along the collision normal (negative is approaching, positive is separating)
 
     // ignore separating contacts (already moving apart, applying impulse would incorrectly pull them back together)
     if (vRelN > 0.0f) return;
@@ -111,13 +157,38 @@ void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo
     // impulse magnitude
     float e = std::min(a.restitution, b.restitution); // less bouncy of the two determines the combined bounce
 
+    if (std::abs(vRelN) < REST_THRESHOLD) e = 0.0f; // resting contact --> zero out restitution to stop the micro-bounces that cause jitter in stable stacks
     if (std::abs(vRelN) < REST_THRESHOLD) e = 0.0f; // zero out restitution to stop the micro-vibrations
 
-    // impulse scalar
+    // impulse scalar: derived from the restitution condition dot(vB' - vA', n) = -e * vRelN
     const float j = -(1.0f + e) * vRelN / invMassSum;
 
     // apply impulse
     const glm::vec3 impulse = j * info.normal;
-    a.velocity -= impulse * a.inverseMass;
-    b.velocity += impulse * b.inverseMass;
+
+    a.velocity -= impulse * a.inverseMass; // pushed opposite to the normal (away from B)
+    b.velocity += impulse * b.inverseMass; // pushed along the normal (away from A)
+
+    // friction impulse along the tangent
+    const glm::vec3 relVelAfterNormal = b.velocity - a.velocity;
+    const glm::vec3 tangentialVel = relVelAfterNormal - glm::dot(relVelAfterNormal, info.normal) * info.normal; // removes the normal component from the relative velocity, leaving only the sliding component
+    const float tangentialSpeed = glm::length(tangentialVel);
+
+    if (tangentialSpeed > 0.0001f) {
+        const glm::vec3  tangent = tangentialVel / tangentialSpeed; // unit vector along the direction B is sliding relative to A
+        
+        const float vRelT = glm::dot(relVelAfterNormal, tangent); // by construction this equals tangentialSpeed (positive value), since tangent was built to point exactly along that motion
+        const float jt = -vRelT / invMassSum; // tangential impulse mag needed to fully cancel the sliding, using the same invMassSum formula as the normal impulse
+        const float mu = std::sqrt(a.friction * b.friction); // combined friction coefficient: geometric mean of both friction values rather than a plain average (this means if either surface is very low-friction, the combined contact stays low friction too)
+        const float maxFriction = mu * j; // Coulomb's law: friction impulse is capped by coefficient * normal impulse. j is always >= here since vrelN <= 0
+        const float frictionMag = std::min(std::abs(jt), maxFriction);
+        // ^^^^ Static case: enough friction to stop sliding outright this step
+        // Kinetic case: friction only removes part of the sliding speed
+
+        const glm::vec3 frictionImpulse = -frictionMag * tangent; // always opposes the sliding direction
+
+        a.velocity -= frictionImpulse * a.inverseMass;
+        b.velocity += frictionImpulse * b.inverseMass;
+        // same push/pull pattern as the normal impulse, just along the tangent axis instead
+    }
 }

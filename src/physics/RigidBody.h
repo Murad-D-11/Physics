@@ -10,8 +10,8 @@ class RigidBody {
 
         float mass = 1.0f;
         float inverseMass = 1.0f; // reciprocal of mass, which is 1 / mass
-
         float restitution = 0.4f; // how much kinetic energy is preserved on impact
+        float friction = 0.5f; // a single Coulomb friction coefficient --> when the two bodies touch, the solver averages their two friction values to get the combined friction for that contact
 
-        bool isColliding = false;
+        bool isColliding = false; // this is when the two bodies overlap
 };
