@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "../renderer/render.h"
 #include "../renderer/camera.h"
@@ -72,8 +73,7 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
  
 std::vector<RigidBody> spawnTestHeadOn() {
     // Test A: head-on collision, pure X-axis, equal masses.
-    // Two cubes on a direct collision course, dropped from the same height
-    // so gravity is identical for both -- isolates the horizontal response.
+    // Two cubes on a direct collision course, dropped from the same height so gravity is identical for both --> isolates the horizontal response.
     std::vector<RigidBody> bodies;
  
     RigidBody left;
@@ -229,15 +229,15 @@ std::vector<RigidBody> spawnTestCubeStack() {
  
 std::vector<RigidBody> spawnTestPushStack() {
     // Test 3 (part 2): Push the bottom cube of a stack.
-    // Same 4-cube stack as spawnTestCubeStack(), but the bottom cube starts with horizontal velocity, as if it had just been shoved. Expected:
-    // friction between the cubes should make the stack resist sliding coherently -- the bottom cube shouldn't shoot out from under the
+    // Same 4-cube stack as spawnTestCubeStack(), but the bottom cube starts with horizontal velocity, as if it had just been shoved. 
+    // Expected: friction between the cubes should make the stack resist sliding coherently --> the bottom cube shouldn't shoot out from under the
     // others; the whole stack should drag together and settle, rather than the top cubes staying behind while the bottom one escapes.
     std::vector<RigidBody> bodies;
  
     for (int i = 0; i < 4; ++i) {
         RigidBody cube;
         cube.position = glm::vec3(0.0f, 0.55f + static_cast<float>(i) * 1.02f, 0.0f);
-        cube.velocity = (i == 0) ? glm::vec3(3.0f, 0.0f, 0.0f) : glm::vec3(0.0f);
+        cube.velocity = (i == 0) ? glm::vec3(5.0f, 0.0f, 0.0f) : glm::vec3(0.0f);
         // Only the bottom cube (i == 0) gets the initial push.
         cube.mass = 1.0f;
         cube.inverseMass = 1.0f;
@@ -256,8 +256,8 @@ std::vector<RigidBody> spawnTestFallingCubes() {
     std::vector<RigidBody> bodies;
  
     const glm::vec3 offsets[] = {
-        { -1.0f, 3.0f,  0.6f}, { 0.8f, 3.6f, -0.5f}, {-0.4f, 4.4f,  0.9f},
-        {  1.1f, 5.0f,  0.2f}, {-1.2f, 5.6f, -0.8f}, { 0.3f, 6.4f,  0.5f},
+        {-1.0f, 3.0f,  0.6f}, {0.8f, 3.6f, -0.5f}, {-0.4f, 4.4f,  0.9f},
+        {1.1f, 5.0f,  0.2f}, {-1.2f, 5.6f, -0.8f}, {0.3f, 6.4f,  0.5f},
     };
  
     for (const auto& offset : offsets) {
@@ -287,7 +287,7 @@ std::vector<RigidBody> spawnTestFrictionComparison() {
     lowFriction.mass = 1.0f;
     lowFriction.inverseMass = 1.0f;
     lowFriction.restitution = 0.1f;
-    lowFriction.friction = 0.03f;
+    lowFriction.friction = 0.11f;
     // Nearly frictionless --> should slide most of the way across the scene.
     bodies.push_back(lowFriction);
  
@@ -297,7 +297,7 @@ std::vector<RigidBody> spawnTestFrictionComparison() {
     highFriction.mass = 1.0f;
     highFriction.inverseMass = 1.0f;
     highFriction.restitution = 0.1f;
-    highFriction.friction = 1.2f;
+    highFriction.friction = 0.4f;
     // High friction --> should stop within a fraction of a second.
     bodies.push_back(highFriction);
  
@@ -363,9 +363,9 @@ int main() {
     // std::vector<RigidBody> bodies = spawnTestSlidingCube();
     // std::vector<RigidBody> bodies = spawnTestCubeOnCube();
     // std::vector<RigidBody> bodies = spawnTestCubeStack();
-    // std::vector<RigidBody> bodies = spawnTestPushStack();
+    std::vector<RigidBody> bodies = spawnTestPushStack();
     // std::vector<RigidBody> bodies = spawnTestFallingCubes();
-    std::vector<RigidBody> bodies = spawnTestFrictionComparison();
+    // std::vector<RigidBody> bodies = spawnTestFrictionComparison();
  
     // Fixed timestep 
     static constexpr float FIXED_DT = 1.0f / 60.0f;
@@ -418,7 +418,7 @@ int main() {
 
         // Clears the color and depth buffers ONCE for this frame.
         // Must happen before any drawBody() calls; the clear resets the
-        // depth buffer so all 10 cubes depth-test against each other correctly.
+        // depth buffer so all cubes depth-test against each other correctly.
         renderer.beginFrame();
 
         /** 
@@ -427,7 +427,7 @@ int main() {
          * The depth buffer accumulates all cubes: a face of body[7] can correctly occlude a face of body[3] that's behind it.
          */
         for (const auto& body : bodies) {
-            renderer.drawBody(cube, camera, aspectRatio, body.position, body.isColliding);
+            renderer.drawBody(cube, camera, aspectRatio, body.position, body.orientation, body.isColliding);
         }
 
         glfwSwapBuffers(window);

@@ -18,11 +18,12 @@ class Render {
         Render& operator=(const Render&) = delete;
 
         void beginFrame() const;
-        void drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, bool isColliding) const;
+        void drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, bool isColliding) const;
 
     private:
         GLuint compileShader(const std::string& source, GLenum shaderType) const; // compiles one shader (vertex or fragment), returns its OpenGL handle
         GLuint linkProgram(GLuint vertexShader, GLuint fragmentShader) const; // links a compiled vertex shader and fragment shader together into one usable shader program, and returns the program's handle
+        
         GLuint shaderProgram = 0;
 
         static const char* vertexShaderSource; // static string holding the vertex shader's GLSL source code, the actual text lives in render.cpp

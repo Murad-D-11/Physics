@@ -51,6 +51,15 @@ CollisionInfo Collision::test(const AABB& a, const AABB& b) {
         info.normal = glm::vec3(0.0f, 0.0f, fromAtoB.z > 0.0f ? 1.0f : -1.0f); // unit vector of the normal
     }
 
+    // vvvvv Contact point for torque/angular impulse vvvvv //
+
+    const glm::vec3 overlapMin(std::max(a.min.x, b.min.x), std::max(a.min.y, b.min.y), std::max(a.min.z, b.min.z));
+    const glm::vec3 overlapMax(std::min(a.max.x, b.max.x), std::min(a.max.y, b.max.y), std::min(a.max.z, b.max.z));
+
+    info.point = (overlapMin + overlapMax) * 0.5f;
+
+    // ^^^^^ Contact point for torque/angular impulse ^^^^^ //
+
     return info;
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 class RigidBody {
     public:
@@ -14,4 +15,11 @@ class RigidBody {
         float friction = 0.5f; // a single Coulomb friction coefficient --> when the two bodies touch, the solver averages their two friction values to get the combined friction for that contact
 
         bool isColliding = false; // this is when the two bodies overlap
+
+        glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // the body's current orientation, as a unit quaterion (quaterion is used instead of Euler angles because it integrates smoothly without gimbal lock)
+        glm::vec3 angularVelocity = glm::vec3(0.0f); // how fast body is spinning around each world axis, in radians per second, updated by torque
+        glm::vec3 torque = glm::vec3(0.0f); // rotational analogue of acceleration
+
+        float inertia = 1.0f;
+        float inverseInertia = 1.0f;
 };

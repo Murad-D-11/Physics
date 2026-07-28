@@ -40,14 +40,19 @@ const char* Render::vertexShaderSource = R"(
 //   in vec3 vColor;      -> interpolated color value from the vertex shader
 //                           (blended between the 3 triangle corners' colors)
 //   out vec4 FragColor;  -> required output: this pixel's final RGBA color
-//   FragColor = vec4(vColor, 1.0);  -> uses the interpolated color, fully opaque
+//   FragColor = vec4(vColor, 1.0);  -> uses the interpolated colour, fully opaque
 const char* Render::fragmentShaderSource = R"(
     #version 330 core
     in vec3 vColor;
     out vec4 FragColor;
+    uniform bool colliding;
 
     void main() {
-        FragColor = vec4(vColor, 1.0);
+        if (colliding) {
+            FragColor = vec4(1.0, 0.15, 0.15, 1.0); // red
+        } else {
+            FragColor = vec4(vColor, 1.0); // normal per-face colours
+        }
     }
 )";
 
@@ -116,12 +121,14 @@ void Render::beginFrame() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Render::drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, bool isColliding) const {
+void Render::drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, bool isColliding) const {
     glUseProgram(shaderProgram); // makes this shader program the active one
 
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), position); // 4x4 identity matrix, no additional repositioning (now includes translation for RigidBody test)
-    glm::mat4 view = camera.getViewMatrix(); // current view matrix (depends on its yaw, pitch, distance, since last frame from input)
-    glm::mat4 projection = camera.getProjectionMatrix(aspectRatio); // projection matrix from the camera object
+    const glm::mat4 translation = glm::translate(glm::mat4(1.0f), position); // moves the cube to its current world-space position
+    const glm::mat4 rotation = glm::mat4_cast(orientation); // converts the body's orientation quaternion into a 4x4 rotation matrix
+    const glm::mat4 model = translation * rotation; // order matters: rotation must happen before translation is applied, so the cube spins around its own center rather than orbiting around the world origin
+    const glm::mat4 view = camera.getViewMatrix(); // current view matrix (depends on its yaw, pitch, distance, since last frame from input)
+    const glm::mat4 projection = camera.getProjectionMatrix(aspectRatio); // projection matrix from the camera object
 
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model)); // finds where the "model" uniform is located to upload 'model' matrix to that location
     // Additional info: '1' = uploading 1 matrix, GL_FALSE = don't transpose it (GLM already stores matrices in the alyout OpenGL expects), 
