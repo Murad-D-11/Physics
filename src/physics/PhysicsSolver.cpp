@@ -116,6 +116,19 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
         body.angularVelocity += body.inverseInertia * glm::cross(r, frictionImpulse); // this is what lets a cube sliuding on a rough floor start to tip or roll, rather than only ever sliding
     }
 
+    // rolling resistance: direct torque opposing spin
+    const float spinSpeed = glm::length(body.angularVelocity);
+    
+    if (spinSpeed > 0.0001f) {
+        const glm::vec3 spinDir = body.angularVelocity / spinSpeed; // unit vector along the current spin axis + always opposes whatever direction the body is currently spinning
+        
+        const float requiredImpulse = spinSpeed / body.inverseInertia; // angular impulse that would be needed to stop the spin outright
+        const float maxRollingImpulse = body.rollingResistance * j;
+        const float rollingImpulseMag = std::min(requiredImpulse, maxRollingImpulse); // never removes more spin than currently exists, prevents rolling resistance from overshooting and reversing the spin direction
+        
+        body.angularVelocity -= body.inverseInertia * rollingImpulseMag * spinDir;
+    }
+
     // ^^^^^ Torque + friction impulse ^^^^^ //
 }
 
@@ -170,6 +183,79 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
             applyImpulse(bodies[c.indexA], bodies[c.indexB], c.info);
         }
     }
+
+    // angular rest threshold
+    for (auto& body : bodies) {
+        settleFlatIfResting(body);
+    }
+}
+
+void PhysicsSolver::settleFlatIfResting(RigidBody& body) {
+    if (glm::length(body.angularVelocity) >= ANGULAR_REST_THRESHOLD) {
+        return; // still spinning fast enough that rolling resistance
+    }
+
+    body.angularVelocity = glm::vec3(0.0f);
+    if (body.inverseMass == 0.0f) return; // static bodies have no floor contact response to correct
+
+    // find the body's lowest world-space corner
+    const glm::vec3 halfSize = body.scale * 0.5f;
+    const glm::vec3 localCorners[8] {
+        {-halfSize.x, -halfSize.y, -halfSize.z}, {halfSize.x, -halfSize.y, -halfSize.z},
+        {halfSize.x, -halfSize.y, halfSize.z}, {-halfSize.x, -halfSize.y, halfSize.z},
+        {-halfSize.x, halfSize.y, -halfSize.z}, {halfSize.x, halfSize.y, -halfSize.z},
+        {halfSize.x, halfSize.y, halfSize.z}, {-halfSize.x, halfSize.y, halfSize.z}
+    };
+
+    float lowestY = body.position.y + (body.orientation * localCorners[0]).y;
+    for (int i = 1; i < 8; i++) {
+        const float y = body.position.y + (body.orientation * localCorners[i]).y;
+        lowestY = std::min(lowestY, y);
+    }
+
+    if (lowestY - FLOOR_Y > SETTLE_DISTANCE) {
+        return; // not actually near the floor, e.g. the body is airborne
+    }
+
+    // find which local face is currently most face-down
+    const glm::vec3 localAxes[6] = {
+        {1, 0, 0}, {-1, 0, 0},
+        {0, 1, 0}, {0, -1, 0},
+        {0, 0, 1}, {0, 0, -1}
+    };
+
+    glm::vec3 downAxisLocal = localAxes[0];
+    glm::vec3 downAxisWorld = body.orientation * localAxes[0];
+    
+    float mostDownwardY = downAxisWorld.y;
+
+    for (int i = 1; i < 6; i++) {
+        const glm::vec3 worldAxis = body.orientation * localAxes[i];
+        if (worldAxis.y < mostDownwardY) {
+            mostDownwardY = worldAxis.y;
+            downAxisLocal = localAxes[i];
+            downAxisWorld = worldAxis;
+        }
+    }
+
+    // ^^^ Note: downAxisWorld is now whichever of the cube's 6 face normals currently points most toward negative y (i.e. closest to resting flat)
+
+    // rotate so that face points exactly straight down
+    const glm::vec3 desiredDown = glm::vec3(0.0f, -1.0f, 0.0f);
+    
+    const float dot = glm::clamp(glm::dot(downAxisWorld, desiredDown), -1.0f, 1.0f);
+    const float angle = std::acos(dot); // for the best of the 6 candidate faces, this is always well under 90 degrees, so the rotation axis below is always well defined
+
+    if (angle > 0.0001f) {
+        const glm::vec3 axis = glm::normalize(glm::cross(downAxisWorld, desiredDown)); // rotation axis is both perpendicular to current and desired down directions
+        const glm::quat correction = glm::angleAxis(angle, axis);
+
+        body.orientation = glm::normalize(correction * body.orientation); // applies the correction over the existing orientation
+    }
+
+    // drop the now-flat face exactly onto the floor
+    const float restingHalfHeight = glm::dot(glm::abs(downAxisLocal), halfSize);
+    body.position.y = FLOOR_Y + restingHalfHeight;
 }
 
 void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo& info) {
@@ -243,4 +329,21 @@ void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo
         b.angularVelocity += b.inverseInertia * glm::cross(rB, frictionImpulse);
         // friction applied off-center; spins the body just like the normal impulse does
     }
+
+    auto applyRollingResistance = [j](RigidBody& body) {
+        if (body.inverseInertia == 0.0f) return; // static body
+
+        const float spinSpeed = glm::length(body.angularVelocity);
+        if (spinSpeed <= 0.0001f) return;
+
+        const glm::vec3 spinDir = body.angularVelocity / spinSpeed;
+        const float requiredImpulse = spinSpeed / body.inverseInertia;
+        const float maxRollingImpulse = body.rollingResistance * j;
+        const float rollingImpulseMag = std::min(requiredImpulse, maxRollingImpulse);
+
+        body.angularVelocity -= body.inverseInertia * rollingImpulseMag * spinDir;
+    };
+
+    applyRollingResistance(a);
+    applyRollingResistance(b);
 }
