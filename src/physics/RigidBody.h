@@ -22,5 +22,9 @@ class RigidBody {
 
         float inertia = 1.0f;
         float inverseInertia = 1.0f;
-        float rollingResistance = 0.02f; // kinetic energy loss from a non-spherical object rolling
+        float rollingResistance = 0.02f; 
+        /**
+         * AUDIT: DISABLED ^^^
+         * kinetic energy loss from a non-spherical object rolling 
+        */ 
 };

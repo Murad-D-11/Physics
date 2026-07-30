@@ -523,7 +523,7 @@ int main() {
     // -----------------------------------------------------------------
     // std::vector<RigidBody> bodies = spawnTestHeadOn();
     // std::vector<RigidBody> bodies = spawnTestVertical();
-    std::vector<RigidBody> bodies = spawnTestDiagonal();
+    // std::vector<RigidBody> bodies = spawnTestDiagonal();
     // std::vector<RigidBody> bodies = spawnTestDifferentMasses();
     // std::vector<RigidBody> bodies = spawnTestSlidingCube();
     // std::vector<RigidBody> bodies = spawnTestCubeOnCube();
@@ -533,7 +533,7 @@ int main() {
     // std::vector<RigidBody> bodies = spawnTestFrictionComparison();
     // std::vector<RigidBody> bodies = spawnTestDropFlat();
     // std::vector<RigidBody> bodies = spawnTestDropTilted();
-    // std::vector<RigidBody> bodies = spawnTestHitCenter();
+    std::vector<RigidBody> bodies = spawnTestHitCenter();
     // std::vector<RigidBody> bodies = spawnTestHitCorner();
 
  

@@ -56,7 +56,27 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
     info.collided = true;
     info.normal = glm::vec3(0.0f, 1.0f, 0.0f);
     info.penetration = FLOOR_Y - bottom; // how far below the floor plane the body's bottom edge currently sits
-    info.point = glm::vec3(body.position.x, FLOOR_Y, body.position.z);
+
+    const glm::vec3 halfSize = body.scale * 0.5f;
+    const glm::vec3 localCorners[8] {
+        {-halfSize.x, -halfSize.y, -halfSize.z}, {halfSize.x, -halfSize.y, -halfSize.z},
+        {halfSize.x, -halfSize.y, halfSize.z}, {-halfSize.x, -halfSize.y, halfSize.z},
+        {-halfSize.x, halfSize.y, -halfSize.z}, {halfSize.x, halfSize.y, -halfSize.z},
+        {halfSize.x, halfSize.y, halfSize.z}, {-halfSize.x, halfSize.y, halfSize.z}
+    };
+
+    glm::vec3 lowestCornerWorld = body.position + body.orientation * localCorners[0];
+
+    for (int i = i; i < 8; ++i) {
+        const glm::vec3 worldCorner = body.position + body.orientation * localCorners[i];
+        
+        if (worldCorner.y < lowestCornerWorld.y) {
+            lowestCornerWorld = worldCorner;
+        }
+    }
+
+    info.point = lowestCornerWorld; // the actual lowest point on the rotated body, no longer assumed to be directly beneath the center of mass
+    // ^^^ everything downstream (the lever arm r = info.point - body.position, used for both normal and friction impulses' torque) now reflects the body's real geometry and orientation
 
     // position correction
     const float excess = info.penetration - PENETRATION_SLOP;
@@ -116,18 +136,27 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
         body.angularVelocity += body.inverseInertia * glm::cross(r, frictionImpulse); // this is what lets a cube sliuding on a rough floor start to tip or roll, rather than only ever sliding
     }
 
-    // rolling resistance: direct torque opposing spin
-    const float spinSpeed = glm::length(body.angularVelocity);
+    /**
+     * AUDIT: DISABLED
+     * This was a direct torque opposing the body's spin, proportional to the
+     * normal impulse and body.rollingResistance, but NOT derived from any actual
+     * geometry. It's hand-authored decelerating force whose only justification was
+     * that real objects do eventually stop, not a derivation from r, the contact
+     * point, or an actual deformation model. This makes it artificial angular
+     * damping; it hides whatever the real underlying issue is.
+     */
+    // // rolling resistance: direct torque opposing spin
+    // const float spinSpeed = glm::length(body.angularVelocity);
     
-    if (spinSpeed > 0.0001f) {
-        const glm::vec3 spinDir = body.angularVelocity / spinSpeed; // unit vector along the current spin axis + always opposes whatever direction the body is currently spinning
+    // if (spinSpeed > 0.0001f) {
+    //     const glm::vec3 spinDir = body.angularVelocity / spinSpeed; // unit vector along the current spin axis + always opposes whatever direction the body is currently spinning
         
-        const float requiredImpulse = spinSpeed / body.inverseInertia; // angular impulse that would be needed to stop the spin outright
-        const float maxRollingImpulse = body.rollingResistance * j;
-        const float rollingImpulseMag = std::min(requiredImpulse, maxRollingImpulse); // never removes more spin than currently exists, prevents rolling resistance from overshooting and reversing the spin direction
+    //     const float requiredImpulse = spinSpeed / body.inverseInertia; // angular impulse that would be needed to stop the spin outright
+    //     const float maxRollingImpulse = body.rollingResistance * j;
+    //     const float rollingImpulseMag = std::min(requiredImpulse, maxRollingImpulse); // never removes more spin than currently exists, prevents rolling resistance from overshooting and reversing the spin direction
         
-        body.angularVelocity -= body.inverseInertia * rollingImpulseMag * spinDir;
-    }
+    //     body.angularVelocity -= body.inverseInertia * rollingImpulseMag * spinDir;
+    // }
 
     // ^^^^^ Torque + friction impulse ^^^^^ //
 }
@@ -184,15 +213,42 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         }
     }
 
-    // angular rest threshold
-    for (auto& body : bodies) {
-        settleFlatIfResting(body);
-    }
+    /**
+     * AUDIT: DISABLED (angular rest threshold) 
+     * See settleFlatIfResting() comment for more info
+     */
+    // for (auto& body : bodies) {
+    //     settleFlatIfResting(body);
+    // }
 }
 
+/**
+ * AUDIT: DISABLED
+ * 
+ * This function did two distinct things, BOTH of which are artificial stabilization rather than 
+ * derived, realistic physics, and both are in scope for this audit:
+ * 
+ *  1. Hard-zeroed angularVelocity once it dropped below
+ *     the ANGULAR_REST_THRESHOLD for ANY body, including
+ *     the ones that were still airborne. This is artificial
+ *     angular damping: it removes spin outright rather than
+ *     letting any real contact impulse (friction, restitution) do so.
+ *  2. Forced quaternion snapping: once settled, it directly rotated
+ *     the body's orientation to align whichever face was most
+ *     downward exactly flat against the floor, and adjusted position.y
+ *     to match, which bypassed the collision response entirely. A cube
+ *     balanced on a corner or edge would be teleported to a face-down
+ *     orientation with no torque, impulse, or contact point involved.
+ * 
+ * Both are disabled so the engine's real (currently incomplete) contact and torque model determines
+ * what a resting/tipping cube actually does, instead of this function forcing a correct-looking
+ * outcome regardless of whether the underlying physics produced it.
+ */
 void PhysicsSolver::settleFlatIfResting(RigidBody& body) {
+    return; // <--- ignores the code below
+
     if (glm::length(body.angularVelocity) >= ANGULAR_REST_THRESHOLD) {
-        return; // still spinning fast enough that rolling resistance
+        return; // still spinning fast enough that rolling resistance can't stop it
     }
 
     body.angularVelocity = glm::vec3(0.0f);
@@ -330,20 +386,30 @@ void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo
         // friction applied off-center; spins the body just like the normal impulse does
     }
 
-    auto applyRollingResistance = [j](RigidBody& body) {
-        if (body.inverseInertia == 0.0f) return; // static body
+    /**
+     * AUDIT: DISABLED
+     * Same issue as the floorCollision copy of this mechanism:
+     * a hand-authored decelerating torque not derived from
+     * actual geometry, applied per-body regardless of whether
+     * the real underlying contact model justifies it. Disabled
+     * as two cubes that reach pure rolling against each other
+     * keep rolling, rather than being artificially slowed by a
+     * force with no geometric basis
+     */
+    // auto applyRollingResistance = [j](RigidBody& body) {
+    //     if (body.inverseInertia == 0.0f) return; // static body
 
-        const float spinSpeed = glm::length(body.angularVelocity);
-        if (spinSpeed <= 0.0001f) return;
+    //     const float spinSpeed = glm::length(body.angularVelocity);
+    //     if (spinSpeed <= 0.0001f) return;
 
-        const glm::vec3 spinDir = body.angularVelocity / spinSpeed;
-        const float requiredImpulse = spinSpeed / body.inverseInertia;
-        const float maxRollingImpulse = body.rollingResistance * j;
-        const float rollingImpulseMag = std::min(requiredImpulse, maxRollingImpulse);
+    //     const glm::vec3 spinDir = body.angularVelocity / spinSpeed;
+    //     const float requiredImpulse = spinSpeed / body.inverseInertia;
+    //     const float maxRollingImpulse = body.rollingResistance * j;
+    //     const float rollingImpulseMag = std::min(requiredImpulse, maxRollingImpulse);
 
-        body.angularVelocity -= body.inverseInertia * rollingImpulseMag * spinDir;
-    };
+    //     body.angularVelocity -= body.inverseInertia * rollingImpulseMag * spinDir;
+    // };
 
-    applyRollingResistance(a);
-    applyRollingResistance(b);
+    // applyRollingResistance(a);
+    // applyRollingResistance(b);
 }
