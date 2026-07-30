@@ -63,15 +63,13 @@ void setCubeMassProperties(RigidBody& body, float mass) {
     const float side = body.scale.x;
     // Assumes a uniform (cube-shaped) scale, which is all this engine spawns.
  
-    body.mass            = mass;
-    body.inverseMass     = (mass > 0.0f) ? (1.0f / mass) : 0.0f;
+    body.mass = mass;
+    body.inverseMass = (mass > 0.0f) ? (1.0f / mass) : 0.0f;
  
-    body.inertia         = mass * (side * side) / 6.0f;
     // Standard solid-cube moment of inertia about any axis through its
     // center: I = (1/6) * m * s^2. Heavier or larger cubes resist spinning
     // more, exactly mirroring how heavier objects resist accelerating.
- 
-    body.inverseInertia  = (body.inertia > 0.0f) ? (1.0f / body.inertia) : 0.0f;
+    body.updateInertiaTensor();
 }
  
 // ===========================================================================

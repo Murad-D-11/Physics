@@ -26,8 +26,18 @@ void PhysicsSolver::integrate(RigidBody& body, float deltaTime) {
 
     // vvvvv Angular integration vvvvv //
 
-    if (body.inverseInertia != 0.0f) {
-        body.angularVelocity += (body.torque * body.inverseInertia) * deltaTime; // angular equivalent of velocity += acceleration * dt;
+    if (body.inverseInertiaLocal != glm::mat3(0.0f)) {
+        /**
+         * World-space inverse inertia tensor, recomputed every step from the body's
+         * current orientation. This has to be redone every step because a box resists
+         * spinning differently about each of its own axes, so its resistance to
+         * spinning about world axes changes continuously as it tumbles, even though
+         * inverseInertiaLocal itself never changes.
+         */
+        const glm::mat3 R = glm::mat3_cast(body.orientation);
+        body.inverseInertiaWorld = R * body.inverseInertiaLocal * glm::transpose(R);
+
+        body.angularVelocity += (body.torque * body.inverseInertiaWorld) * deltaTime; // angular equivalent of velocity += acceleration * dt;
         const glm::quat angularVelocityQuat(0.0f, body.angularVelocity.x, body.angularVelocity.y, body.angularVelocity.z);
         
         body.orientation += (angularVelocityQuat * body.orientation) * (0.5f * deltaTime); // quaternion multiplication composes teh spin with the current orientation; scaling it by 0.5 * dt integrates it forward one step (the 0.5 comes directly from the quaternion derivative formula)
@@ -44,19 +54,9 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
         return; // static body --> infinite mass, nothing can push it. Dividing by inverseMass below would be a division by zero
     }
 
-    const float halfHeight = body.scale.y * 0.5f;
-    const float bottom = body.position.y - halfHeight; // the object's lowest point's y-coordinate
-
-    if (bottom >= FLOOR_Y) {
-        return; // no penetration, nothing to resolve
-    }
-
-    // build collision info for this contact
-    CollisionInfo info;
-    info.collided = true;
-    info.normal = glm::vec3(0.0f, 1.0f, 0.0f);
-    info.penetration = FLOOR_Y - bottom; // how far below the floor plane the body's bottom edge currently sits
-
+    // Build the eight world-space corners once. Every geometric quantity below
+    // (detection, penetration, contact point) is derived from this same rotated
+    // geometry, so there's no longer a mix of axis-aligned and rotated math.
     const glm::vec3 halfSize = body.scale * 0.5f;
     const glm::vec3 localCorners[8] {
         {-halfSize.x, -halfSize.y, -halfSize.z}, {halfSize.x, -halfSize.y, -halfSize.z},
@@ -67,20 +67,28 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
 
     glm::vec3 lowestCornerWorld = body.position + body.orientation * localCorners[0];
 
-    for (int i = i; i < 8; ++i) {
+    for (int i = 1; i < 8; ++i) {
         const glm::vec3 worldCorner = body.position + body.orientation * localCorners[i];
-        
+
         if (worldCorner.y < lowestCornerWorld.y) {
             lowestCornerWorld = worldCorner;
         }
     }
 
-    info.point = lowestCornerWorld; // the actual lowest point on the rotated body, no longer assumed to be directly beneath the center of mass
-    // ^^^ everything downstream (the lever arm r = info.point - body.position, used for both normal and friction impulses' torque) now reflects the body's real geometry and orientation
+    if (lowestCornerWorld.y >= FLOOR_Y) {
+        return; // no penetration, nothing to resolve
+    }
+
+    // build collision info for this contact
+    CollisionInfo info;
+    info.collided = true;
+    info.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+    info.penetration = FLOOR_Y - lowestCornerWorld.y; // how far below the floor plane the body's lowest world-space corner currently sits
+    info.point = lowestCornerWorld; // same lowest corner used for detection is used as the contact point, so the lever arm below is consistent with what triggered the collision
 
     // position correction
     const float excess = info.penetration - PENETRATION_SLOP;
-    
+
     if (excess > 0.0f) {
         body.position.y += excess * PENETRATION_CORRECTION;
     }
@@ -118,11 +126,11 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
     if (tangentialSpeed > 0.0001f) {
         const glm::vec3 tangent = tangentialVel / tangentialSpeed; // unit vector pointing in direction the body is sliding
         const float vRelT = glm::dot(velAtContact, tangent); // relative to a stationary floor, the tangential speed IS the relative tangential velocity along the tangent by construction
-        
+
         const glm::vec3 rxT = glm::cross(r, tangent);
-        const float angularTerm = body.inverseInertia * glm::dot(rxT, rxT);
+        const float angularTerm = glm::dot(rxT, body.inverseInertiaWorld * rxT); // was body.inverseInertia * dot(rxT, rxT); now uses the full world-space tensor so resistance to spinning is direction-dependent, not a single scalar
         const float jt = -vRelT / (body.inverseMass + angularTerm); // tangential impulse magnitude needed to fully stop the sliding (mirrors the normal impulse derivation above)
-        
+
         const float maxFriction = body.friction * j; // Coulomb's law: the maximum friction impulse is proportional to the normal impulse --> more downward force = more normal force = more friction generated
         const float frictionMag = std::min(std::abs(jt), maxFriction);
         // ^^^^ Static case (|jt| <= maxFriction): enough friction to stop sliding completely this step
@@ -131,9 +139,8 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
         const glm::vec3 frictionImpulse = -frictionMag * tangent; // opposes the sliding direction
 
         body.velocity += frictionImpulse * body.inverseMass;
-
-        const glm::vec3 r = info.point - body.position;
-        body.angularVelocity += body.inverseInertia * glm::cross(r, frictionImpulse); // this is what lets a cube sliuding on a rough floor start to tip or roll, rather than only ever sliding
+        body.angularVelocity += body.inverseInertiaWorld * glm::cross(r, frictionImpulse); // this is what lets a cube sliding on a rough floor start to tip or roll, rather than only ever sliding
+        // ^^ was body.inverseInertia * cross(blah-blah-blah); matrix-vector product replaces the old scalar multiplication
     }
 
     /**
@@ -338,8 +345,8 @@ void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo
 
     const glm::vec3 rAxN = glm::cross(rA, info.normal);
     const glm::vec3 rBxN = glm::cross(rB, info.normal);
-    const float angularTermA = a.inverseInertia * glm::dot(rAxN, rAxN);
-    const float angularTermB = b.inverseInertia * glm::dot(rBxN, rBxN);
+    const float angularTermA = glm::dot(rAxN, a.inverseInertiaWorld * rAxN); // was a.inverseInertia * dot(rAxN, rAxN); full tensor makes resistance direction-dependent
+    const float angularTermB = glm::dot(rBxN, b.inverseInertiaWorld * rBxN); // same for b
 
     // impulse scalar: derived from the restitution condition dot(vB' - vA', n) = -e * vRelN
     const float j = -(1.0f + e) * vRelN / (invMassSum + angularTermA + angularTermB);
@@ -365,8 +372,8 @@ void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo
         
         const glm::vec3 rAxT = glm::cross(rA, tangent);
         const glm::vec3 rBxT = glm::cross(rB, tangent);
-        const float angularTermA_t = a.inverseInertia * glm::dot(rAxT, rAxT);
-        const float angularTermB_t = b.inverseInertia * glm::dot(rBxT, rBxT); // same reasoning as the normal impulse's angular terms, but along the tangent direction
+        const float angularTermA_t = glm::dot(rAxT, a.inverseInertiaWorld * rAxT); // was a.inverseInertia * dot(rAxT, rAxT)
+        const float angularTermB_t = glm::dot(rBxT, b.inverseInertiaWorld * rBxT); // was b.inverseInertia * dot(rBxT, rBxT); same reasoning as the normal impulse's angular terms, but along the tangent direction
         
         const float jt = -vRelT / (invMassSum + angularTermA_t + angularTermB_t); // tangential impulse mag needed to fully cancel the sliding, using the same invMassSum formula as the normal impulse
         const float mu = std::sqrt(a.friction * b.friction); // combined friction coefficient: geometric mean of both friction values rather than a plain average (this means if either surface is very low-friction, the combined contact stays low friction too)
@@ -381,8 +388,8 @@ void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo
         b.velocity += frictionImpulse * b.inverseMass;
         // same push/pull pattern as the normal impulse, just along the tangent axis instead
 
-        a.angularVelocity -= a.inverseInertia * glm::cross(rA, frictionImpulse);
-        b.angularVelocity += b.inverseInertia * glm::cross(rB, frictionImpulse);
+        a.angularVelocity -= a.inverseInertiaWorld * glm::cross(rA, frictionImpulse); // was a.inverseInertia * cross(blah-blah-blah)
+        b.angularVelocity += b.inverseInertiaWorld * glm::cross(rB, frictionImpulse); // same with b
         // friction applied off-center; spins the body just like the normal impulse does
     }
 

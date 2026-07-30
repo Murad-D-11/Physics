@@ -40,6 +40,10 @@ class PhysicsSolver {
         static constexpr float REST_THRESHOLD = 0.5f; // reciprocity of forces, i.e. the "bounciness" of the cube (half its previous height)
         static constexpr float PENETRATION_SLOP = 0.02f; // minimum penetration depth position before position correction executes
         static constexpr float PENETRATION_CORRECTION = 0.8f; // fraction of excess penetration corrected per step --> correct 80%, but leave 20% for the next step
+        
+        /**
+         * AUDIT: DISABLED vvvv
+         */
         static constexpr float ANGULAR_REST_THRESHOLD = 0.02f; // torque that opposes the spin <--- (also disabled)
         static constexpr float SETTLE_DISTANCE = 0.05f; // how close a body's lowest corner must be to the floor before settleFlatIfResting() snaps its orientation flat on the ground <--- (also also disabled)
 };
