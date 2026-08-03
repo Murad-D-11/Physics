@@ -4,6 +4,18 @@
 #include <algorithm>
 #include <cmath>
 
+namespace {
+    /**
+     * Local contact point produced by the box-plane contact generation in floorCollision().
+     * Not exposed in the header since it's only needed internally, unlike CollisionInfo
+     * which is shared with the box-box path.
+     */
+    struct FloorContactPoint {
+        glm::vec3 point;
+        float penetration; // FLOOR - point.y: positive means this corner is below the floor
+    };
+}
+
 PhysicsSolver::PhysicsSolver() {} // nothing to initalize (yet): no GPU resources, no memory, etc.
 PhysicsSolver::~PhysicsSolver() {} // same ye olde reasoning for the destructor
 
@@ -54,6 +66,14 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
         return; // static body --> infinite mass, nothing can push it. Dividing by inverseMass below would be a division by zero
     }
 
+    // vvvvv Contact Point Generation vvvvv //
+    /**
+     * A box can touch a plane at 1, 2, or 4 corners depending on orientation
+     * 1 corner --> balanced on a tip
+     * 2 corners --> balanced on an edge
+     * 4 corners --> resting flat on a face
+     */
+
     // Build the eight world-space corners once. Every geometric quantity below
     // (detection, penetration, contact point) is derived from this same rotated
     // geometry, so there's no longer a mix of axis-aligned and rotated math.
@@ -65,82 +85,68 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
         {halfSize.x, halfSize.y, halfSize.z}, {-halfSize.x, halfSize.y, halfSize.z}
     };
 
-    glm::vec3 lowestCornerWorld = body.position + body.orientation * localCorners[0];
+    glm::vec3 worldCorners[8];
+    float lowestY = 0.0f;
 
     for (int i = 1; i < 8; ++i) {
-        const glm::vec3 worldCorner = body.position + body.orientation * localCorners[i];
+        worldCorners[i] = body.position + body.orientation * localCorners[i];
 
-        if (worldCorner.y < lowestCornerWorld.y) {
-            lowestCornerWorld = worldCorner;
+        if (i == 0 || worldCorners[i].y < lowestY) {
+            lowestY = worldCorners[i].y;
         }
     }
 
-    if (lowestCornerWorld.y >= FLOOR_Y) {
+    if (lowestY >= FLOOR_Y) {
         return; // no penetration, nothing to resolve
     }
 
-    // build collision info for this contact
-    CollisionInfo info;
-    info.collided = true;
-    info.normal = glm::vec3(0.0f, 1.0f, 0.0f);
-    info.penetration = FLOOR_Y - lowestCornerWorld.y; // how far below the floor plane the body's lowest world-space corner currently sits
-    info.point = lowestCornerWorld; // same lowest corner used for detection is used as the contact point, so the lever arm below is consistent with what triggered the collision
+    /**
+     * Any corner within FACE_CONTACT_EPSILON of the deepest corner is treated as resting
+     * on the same face as it, even if the particular corner isn't technically below the floor
+     * itself. This is what turns a single deepest-corner contact into a proper 4-point face
+     * contact once a cube has settled flat, instead of only ever tracking whichever one corner
+     * happens to be lowest at that instant.
+     */
+    FloorContactPoint contactPoints[4];
+    int contactCount = 0;
 
-    // position correction
-    const float excess = info.penetration - PENETRATION_SLOP;
+    for (int i = 0; i < 8 && contactCount < 4; i++) {
+        const float y = worldCorners[i].y;
+
+        if (y <= lowestY + FACE_CONTACT_EPSILON) {
+            contactPoints[contactCount].point = worldCorners[i];
+            contactPoints[contactCount].penetration = FLOOR_Y - y;
+            ++contactCount;
+        }
+    }
+
+    // ^^^^^ Contact Point Generation ^^^^^ //
+
+    /**
+     * Position correction: corrected once using the single deepest penetration,
+     * same as the previous single-point version. Correcting per contact point
+     * here would be over-correct, since every point on a flat face shares
+     * the same penetration, and wouild all be pushing the same position.y
+     * in the same direction simultaneously.
+    */ 
+    const float deepestPenetration = FLOOR_Y - lowestY;
+    const float excess = deepestPenetration - PENETRATION_SLOP;
 
     if (excess > 0.0f) {
         body.position.y += excess * PENETRATION_CORRECTION;
     }
 
-    // normal impulse
     /**
-     * General Two-body impulse formula, specialized for an immovable floor:
-     * invMassSum = body.inverseMass + floorInverseMass(=0) = body.inverseMass
-     * j = -(1+e) * vRelN / invMassSum
-     * body.velocity += j * normal * body.inverseMass
+     * Impulse resolution: iterated accross all contact points, same reasoning as
+     * the SOLVER_ITERATIONS loop in detectAndResolve(). Contacts on the same body
+     * are coupled through angular velocity (resolving one corner changes the spin,
+     * which changes the velocity at every other corner), so a single pass over the
+     * points wouldn't converge to a stable, non-rocking rest for a flat face.
      */
-    const float vRelN = glm::dot(body.velocity, info.normal); // body's velocity component along the floor's normal (+y) --> negative means the body is moving down into the floor
-
-    if (vRelN >= 0.0f) {
-        return; // body isn't moving into the floor --> no normal impulse, and therefore no normal force for friction to act against either
-    }
-
-    float e = body.restitution;
-
-    if (std::abs(vRelN) < REST_THRESHOLD) {
-        e = 0.0f; // resting contact --> suppress the bounce so the body doesn't micro-vibrate forever
-    }
-
-    const float j = -(1.0f + e) * vRelN / body.inverseMass; // scalar impulse magnitude; dividing by inverseMass here is what makes this the floor-specialized case
-    body.velocity += (j * info.normal) * body.inverseMass; // applying and unapplying body.inverseMass looks redundant, but keeping it explicit means j is available below in proper impulse units for the friction Coulomb-law cap
-
-    // vvvvv Torque + friction impulse vvvvv //
-
-    const glm::vec3 r = info.point - body.position;
-    const glm::vec3 velAtContact = body.velocity + glm::cross(body.angularVelocity, r);
-
-    const glm::vec3 tangentialVel = velAtContact - glm::dot(velAtContact, info.normal) * info.normal; // removes the vertical component from velocity (normal), leaving whatever horizontal sliding motion remains
-    const float tangentialSpeed = glm::length(tangentialVel);
-
-    if (tangentialSpeed > 0.0001f) {
-        const glm::vec3 tangent = tangentialVel / tangentialSpeed; // unit vector pointing in direction the body is sliding
-        const float vRelT = glm::dot(velAtContact, tangent); // relative to a stationary floor, the tangential speed IS the relative tangential velocity along the tangent by construction
-
-        const glm::vec3 rxT = glm::cross(r, tangent);
-        const float angularTerm = glm::dot(rxT, body.inverseInertiaWorld * rxT); // was body.inverseInertia * dot(rxT, rxT); now uses the full world-space tensor so resistance to spinning is direction-dependent, not a single scalar
-        const float jt = -vRelT / (body.inverseMass + angularTerm); // tangential impulse magnitude needed to fully stop the sliding (mirrors the normal impulse derivation above)
-
-        const float maxFriction = body.friction * j; // Coulomb's law: the maximum friction impulse is proportional to the normal impulse --> more downward force = more normal force = more friction generated
-        const float frictionMag = std::min(std::abs(jt), maxFriction);
-        // ^^^^ Static case (|jt| <= maxFriction): enough friction to stop sliding completely this step
-        // Kinetic case (|jt| > maxFriction): friction can only remove part of the sliding speed, so the body keeps sliding but slower
-
-        const glm::vec3 frictionImpulse = -frictionMag * tangent; // opposes the sliding direction
-
-        body.velocity += frictionImpulse * body.inverseMass;
-        body.angularVelocity += body.inverseInertiaWorld * glm::cross(r, frictionImpulse); // this is what lets a cube sliding on a rough floor start to tip or roll, rather than only ever sliding
-        // ^^ was body.inverseInertia * cross(blah-blah-blah); matrix-vector product replaces the old scalar multiplication
+    for (int iter = 0; iter < SOLVER_ITERATIONS; ++iter) {
+        for (int i = 0; i < contactCount; ++i) {
+            applyFloorImpulse(body, contactPoints[i].point);
+        }
     }
 
     /**
@@ -164,8 +170,69 @@ void PhysicsSolver::floorCollision(RigidBody& body) {
         
     //     body.angularVelocity -= body.inverseInertia * rollingImpulseMag * spinDir;
     // }
+}
 
-    // ^^^^^ Torque + friction impulse ^^^^^ //
+void PhysicsSolver::applyFloorImpulse(RigidBody& body, const glm::vec3& contactPoint) {
+    /**
+     * Single box-plane contact resolution: the same two-part (normal impulse +
+     * friction impulse) formula as applyImpulse() below, specialized for an immovable
+     * floor. Pulled into its own function so floorCollision can call it once per touching
+     * corner, per solver iteration, instead of duplicating this logic per contact point.
+     * 
+     * Unlike the old single-contact version, vRelN here is measured at THIS corner
+     * (body.velocity + angularVelocity x r), not just the body's linear velocity. That's
+     * necessary once there's more than one contact per point: a spinning body has a different
+     * velocity at each of its corners, so reusing a single linear vRelN for every point would
+     * make the points indistinguishable and defeat the purpose of resolving them separately.
+     */
+    const glm::vec3 normal (0.0f, 1.0f, 0.0f);
+    const glm::vec3 r = contactPoint - body.position;
+    const glm::vec3 velAtContact = body.velocity + glm::cross(body.angularVelocity, r);
+
+    const float vRelN = glm::dot(velAtContact, normal); // this corner's velocity along the floor's normal --> negative means it's moving down into the floor
+
+    if (vRelN >= 0.0f) {
+        return; // this point isn't moving into the floor --> no normal impulse, and no normal force for friction to act against
+    }
+
+    float e = body.restitution;
+
+    if (std::abs(vRelN) < REST_THRESHOLD) {
+        e = 0.0f; // resting contact --> suppress the bounce so the body doesn't micro-vibrate forever
+    }
+
+    const glm::vec3 rxN = glm::cross(r, normal);
+    const float angularTerm = glm::dot(rxN, body.inverseInertiaWorld * rxN); // this corner's own leverage against a normal push, same role as angularTermA/B in applyImpulse()
+    const float j = -(1.0f + e) * vRelN / (body.inverseMass + angularTerm);
+
+    body.velocity += (j * normal) * body.inverseMass; // normal impulse changes linear velocity only, matching applyImpulse()'s convention; only the friction impulse below produces torque
+
+    // vvvvv Friction Impulse vvvvv //
+
+    const glm::vec3 velAtContact2 = body.velocity + glm::cross(body.angularVelocity, r);
+    const glm::vec3 tangentialVel = velAtContact2 - glm::dot(velAtContact2, normal) * normal; // removes the vertical component, leaving whatever horizontal sliding motion remains at this corner
+    const float tangentialSpeed = glm::length(tangentialVel);
+
+    if (tangentialSpeed > 0.0001f) {
+        const glm::vec3 tangent = tangentialVel / tangentialSpeed; // unit vector
+        const float vRelT = glm::dot(velAtContact2, tangent);
+
+        const glm::vec3 rxT = glm::cross(r, tangent);
+        const float angularTermT = glm::dot(rxT, body.inverseInertiaWorld * rxT);
+        const float jt = -vRelT / (body.inverseMass + angularTerm); // tangential impulse magnitude needed to fully stop sliding at this corner
+
+        const float maxFriction = body.friction * j; // Coulomb's law: capped by the normal impulse at this same corner
+        const float frictionMag = std::min(std::abs(jt), maxFriction);
+        // ^^^ Static case: (|jt| <= maxFriction): enough friction to stop sliding completely this step
+        // Kinetic case: (|jt| > maxFriction): friction only removes part of the sliding speed
+
+        const glm::vec3 frictionImpulse = -frictionMag * tangent;
+        
+        body.velocity += frictionImpulse * body.inverseMass;
+        body.angularVelocity += body.inverseInertiaWorld * glm::cross(r, frictionImpulse); // this is what lets a resting/sliding cube start to tip or roll, rather than only ever sliding
+    }
+
+    // ^^^^^ Friction Impulse ^^^^^ //
 }
 
 // Cube-to-cube detection and position correction

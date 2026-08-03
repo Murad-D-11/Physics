@@ -32,6 +32,7 @@ class PhysicsSolver {
         */ 
         void settleFlatIfResting(RigidBody& body); // once a body's spin has decayed below ANGULAR_REST_THRESHOLD, and it is resting close to the floor, this snaps its orientation to lay it flat on the ground
         void applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo& info); // computes and applies a single collision impulse using relative velocity
+        void applyFloorImpulse(RigidBody& body, const glm::vec3& contactPoint); // resolves a single box-plane contact point. called once per touching corner, per solver iteration, from floorCollision()
 
         // Tuning Constants:
 
@@ -40,6 +41,7 @@ class PhysicsSolver {
         static constexpr float REST_THRESHOLD = 0.5f; // reciprocity of forces, i.e. the "bounciness" of the cube (half its previous height)
         static constexpr float PENETRATION_SLOP = 0.02f; // minimum penetration depth position before position correction executes
         static constexpr float PENETRATION_CORRECTION = 0.8f; // fraction of excess penetration corrected per step --> correct 80%, but leave 20% for the next step
+        static constexpr float FACE_CONTACT_EPSILON = 0.005f; // corners within this height of the single deepest corner are treated as touching the same resting face (what would otherwise be a single-corner contact, it becomes a multi-point face contact)
         
         /**
          * AUDIT: DISABLED vvvv
