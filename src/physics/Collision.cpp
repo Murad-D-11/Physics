@@ -67,10 +67,12 @@ CollisionInfo Collision::test(const AABB& a, const AABB& b) {
  * Position correction from a collision
  */
 void Collision::resolvePenetration(RigidBody& a, RigidBody& b, const CollisionInfo& info) {
-    const float totalMass = a.mass + b.mass;
-    const float ratioA = b.mass / totalMass; // how much of correction should A receive from collision between A and B
-    const float ratioB = a.mass / totalMass; // similar process but with B
+    const float invMassSum = a.inverseMass + b.inverseMass;
+    if (invMassSum == 0.0f) return; // both static, nothing to correct
 
-    a.position -= info.normal * info.penetration * ratioA; // pushes A in the opposite direction of the normal, away from B
-    b.position += info.normal * info.penetration * ratioB; // pushes B in the direction of the normal, away from A
+    const float ratioA = a.inverseMass / invMassSum; // heavier / more-immovable body corrects less
+    const float ratioB = b.inverseMass / invMassSum;
+
+    a.position -= info.normal * info.penetration * ratioA;
+    b.position += info.normal * info.penetration * ratioB;
 }

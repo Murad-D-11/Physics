@@ -526,12 +526,12 @@ int main() {
     // std::vector<RigidBody> bodies = spawnTestSlidingCube();
     // std::vector<RigidBody> bodies = spawnTestCubeOnCube();
     // std::vector<RigidBody> bodies = spawnTestCubeStack();
-    // std::vector<RigidBody> bodies = spawnTestPushStack();
+    std::vector<RigidBody> bodies = spawnTestPushStack();
     // std::vector<RigidBody> bodies = spawnTestFallingCubes();
     // std::vector<RigidBody> bodies = spawnTestFrictionComparison();
     // std::vector<RigidBody> bodies = spawnTestDropFlat();
     // std::vector<RigidBody> bodies = spawnTestDropTilted();
-    std::vector<RigidBody> bodies = spawnTestHitCenter();
+    // std::vector<RigidBody> bodies = spawnTestHitCenter();
     // std::vector<RigidBody> bodies = spawnTestHitCorner();
 
  
@@ -559,13 +559,13 @@ int main() {
                 // Pass 1: gravity + Euler integration, per body.
             }
 
-            for (auto& body : bodies) {
-                physicsSolver.floorCollision(body);
-                // Pass 2: floor response per body (uses per-body restitution).
-            }
+            // for (auto& body : bodies) {
+            //     physicsSolver.floorCollision(body);
+            //     // Pass 2: floor response per body (uses per-body restitution).
+            // }
 
             physicsSolver.detectAndResolve(bodies);
-            // Pass 3: pairwise detection + penetration correction + impulse iterations (all inside detectAndResolve).
+            // Pass 2: pairwise detection + penetration correction + impulse iterations (all inside detectAndResolve).
             accumulator -= FIXED_DT;
         }
  
@@ -574,7 +574,7 @@ int main() {
         // Debug statistics (printed once per 1/10th of a second)
         if (currentTime - lastDebugTime >= 0.1f) {
             const int pairCount = static_cast<int>(bodies.size() * (bodies.size() - 1) / 2);
-            std::cout << "[Physics] " << "Bodies: "        << bodies.size() << "  |  Pairs: "    << pairCount << "  |  Contacts: " << physicsSolver.lastContactCount << "  |  Time: "     << std::fixed << std::setprecision(2) << physicsTimeMs     << " ms\n";
+            std::cout << "[Physics] " << "Bodies: " << bodies.size() << "  |  Pairs: "    << pairCount << "  |  Contacts: " << physicsSolver.lastContactCount << "  |  Time: "     << std::fixed << std::setprecision(2) << physicsTimeMs     << " ms\n";
             lastDebugTime = currentTime;
         }
 

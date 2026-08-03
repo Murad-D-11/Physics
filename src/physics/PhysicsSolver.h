@@ -11,7 +11,7 @@ class PhysicsSolver {
         ~PhysicsSolver();
 
         void integrate(RigidBody& body, float deltaTime);
-        void floorCollision(RigidBody& body);
+        // void floorCollision(RigidBody& body);
         void detectAndResolve(std::vector<RigidBody>& bodies);
 
         int lastContactCount = 0; // updated by detectAndResolve() --> number of active contacts
@@ -22,8 +22,8 @@ class PhysicsSolver {
          * Built inside detectAndResolve()
          */
         struct Contact {
-            std::size_t indexA;
-            std::size_t indexB;
+            RigidBody* a;
+            RigidBody* b;
             CollisionInfo info;
         };
 
@@ -32,12 +32,17 @@ class PhysicsSolver {
         */ 
         void settleFlatIfResting(RigidBody& body); // once a body's spin has decayed below ANGULAR_REST_THRESHOLD, and it is resting close to the floor, this snaps its orientation to lay it flat on the ground
         void applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo& info); // computes and applies a single collision impulse using relative velocity
-        void applyFloorImpulse(RigidBody& body, const glm::vec3& contactPoint); // resolves a single box-plane contact point. called once per touching corner, per solver iteration, from floorCollision()
+        // void applyFloorImpulse(RigidBody& body, const glm::vec3& contactPoint); // resolves a single box-plane contact point. called once per touching corner, per solver iteration, from floorCollision()
+
+        std::vector<CollisionInfo> generateFloorContacts(const RigidBody& body) const; // builds the floor's contact manifold for one body
+        RigidBody floorBody; // the floor, represented as ordinary static RigidBody (inverseMass = 0)
 
         // Tuning Constants:
 
         static constexpr int SOLVER_ITERATIONS = 10; // how many times the impulse pass revisits each contact per step
         static constexpr float FLOOR_Y = 0.0f; // the y-coordinate of the floor plane
+        static constexpr float FLOOR_THICKNESS = 1.0f; // floorBody's own extend along y
+        static constexpr float FLOOR_HALF_EXTENT = 500.0f; // floorBody's half-extent along x/z
         static constexpr float REST_THRESHOLD = 0.5f; // reciprocity of forces, i.e. the "bounciness" of the cube (half its previous height)
         static constexpr float PENETRATION_SLOP = 0.02f; // minimum penetration depth position before position correction executes
         static constexpr float PENETRATION_CORRECTION = 0.8f; // fraction of excess penetration corrected per step --> correct 80%, but leave 20% for the next step
