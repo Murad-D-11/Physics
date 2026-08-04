@@ -526,13 +526,13 @@ int main() {
     // std::vector<RigidBody> bodies = spawnTestSlidingCube();
     // std::vector<RigidBody> bodies = spawnTestCubeOnCube();
     // std::vector<RigidBody> bodies = spawnTestCubeStack();
-    std::vector<RigidBody> bodies = spawnTestPushStack();
+    // std::vector<RigidBody> bodies = spawnTestPushStack();
     // std::vector<RigidBody> bodies = spawnTestFallingCubes();
     // std::vector<RigidBody> bodies = spawnTestFrictionComparison();
     // std::vector<RigidBody> bodies = spawnTestDropFlat();
     // std::vector<RigidBody> bodies = spawnTestDropTilted();
     // std::vector<RigidBody> bodies = spawnTestHitCenter();
-    // std::vector<RigidBody> bodies = spawnTestHitCorner();
+    std::vector<RigidBody> bodies = spawnTestHitCorner();
 
  
     // Fixed timestep 

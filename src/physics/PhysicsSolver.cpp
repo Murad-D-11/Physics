@@ -115,7 +115,7 @@ std::vector<CollisionInfo> PhysicsSolver::generateFloorContacts(const RigidBody&
 
     const float floorTopY = floorBody.position.y + floorBody.scale.y * 0.5f; // derived from floorBody instead of the FLOOR_Y constant directly
 
-    if (lowestY >= FLOOR_Y) {
+    if (lowestY >= floorTopY) {
         return contacts; // no penetration, nothing to resolve
     }
 
@@ -321,6 +321,10 @@ void PhysicsSolver::applyImpulse(RigidBody& a, RigidBody& b, const CollisionInfo
 
     a.velocity -= impulse * a.inverseMass; // pushed opposite to the normal (away from B)
     b.velocity += impulse * b.inverseMass; // pushed along the normal (away from A)
+
+    // in charge of slowing down the rolling moment vvvv
+    a.angularVelocity -= a.inverseInertiaWorld * glm::cross(rA, impulse);
+    b.angularVelocity += b.inverseInertiaWorld * glm::cross(rB, impulse);
 
     // friction impulse, now also at the contact point + angular
     const glm::vec3 velAtA2 = a.velocity + glm::cross(a.angularVelocity, rA);
