@@ -335,11 +335,22 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
 
     lastContactCount = static_cast<int>(contacts.size());
 
-    // Mark colliding bodies (for debug rendering)
+    // Mark colliding bodies — only when actively impacting (not resting)
     for (const auto& c : contacts) {
         if (c.b == &floorBody) continue;
-        c.a->isColliding = true;
-        c.b->isColliding = true;
+
+        // Check relative approach speed at this contact
+        const glm::vec3 rA = c.info.point - c.a->position;
+        const glm::vec3 rB = c.info.point - c.b->position;
+        const glm::vec3 velAtA = c.a->velocity + glm::cross(c.a->angularVelocity, rA);
+        const glm::vec3 velAtB = c.b->velocity + glm::cross(c.b->angularVelocity, rB);
+        const float vRelN = glm::dot(velAtB - velAtA, c.info.normal);
+
+        // Only flag as "colliding" (red) if approaching faster than rest threshold
+        if (vRelN < -REST_THRESHOLD) {
+            c.a->isColliding = true;
+            c.b->isColliding = true;
+        }
     }
 
     if (contacts.empty()) {

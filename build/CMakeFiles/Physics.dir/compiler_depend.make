@@ -198,6 +198,7 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/CollisionInfo.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Ground.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Camera.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.h \
@@ -252,8 +253,6 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/mingw64/include/c++/13.2.0/bits/predefined_ops.h \
   C:/mingw64/include/c++/13.2.0/bits/ptr_traits.h \
   C:/mingw64/include/c++/13.2.0/bits/quoted_string.h \
-  C:/mingw64/include/c++/13.2.0/bits/random.h \
-  C:/mingw64/include/c++/13.2.0/bits/random.tcc \
   C:/mingw64/include/c++/13.2.0/bits/range_access.h \
   C:/mingw64/include/c++/13.2.0/bits/refwrap.h \
   C:/mingw64/include/c++/13.2.0/bits/requires_hosted.h \
@@ -270,7 +269,6 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/mingw64/include/c++/13.2.0/bits/stl_iterator.h \
   C:/mingw64/include/c++/13.2.0/bits/stl_iterator_base_funcs.h \
   C:/mingw64/include/c++/13.2.0/bits/stl_iterator_base_types.h \
-  C:/mingw64/include/c++/13.2.0/bits/stl_numeric.h \
   C:/mingw64/include/c++/13.2.0/bits/stl_pair.h \
   C:/mingw64/include/c++/13.2.0/bits/stl_tempbuf.h \
   C:/mingw64/include/c++/13.2.0/bits/stl_uninitialized.h \
@@ -320,13 +318,10 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/mingw64/include/c++/13.2.0/limits \
   C:/mingw64/include/c++/13.2.0/locale \
   C:/mingw64/include/c++/13.2.0/new \
-  C:/mingw64/include/c++/13.2.0/numeric \
   C:/mingw64/include/c++/13.2.0/ostream \
   C:/mingw64/include/c++/13.2.0/pstl/execution_defs.h \
   C:/mingw64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
-  C:/mingw64/include/c++/13.2.0/pstl/glue_numeric_defs.h \
   C:/mingw64/include/c++/13.2.0/pstl/pstl_config.h \
-  C:/mingw64/include/c++/13.2.0/random \
   C:/mingw64/include/c++/13.2.0/sstream \
   C:/mingw64/include/c++/13.2.0/stdexcept \
   C:/mingw64/include/c++/13.2.0/stdlib.h \
@@ -362,7 +357,6 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr-default.h \
   C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/gthr.h \
   C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/messages_members.h \
-  C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/opt_random.h \
   C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/os_defines.h \
   C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/time_members.h \
   C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/float.h \
@@ -1317,6 +1311,22 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: C:/Users/Sobachya\ Mor
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/OBB.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h
+
+CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Ground.cpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/KHR/khrplatform.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glad/glad.h \
+  C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stddef.h \
+  C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/stdint.h \
+  C:/mingw64/x86_64-w64-mingw32/include/_mingw.h \
+  C:/mingw64/x86_64-w64-mingw32/include/_mingw_mac.h \
+  C:/mingw64/x86_64-w64-mingw32/include/_mingw_secapi.h \
+  C:/mingw64/x86_64-w64-mingw32/include/corecrt.h \
+  C:/mingw64/x86_64-w64-mingw32/include/crtdefs.h \
+  C:/mingw64/x86_64-w64-mingw32/include/sdks/_mingw_ddk.h \
+  C:/mingw64/x86_64-w64-mingw32/include/stddef.h \
+  C:/mingw64/x86_64-w64-mingw32/include/stdint.h \
+  C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Ground.h
 
 CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.cpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/KHR/khrplatform.h \
@@ -2647,17 +2657,9 @@ C:/mingw64/x86_64-w64-mingw32/include/libloaderapi.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/jobapi.h:
 
-C:/mingw64/x86_64-w64-mingw32/include/ioapiset.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/inaddr.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/heapapi.h:
-
 C:/mingw64/include/c++/13.2.0/bits/stl_algo.h:
 
 C:/mingw64/include/c++/13.2.0/system_error:
-
-C:/mingw64/include/c++/13.2.0/bits/random.tcc:
 
 C:/mingw64/x86_64-w64-mingw32/include/winspool.h:
 
@@ -2931,8 +2933,6 @@ C:/mingw64/include/c++/13.2.0/ext/aligned_buffer.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_uint2.hpp:
 
-C:/mingw64/include/c++/13.2.0/random:
-
 C:/mingw64/include/c++/13.2.0/vector:
 
 C:/mingw64/x86_64-w64-mingw32/include/stdarg.h:
@@ -3017,10 +3017,6 @@ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512bitalgintrin.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat3x3.hpp:
 
-C:/mingw64/include/c++/13.2.0/bits/random.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/dpapi.h:
-
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/CollisionInfo.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_quat.hpp:
@@ -3046,8 +3042,6 @@ C:/mingw64/x86_64-w64-mingw32/include/pshpack1.h:
 C:/mingw64/include/c++/13.2.0/tr1/riemann_zeta.tcc:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double3x4.hpp:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float2x3.hpp:
 
 C:/mingw64/include/c++/13.2.0/stdexcept:
 
@@ -3104,8 +3098,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/mingw64/x86_64-w64-mingw32/include/corecrt_wstdlib.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/KHR/khrplatform.h:
-
-C:/mingw64/include/c++/13.2.0/numeric:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/quaternion.inl:
 
@@ -3175,10 +3167,6 @@ C:/mingw64/x86_64-w64-mingw32/include/mmiscapi.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/func_integer.inl:
 
-C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512bf16vlintrin.h:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/_vectorize.hpp:
-
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_mat3x4.inl:
 
 C:/mingw64/include/c++/13.2.0/clocale:
@@ -3214,6 +3202,12 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/mingw64/include/c++/13.2.0/bits/stl_pair.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avxneconvertintrin.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float2x3.hpp:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Ground.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/swprintf.inl:
 
 C:/mingw64/include/c++/13.2.0/bits/range_access.h:
 
@@ -3341,6 +3335,8 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/constants.inl:
 
+C:/mingw64/include/c++/13.2.0/bits/stl_heap.h:
+
 C:/mingw64/x86_64-w64-mingw32/include/time.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_clip_space.inl:
@@ -3359,7 +3355,9 @@ C:/mingw64/x86_64-w64-mingw32/include/oleidl.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_transform.inl:
 
-C:/mingw64/include/c++/13.2.0/bits/stl_heap.h:
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_double2_precision.hpp:
+
+C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/f16cintrin.h:
 
 C:/mingw64/include/c++/13.2.0/bits/stl_iterator.h:
 
@@ -3373,18 +3371,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/mingw64/include/c++/13.2.0/bits/stl_iterator_base_types.h:
 
-C:/mingw64/x86_64-w64-mingw32/include/interlockedapi.h:
-
-C:/mingw64/include/c++/13.2.0/bits/node_handle.h:
-
-C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vbmi2vlintrin.h:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_double2_precision.hpp:
-
-C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/f16cintrin.h:
-
-C:/mingw64/include/c++/13.2.0/bits/stl_numeric.h:
-
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double3x3_precision.hpp:
 
 C:/mingw64/include/c++/13.2.0/bits/stl_tempbuf.h:
@@ -3392,8 +3378,6 @@ C:/mingw64/include/c++/13.2.0/bits/stl_tempbuf.h:
 C:/mingw64/include/c++/13.2.0/bits/stl_vector.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/excpt.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/fltwinerror.h:
 
 C:/mingw64/include/c++/13.2.0/bits/string_view.tcc:
 
@@ -3471,6 +3455,10 @@ C:/mingw64/include/c++/13.2.0/initializer_list:
 
 C:/mingw64/include/c++/13.2.0/iomanip:
 
+C:/mingw64/x86_64-w64-mingw32/include/fltwinerror.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Ground.cpp:
+
 C:/mingw64/include/c++/13.2.0/iosfwd:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/enqcmdintrin.h:
@@ -3482,8 +3470,6 @@ C:/mingw64/include/c++/13.2.0/istream:
 C:/mingw64/include/c++/13.2.0/new:
 
 C:/mingw64/include/c++/13.2.0/pstl/glue_algorithm_defs.h:
-
-C:/mingw64/include/c++/13.2.0/pstl/glue_numeric_defs.h:
 
 C:/mingw64/include/c++/13.2.0/string:
 
@@ -3546,8 +3532,6 @@ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/fmaintrin.h:
 C:/mingw64/x86_64-w64-mingw32/include/wow64apiset.h:
 
 C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/messages_members.h:
-
-C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/opt_random.h:
 
 C:/mingw64/include/c++/13.2.0/bits/basic_ios.h:
 
@@ -3629,8 +3613,6 @@ C:/mingw64/x86_64-w64-mingw32/include/stddef.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/stdint.h:
 
-C:/mingw64/x86_64-w64-mingw32/include/swprintf.inl:
-
 C:/mingw64/x86_64-w64-mingw32/include/sys/timeb.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/sys/types.h:
@@ -3664,6 +3646,12 @@ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/amxint8intrin.h:
 C:/mingw64/include/c++/13.2.0/bits/hash_bytes.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx5124fmapsintrin.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/_vectorize.hpp:
+
+C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512bf16vlintrin.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/dpapi.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512bwintrin.h:
 
@@ -3732,6 +3720,8 @@ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/cldemoteintrin.h:
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/clflushoptintrin.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/emmintrin.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/ioapiset.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vbmivlintrin.h:
 
@@ -3811,6 +3801,8 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/mingw64/x86_64-w64-mingw32/include/debugapi.h:
 
+C:/mingw64/x86_64-w64-mingw32/include/heapapi.h:
+
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_int4_sized.hpp:
 
 C:/mingw64/x86_64-w64-mingw32/include/fileapi.h:
@@ -3820,3 +3812,11 @@ C:/mingw64/x86_64-w64-mingw32/include/psdk_inc/_xmitfile.h:
 C:/mingw64/include/c++/13.2.0/tr1/hypergeometric.tcc:
 
 C:/mingw64/x86_64-w64-mingw32/include/guiddef.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/inaddr.h:
+
+C:/mingw64/include/c++/13.2.0/bits/node_handle.h:
+
+C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vbmi2vlintrin.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/interlockedapi.h:
