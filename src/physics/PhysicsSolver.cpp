@@ -3,6 +3,8 @@
 #include "collision.h"
 #include <algorithm>
 #include <cmath>
+#include <map>
+#include <utility>
 
 // namespace {
 //     /**
@@ -214,16 +216,13 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
 
     std::vector<Contact> contacts;
 
-    // body-body detection: untouched -- still Collision::test() on AABBs, single
-    // contact point per overlapping pair, exactly as before.
+    // body-body detection now collects the whole manifold per pair, not one point
     for (std::size_t i = 0; i < bodies.size(); i++) {
         for (std::size_t j = i + 1; j < bodies.size(); j++) {
             const AABB aabbA = AABB::fromRigidBody(bodies[i]);
             const AABB aabbB = AABB::fromRigidBody(bodies[j]);
 
-            const CollisionInfo info = Collision::test(aabbA, aabbB);
-
-            if (info.collided) {
+            for (const CollisionInfo& info : Collision::test(aabbA, aabbB)) {
                 contacts.push_back({&bodies[i], &bodies[j], info});
             }
         }
@@ -247,21 +246,33 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     }
 
     /**
-     * Position correction: one call per contact, same as the pre-existing body-body
-     * path. For a flat 4-corner floor contact this now runs up to 4 times per body
-     * per step instead of the single deepest-corner correction floorCollision() used
-     * to do on purpose (see that function's old comment). Sharing one correction loop
-     * for every contact, floor included, is the whole point of this refactor, so this
-     * is an accepted, minor over-correction tradeoff rather than something worth a
-     * floor-specific exception.
+     * Position correction: unlike impulse resolution, this is a position-only
+     * hack with no velocity feedback, so applying it once per manifold point
+     * doesn't distribute the correction across points -- it stacks N full
+     * corrections on top of each other for an N-point contact. For a flat
+     * 4-corner resting contact that's a ~4x over-correction every step, which
+     * is exactly what was showing up as jitter, and on a lopsided contact
+     * (e.g. a tilting stacked cube) the 4 uneven corrections don't even push
+     * straight along the normal -- they torque the body further off-balance.
+     * Resolving once per pair, using the manifold's deepest point, fixes
+     * both: the correction magnitude no longer depends on point count.
      */
+    std::map<std::pair<RigidBody*, RigidBody*>, CollisionInfo> deepestPerPair;
     for (const auto& c : contacts) {
-        const float excess = c.info.penetration - PENETRATION_SLOP;
+        const auto key = std::make_pair(c.a, c.b);
+        auto it = deepestPerPair.find(key);
+        if (it == deepestPerPair.end() || c.info.penetration > it->second.penetration) {
+            deepestPerPair[key] = c.info;
+        }
+    }
+
+    for (const auto& [key, info] : deepestPerPair) {
+        const float excess = info.penetration - PENETRATION_SLOP;
 
         if (excess > 0.0f) {
-            CollisionInfo corrected = c.info;
+            CollisionInfo corrected = info;
             corrected.penetration = excess * PENETRATION_CORRECTION;
-            Collision::resolvePenetration(*c.a, *c.b, corrected);
+            Collision::resolvePenetration(*key.first, *key.second, corrected);
         }
     }
 

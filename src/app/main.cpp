@@ -244,7 +244,7 @@ std::vector<RigidBody> spawnTestCubeOnCube() {
 }
  
 std::vector<RigidBody> spawnTestCubeStack() {
-    // Day 13 Test 3 (part 1): Cube stack stability.
+    // Test 3 (part 1): Cube stack stability.
     // Four cubes stacked exactly on top of each other and dropped a short
     // distance onto the floor. Expected: the stack remains standing with
     // minimal jitter once SOLVER_ITERATIONS propagates the contact forces
@@ -261,7 +261,7 @@ std::vector<RigidBody> spawnTestCubeStack() {
         setCubeMassProperties(cube, 1.0f);
         cube.restitution = 0.1f;
         // Low restitution -- stacked cubes shouldn't bounce off each other.
-        cube.friction    = 0.6f;
+        cube.friction = 0.6f;
         // Higher friction helps the stack resist toppling sideways.
         bodies.push_back(cube);
     }
@@ -270,7 +270,7 @@ std::vector<RigidBody> spawnTestCubeStack() {
 }
  
 std::vector<RigidBody> spawnTestPushStack() {
-    // Day 13 Test 3 (part 2): Push the bottom cube of a stack.
+    // Test 3 (part 2): Push the bottom cube of a stack.
     // Same 4-cube stack as spawnTestCubeStack(), but the bottom cube starts
     // with horizontal velocity, as if it had just been shoved. Expected:
     // friction between the cubes should make the stack resist sliding
@@ -296,7 +296,7 @@ std::vector<RigidBody> spawnTestPushStack() {
 }
  
 std::vector<RigidBody> spawnTestFallingCubes() {
-    // Day 13 Test 3: Falling cubes.
+    // Test 3: Falling cubes.
     // Several cubes spawn above the floor in a loose scattered cluster (not
     // perfectly aligned, so they don't all land in a single neat column) and
     // fall together. Expected: they collide with each other and the floor,
@@ -322,7 +322,7 @@ std::vector<RigidBody> spawnTestFallingCubes() {
 }
  
 std::vector<RigidBody> spawnTestFrictionComparison() {
-    // Day 13 Test 4: Different friction values, side by side.
+    // Test 4: Different friction values, side by side.
     // Two identical cubes given the same starting horizontal velocity, but
     // one has very low friction and the other very high friction. They're
     // offset in Z so they don't collide with each other -- both are visible
@@ -344,7 +344,7 @@ std::vector<RigidBody> spawnTestFrictionComparison() {
     highFriction.velocity = glm::vec3(4.0f, 0.0f, 0.0f);
     setCubeMassProperties(highFriction, 1.0f);
     highFriction.restitution = 0.1f;
-    highFriction.friction    = 1.2f;
+    highFriction.friction = 1.2f;
     // High friction -- should stop within a fraction of a second.
     bodies.push_back(highFriction);
  
@@ -352,7 +352,7 @@ std::vector<RigidBody> spawnTestFrictionComparison() {
 }
  
 std::vector<RigidBody> spawnTestDropFlat() {
-    // Day 14 Test 1: Drop a cube flat.
+    // Test 1: Drop a cube flat.
     // A single cube falls straight down with identity orientation and zero
     // angular velocity. Expected: minimal rotation. The floor's contact
     // point lands directly below the body's center (r purely vertical,
@@ -362,14 +362,14 @@ std::vector<RigidBody> spawnTestDropFlat() {
     std::vector<RigidBody> bodies;
  
     RigidBody cube;
-    cube.position        = glm::vec3(0.0f, 4.0f, 0.0f);
-    cube.velocity        = glm::vec3(0.0f);
-    cube.orientation     = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    cube.position = glm::vec3(0.0f, 4.0f, 0.0f);
+    cube.velocity = glm::vec3(0.0f);
+    cube.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     // Identity quaternion -- perfectly level, no initial tilt.
     cube.angularVelocity = glm::vec3(0.0f);
     setCubeMassProperties(cube, 1.0f);
     cube.restitution = 0.3f;
-    cube.friction    = 0.5f;
+    cube.friction = 0.5f;
     bodies.push_back(cube);
  
     return bodies;
@@ -520,7 +520,7 @@ int main() {
     // Uncomment exactly ONE line below to choose which test scenario runs.
     // -----------------------------------------------------------------
     // std::vector<RigidBody> bodies = spawnTestHeadOn();
-    // std::vector<RigidBody> bodies = spawnTestVertical();
+    std::vector<RigidBody> bodies = spawnTestVertical();
     // std::vector<RigidBody> bodies = spawnTestDiagonal();
     // std::vector<RigidBody> bodies = spawnTestDifferentMasses();
     // std::vector<RigidBody> bodies = spawnTestSlidingCube();
@@ -532,7 +532,7 @@ int main() {
     // std::vector<RigidBody> bodies = spawnTestDropFlat();
     // std::vector<RigidBody> bodies = spawnTestDropTilted();
     // std::vector<RigidBody> bodies = spawnTestHitCenter();
-    std::vector<RigidBody> bodies = spawnTestHitCorner();
+    // std::vector<RigidBody> bodies = spawnTestHitCorner();
 
  
     // Fixed timestep 
