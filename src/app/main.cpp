@@ -18,6 +18,7 @@
 using namespace std;
 
 Camera* activeCamera = nullptr;
+bool simulationPaused = true; // starts paused; press P to begin
 bool isDragging = false;
 double lastMouseX = 0.0;
 double lastMouseY = 0.0;
@@ -48,6 +49,12 @@ void cursorPosCallback(GLFWwindow* window, double xPos, double yPos) {
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
     if (activeCamera == nullptr) return;
     activeCamera->processScroll(static_cast<float>(yOffset));
+}
+
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+        simulationPaused = !simulationPaused;
+    }
 }
 
 // ===========================================================================
