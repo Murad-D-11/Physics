@@ -4,28 +4,33 @@
 #include <glm/glm.hpp>
 #include <string>
 #include "cube.h"
+#include "ground.h"
 #include "camera.h"
 
 /**
- * Owns the shader program and knows how to draw a Cube from a Camera's
- * point of view. Deliberately has no knowledge of GLFW, windows, or input (main.cpp does it)
+ * Owns shader programs and knows how to draw Cubes and the Ground plane.
+ * Has no knowledge of GLFW, windows, or input.
  */
 class Render {
-    public:
-        Render(); // constructor: compiles and links the shader program, and enables depth testing
-        ~Render(); // destructor: deletes the shader program from the GPU
-        Render(const Render&) = delete;
-        Render& operator=(const Render&) = delete;
+public:
+    Render();
+    ~Render();
+    Render(const Render&) = delete;
+    Render& operator=(const Render&) = delete;
 
-        void beginFrame() const;
-        void drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, bool isColliding) const;
+    void beginFrame() const;
+    void drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, bool isColliding) const;
+    void drawGround(const Ground& ground, const Camera& camera, float aspectRatio) const;
 
-    private:
-        GLuint compileShader(const std::string& source, GLenum shaderType) const; // compiles one shader (vertex or fragment), returns its OpenGL handle
-        GLuint linkProgram(GLuint vertexShader, GLuint fragmentShader) const; // links a compiled vertex shader and fragment shader together into one usable shader program, and returns the program's handle
-        
-        GLuint shaderProgram = 0;
+private:
+    GLuint compileShader(const std::string& source, GLenum shaderType) const;
+    GLuint linkProgram(GLuint vertexShader, GLuint fragmentShader) const;
 
-        static const char* vertexShaderSource; // static string holding the vertex shader's GLSL source code, the actual text lives in render.cpp
-        static const char* fragmentShaderSource; // same for the fragment shader
+    GLuint shaderProgram = 0;       // cube shader
+    GLuint groundShaderProgram = 0; // ground grid shader
+
+    static const char* vertexShaderSource;
+    static const char* fragmentShaderSource;
+    static const char* groundVertexShaderSource;
+    static const char* groundFragmentShaderSource;
 };

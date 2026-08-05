@@ -272,6 +272,30 @@ src/renderer/Cube.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Cube.cpp.s
 .PHONY : src/renderer/Cube.cpp.s
 
+src/renderer/Ground.obj: src/renderer/Ground.cpp.obj
+.PHONY : src/renderer/Ground.obj
+
+# target to build an object file
+src/renderer/Ground.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj
+.PHONY : src/renderer/Ground.cpp.obj
+
+src/renderer/Ground.i: src/renderer/Ground.cpp.i
+.PHONY : src/renderer/Ground.i
+
+# target to preprocess a source file
+src/renderer/Ground.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Ground.cpp.i
+.PHONY : src/renderer/Ground.cpp.i
+
+src/renderer/Ground.s: src/renderer/Ground.cpp.s
+.PHONY : src/renderer/Ground.s
+
+# target to generate assembly for a file
+src/renderer/Ground.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Ground.cpp.s
+.PHONY : src/renderer/Ground.cpp.s
+
 src/renderer/Render.obj: src/renderer/Render.cpp.obj
 .PHONY : src/renderer/Render.obj
 
@@ -347,6 +371,9 @@ help:
 	@echo ... src/renderer/Cube.obj
 	@echo ... src/renderer/Cube.i
 	@echo ... src/renderer/Cube.s
+	@echo ... src/renderer/Ground.obj
+	@echo ... src/renderer/Ground.i
+	@echo ... src/renderer/Ground.s
 	@echo ... src/renderer/Render.obj
 	@echo ... src/renderer/Render.i
 	@echo ... src/renderer/Render.s

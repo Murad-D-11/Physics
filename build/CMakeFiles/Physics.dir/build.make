@@ -188,6 +188,21 @@ CMakeFiles/Physics.dir/src/physics/Collision.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/physics/Collision.cpp.s"
 	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\physics\Collision.cpp" -o CMakeFiles\Physics.dir\src\physics\Collision.cpp.s
 
+CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Ground.cpp
+CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj -MF CMakeFiles\Physics.dir\src\renderer\Ground.cpp.obj.d -o CMakeFiles\Physics.dir\src\renderer\Ground.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Ground.cpp"
+
+CMakeFiles/Physics.dir/src/renderer/Ground.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/renderer/Ground.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Ground.cpp" > CMakeFiles\Physics.dir\src\renderer\Ground.cpp.i
+
+CMakeFiles/Physics.dir/src/renderer/Ground.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/renderer/Ground.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Ground.cpp" -o CMakeFiles\Physics.dir\src\renderer\Ground.cpp.s
+
 # Object files for target Physics
 Physics_OBJECTS = \
 "CMakeFiles/Physics.dir/src/app/main.cpp.obj" \
@@ -197,7 +212,8 @@ Physics_OBJECTS = \
 "CMakeFiles/Physics.dir/src/renderer/glad.c.obj" \
 "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj" \
 "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj" \
-"CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj"
+"CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj" \
+"CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj"
 
 # External object files for target Physics
 Physics_EXTERNAL_OBJECTS =
@@ -210,11 +226,12 @@ Physics.exe: CMakeFiles/Physics.dir/src/renderer/glad.c.obj
 Physics.exe: CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/build.make
 Physics.exe: CMakeFiles/Physics.dir/linkLibs.rsp
 Physics.exe: CMakeFiles/Physics.dir/objects1.rsp
 Physics.exe: CMakeFiles/Physics.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable Physics.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable Physics.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\Physics.dir\link.txt --verbose=$(VERBOSE)
 	C:\mingw64\bin\cmake.exe -E copy_if_different "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/glfw3.dll" "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build"
 

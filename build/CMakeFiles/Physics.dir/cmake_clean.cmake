@@ -11,6 +11,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj.d"
   "CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj"
   "CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj.d"
+  "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj"
+  "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj.d"
   "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj"
   "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj.d"
   "CMakeFiles/Physics.dir/src/renderer/glad.c.obj"

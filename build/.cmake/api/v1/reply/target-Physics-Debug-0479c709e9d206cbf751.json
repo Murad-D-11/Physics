@@ -86,7 +86,8 @@
 				3,
 				5,
 				6,
-				7
+				7,
+				8
 			]
 		},
 		{
@@ -160,7 +161,8 @@
 				4,
 				5,
 				6,
-				7
+				7,
+				8
 			]
 		}
 	],
@@ -212,6 +214,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/physics/Collision.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/renderer/Ground.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],
