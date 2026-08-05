@@ -4,7 +4,7 @@
 OBB OBB::fromRigidBody(const RigidBody& body) {
     OBB obb;
     obb.center = body.position;
-    obb.halfExtents = body.scale * 0.5;
+    obb.halfExtents = body.scale * 0.5f;
     obb.axes = glm::mat3_cast(body.orientation); // columns = local x, y, z in world space
 
     return obb;

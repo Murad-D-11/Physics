@@ -152,30 +152,6 @@ src/app/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/app/main.cpp.s
 .PHONY : src/app/main.cpp.s
 
-src/physics/AABB.obj: src/physics/AABB.cpp.obj
-.PHONY : src/physics/AABB.obj
-
-# target to build an object file
-src/physics/AABB.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj
-.PHONY : src/physics/AABB.cpp.obj
-
-src/physics/AABB.i: src/physics/AABB.cpp.i
-.PHONY : src/physics/AABB.i
-
-# target to preprocess a source file
-src/physics/AABB.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/AABB.cpp.i
-.PHONY : src/physics/AABB.cpp.i
-
-src/physics/AABB.s: src/physics/AABB.cpp.s
-.PHONY : src/physics/AABB.s
-
-# target to generate assembly for a file
-src/physics/AABB.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/AABB.cpp.s
-.PHONY : src/physics/AABB.cpp.s
-
 src/physics/Collision.obj: src/physics/Collision.cpp.obj
 .PHONY : src/physics/Collision.obj
 
@@ -199,6 +175,30 @@ src/physics/Collision.s: src/physics/Collision.cpp.s
 src/physics/Collision.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.s
 .PHONY : src/physics/Collision.cpp.s
+
+src/physics/OBB.obj: src/physics/OBB.cpp.obj
+.PHONY : src/physics/OBB.obj
+
+# target to build an object file
+src/physics/OBB.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj
+.PHONY : src/physics/OBB.cpp.obj
+
+src/physics/OBB.i: src/physics/OBB.cpp.i
+.PHONY : src/physics/OBB.i
+
+# target to preprocess a source file
+src/physics/OBB.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.i
+.PHONY : src/physics/OBB.cpp.i
+
+src/physics/OBB.s: src/physics/OBB.cpp.s
+.PHONY : src/physics/OBB.s
+
+# target to generate assembly for a file
+src/physics/OBB.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.s
+.PHONY : src/physics/OBB.cpp.s
 
 src/physics/PhysicsSolver.obj: src/physics/PhysicsSolver.cpp.obj
 .PHONY : src/physics/PhysicsSolver.obj
@@ -332,12 +332,12 @@ help:
 	@echo ... src/app/main.obj
 	@echo ... src/app/main.i
 	@echo ... src/app/main.s
-	@echo ... src/physics/AABB.obj
-	@echo ... src/physics/AABB.i
-	@echo ... src/physics/AABB.s
 	@echo ... src/physics/Collision.obj
 	@echo ... src/physics/Collision.i
 	@echo ... src/physics/Collision.s
+	@echo ... src/physics/OBB.obj
+	@echo ... src/physics/OBB.i
+	@echo ... src/physics/OBB.s
 	@echo ... src/physics/PhysicsSolver.obj
 	@echo ... src/physics/PhysicsSolver.i
 	@echo ... src/physics/PhysicsSolver.s

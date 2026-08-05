@@ -1,6 +1,5 @@
-CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj: \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\Collision.cpp \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\collision.h \
+CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj: \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\OBB.cpp \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\obb.h \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/glm.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/detail/_fixes.hpp \
@@ -296,8 +295,4 @@ CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj: \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/epsilon.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../detail/setup.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/epsilon.inl \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\CollisionInfo.h \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\rigidbody.h \
- C:/mingw64/include/c++/13.2.0/algorithm \
- C:/mingw64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
- C:/mingw64/include/c++/13.2.0/pstl/execution_defs.h
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\rigidbody.h

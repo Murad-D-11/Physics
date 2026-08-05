@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
-#include <csdint>
+#include <cstdint>
 #include "rigidbody.h"
 #include "collisioninfo.h"
 
@@ -83,4 +83,4 @@ class PhysicsSolver {
         static constexpr float FACE_CONTACT_EPSILON = 0.005f;
         static constexpr float WARM_START_SCALE = 0.8f; // damping on cached impulses to account for geometry drift
         static constexpr float FIXED_DT = 1.0f / 60.0f; // needed for Baumgarte bias computation
-}        
+};      

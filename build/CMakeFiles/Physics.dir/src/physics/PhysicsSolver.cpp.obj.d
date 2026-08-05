@@ -297,14 +297,8 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/epsilon.inl \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\rigidbody.h \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\collisioninfo.h \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\aabb.h \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\obb.h \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\collision.h \
  C:/mingw64/include/c++/13.2.0/algorithm \
  C:/mingw64/include/c++/13.2.0/pstl/glue_algorithm_defs.h \
- C:/mingw64/include/c++/13.2.0/pstl/execution_defs.h \
- C:/mingw64/include/c++/13.2.0/map \
- C:/mingw64/include/c++/13.2.0/bits/stl_tree.h \
- C:/mingw64/include/c++/13.2.0/bits/stl_map.h \
- C:/mingw64/include/c++/13.2.0/bits/stl_multimap.h \
- C:/mingw64/include/c++/13.2.0/utility \
- C:/mingw64/include/c++/13.2.0/bits/stl_relops.h
+ C:/mingw64/include/c++/13.2.0/pstl/execution_defs.h

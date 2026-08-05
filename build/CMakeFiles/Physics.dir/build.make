@@ -158,20 +158,20 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.s"
 	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\physics\PhysicsSolver.cpp" -o CMakeFiles\Physics.dir\src\physics\PhysicsSolver.cpp.s
 
-CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj: CMakeFiles/Physics.dir/flags.make
-CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
-CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/AABB.cpp
-CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj -MF CMakeFiles\Physics.dir\src\physics\AABB.cpp.obj.d -o CMakeFiles\Physics.dir\src\physics\AABB.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\physics\AABB.cpp"
+CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/OBB.cpp
+CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj -MF CMakeFiles\Physics.dir\src\physics\OBB.cpp.obj.d -o CMakeFiles\Physics.dir\src\physics\OBB.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\physics\OBB.cpp"
 
-CMakeFiles/Physics.dir/src/physics/AABB.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/physics/AABB.cpp.i"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\physics\AABB.cpp" > CMakeFiles\Physics.dir\src\physics\AABB.cpp.i
+CMakeFiles/Physics.dir/src/physics/OBB.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/physics/OBB.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\physics\OBB.cpp" > CMakeFiles\Physics.dir\src\physics\OBB.cpp.i
 
-CMakeFiles/Physics.dir/src/physics/AABB.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/physics/AABB.cpp.s"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\physics\AABB.cpp" -o CMakeFiles\Physics.dir\src\physics\AABB.cpp.s
+CMakeFiles/Physics.dir/src/physics/OBB.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/physics/OBB.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\physics\OBB.cpp" -o CMakeFiles\Physics.dir\src\physics\OBB.cpp.s
 
 CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj: CMakeFiles/Physics.dir/flags.make
 CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
@@ -196,7 +196,7 @@ Physics_OBJECTS = \
 "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj" \
 "CMakeFiles/Physics.dir/src/renderer/glad.c.obj" \
 "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj" \
-"CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj" \
+"CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj" \
 "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj"
 
 # External object files for target Physics
@@ -208,7 +208,7 @@ Physics.exe: CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/renderer/glad.c.obj
 Physics.exe: CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj
-Physics.exe: CMakeFiles/Physics.dir/src/physics/AABB.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/build.make
 Physics.exe: CMakeFiles/Physics.dir/linkLibs.rsp

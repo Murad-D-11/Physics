@@ -41,7 +41,7 @@ class Collision {
          * Sutherland-Hodgman: clips polygon input against a single plane
          * defined by (planeNormal, planeOffset). Returns the clipped polygon.
          */
-        static std::vector<glm::vec3> clipPolygonAgainstPlane(const std::vector<glm::vec3>& input, const glm:;vec3& planeNormal, float planeOffset);
+        static std::vector<glm::vec3> clipPolygonAgainstPlane(const std::vector<glm::vec3>& input, const glm::vec3& planeNormal, float planeOffset);
 
         // For edge-edge contacts: finds the closest points on two line segments
         static void closestPointsOnSegments(const glm::vec3& p1, const glm::vec3& d1, float len1, const glm::vec3& p2, const glm::vec3& d2, float len2, glm::vec3& out1, glm::vec3& out2);

@@ -95,16 +95,18 @@
  * Formula: sum of |dot(axis, obbAxis[i])| * halfExtent[i] for i in {0, 1, 2}
  */
 static float projectOBBOntoAxis(const OBB& obb, const glm::vec3& axis) {
-    return std::abs(glm::dot(axis, obb.axes[0])) * obb.halfExtent.x 
-        + std::abs(glm::dot(axis, obb.axes[1])) * obb.halfExtent.y
-        + std::abs(glm::dot(axis, obb.axes[2])) * obb.halfExtent.z;
+    return std::abs(glm::dot(axis, obb.axes[0])) * obb.halfExtents.x
+        + std::abs(glm::dot(axis, obb.axes[1])) * obb.halfExtents.y
+        + std::abs(glm::dot(axis, obb.axes[2])) * obb.halfExtents.z;
 }
 
 SATResult Collision::testOBB(const OBB& a, const OBB& b) {
     SATResult result;
     result.colliding = false;
 
-    const minPenetration glm::vec3 d = std::numeric_limits<float>::max();
+    const glm::vec3 d = b.center - a.center; // vector between center A and center B
+
+    float minPenetration = std::numeric_limits<float>::max();
     glm::vec3 bestAxis(0.0f);
     int bestAxisType = -1;
     int bestAxisA = -1;
@@ -115,7 +117,7 @@ SATResult Collision::testOBB(const OBB& a, const OBB& b) {
         const float len = glm::length(axis);
         if (len < 1e-6f) return true; // degenerate axis (parallel edges), skip
 
-        const glm::vec3 = axis / len; // normalize
+        const glm::vec3 n = axis / len; // normalize
 
         const float projA = projectOBBOntoAxis(a, n);
         const float projB = projectOBBOntoAxis(b, n);
@@ -157,7 +159,7 @@ SATResult Collision::testOBB(const OBB& a, const OBB& b) {
     }
 
     // axes 6-14: cross products of edge direction (one from each box)
-    for (int = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             const glm::vec3 cross = glm::cross(a.axes[i], b.axes[j]);
             if (!testAxis(cross, 6 + i * 3 + j, i, j)) return result;
@@ -240,7 +242,7 @@ std::vector<glm::vec3> Collision::clipPolygonAgainstPlane(const std::vector<glm:
     return output;
 }
 
-void Collision::closestPointsOnSegments(const glm::vec3& p1, const glm::vec3& d1, float len1, const glm::vec3& p2, const glm::vec3& d2, float len2) {
+void Collision::closestPointsOnSegments(const glm::vec3& p1, const glm::vec3& d1, float len1, const glm::vec3& p2, const glm::vec3& d2, float len2, glm::vec3& out1, glm::vec3& out2) {
     /**
      * Finds the closest points on two line segments:
      *  segment1: p1 + t*d1, t in [0, len1]
@@ -283,7 +285,7 @@ std::vector<CollisionInfo> Collision::generateManifold(const OBB& a, const OBB& 
     if (sat.axisType >= 6) {
         // ====== Edge-edge contact: single contact point ======
         const int edgeA = sat.axisIndexA; // which axis of A the edge runs along
-        const int edgeB - sat.axisIndexB;
+        const int edgeB = sat.axisIndexB;
 
         /**
          * Pick one edge from each box. The edge is at the center of the face perpendicular
@@ -350,7 +352,7 @@ std::vector<CollisionInfo> Collision::generateManifold(const OBB& a, const OBB& 
             flipNormal = true;
         }
 
-        const glm::vec3 refNormal = refBox->axes[refAxesIndex] * refSign;
+        const glm::vec3 refNormal = refBox->axes[refAxisIndex] * refSign;
 
         // Find incident face: the face of incBox most anti-parallel to refNormal
         int incAxisIndex = 0;
@@ -383,7 +385,7 @@ std::vector<CollisionInfo> Collision::generateManifold(const OBB& a, const OBB& 
         };
 
         // The 4 side planes of the reference face
-        const glm::vec3 refCenter = refBox->center + refBxx->axes[refAxisIndex] * (refBox->halfExtents[refAxisIndex] * refSign);
+        const glm::vec3 refCenter = refBox->center + refBox->axes[refAxisIndex] * (refBox->halfExtents[refAxisIndex] * refSign);
 
         ClipPlane sidePlanes[4];
         sidePlanes[0] = { refBox->axes[refT1], glm::dot(refBox->axes[refT1], refCenter) + refBox->halfExtents[refT1] };
