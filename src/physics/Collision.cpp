@@ -231,14 +231,7 @@ std::vector<CollisionInfo> Collision::generateManifold(
 
         glm::vec3 ptA, ptB;
         closestPointsOnSegments(startA, edgeDirA, a.halfExtents[edgeA] * 2.0f, startB, edgeDirB, b.halfExtents[edgeB] * 2.0f, ptA, ptB);
-
-        // Adjust: the segment starts should be offset by -halfExtent
-        // Actually let's redo with correct segment start:
-        const glm::vec3 startA = edgeMidA - edgeDirA * a.halfExtents[edgeA];
-        const glm::vec3 startB = edgeMidB - edgeDirB * b.halfExtents[edgeB];
-
-        closestPointsOnSegments(startA, edgeDirA, a.halfExtents[edgeA] * 2.0f, startB, edgeDirB, b.halfExtents[edgeB] * 2.0f, ptA, ptB);
-
+        
         CollisionInfo info;
         info.collided = true;
         info.point = (ptA + ptB) * 0.5f;
