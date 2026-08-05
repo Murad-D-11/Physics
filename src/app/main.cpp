@@ -520,7 +520,7 @@ int main() {
     // Uncomment exactly ONE line below to choose which test scenario runs.
     // -----------------------------------------------------------------
     // std::vector<RigidBody> bodies = spawnTestHeadOn();
-    std::vector<RigidBody> bodies = spawnTestVertical();
+    // std::vector<RigidBody> bodies = spawnTestVertical();
     // std::vector<RigidBody> bodies = spawnTestDiagonal();
     // std::vector<RigidBody> bodies = spawnTestDifferentMasses();
     // std::vector<RigidBody> bodies = spawnTestSlidingCube();
@@ -532,7 +532,7 @@ int main() {
     // std::vector<RigidBody> bodies = spawnTestDropFlat();
     // std::vector<RigidBody> bodies = spawnTestDropTilted();
     // std::vector<RigidBody> bodies = spawnTestHitCenter();
-    // std::vector<RigidBody> bodies = spawnTestHitCorner();
+    std::vector<RigidBody> bodies = spawnTestHitCorner();
 
  
     // Fixed timestep 
