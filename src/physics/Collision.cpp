@@ -190,9 +190,7 @@ void Collision::closestPointsOnSegments(const glm::vec3& p1, const glm::vec3& d1
     out2 = p2 + s * d2;
 }
 
-std::vector<CollisionInfo> Collision::generateManifold(
-    const OBB& a, const OBB& b, const SATResult& sat)
-{
+std::vector<CollisionInfo> Collision::generateManifold(const OBB& a, const OBB& b, const SATResult& sat) {
     std::vector<CollisionInfo> manifold;
 
     if (!sat.colliding) return manifold;
@@ -276,9 +274,6 @@ std::vector<CollisionInfo> Collision::generateManifold(
             if (d < minDot) { minDot = d; incAxisIndex = i; incSign = 1.0f; }
             if (-d < minDot) { minDot = -d; incAxisIndex = i; incSign = -1.0f; }
         }
-        // The incident face normal should point most against the reference normal
-        // so the incident face is the one at -incSign direction (facing toward ref)
-        incSign = -incSign;
 
         // Get incident face vertices
         glm::vec3 incFaceVerts[4];
