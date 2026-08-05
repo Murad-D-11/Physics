@@ -65,29 +65,42 @@ const char* Render::groundFragmentShaderSource = R"(
     out vec4 FragColor;
 
     void main() {
-        // Grid spacing: 1 world unit between lines
         float gridSize = 1.0;
 
-        // Compute grid lines from world-space xz coordinates
         vec2 coord = worldPos.xz / gridSize;
         vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
         float line = min(grid.x, grid.y);
-
-        // line = 0 on the grid line, increases away from it
-        // Convert to a 0-1 mask: 1 on lines, 0 away from lines
         float gridMask = 1.0 - min(line, 1.0);
 
-        // White ground, dark gray lines
         vec3 groundColor = vec3(0.92, 0.92, 0.92);
         vec3 lineColor = vec3(0.4, 0.4, 0.4);
         vec3 color = mix(groundColor, lineColor, gridMask);
 
-        // Fade out grid at distance to avoid moire
         float dist = length(worldPos.xz);
         float fade = 1.0 - smoothstep(10.0, 20.0, dist);
         color = mix(vec3(0.92), color, fade);
 
         FragColor = vec4(color, 1.0);
+    }
+)";
+
+// ============================================================================
+// Pause Icon Shaders (screen-space overlay)
+// ============================================================================
+
+const char* Render::pauseVertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec2 aPos;
+    void main() {
+        gl_Position = vec4(aPos, 0.0, 1.0);
+    }
+)";
+
+const char* Render::pauseFragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+    void main() {
+        FragColor = vec4(1.0, 1.0, 1.0, 0.85);
     }
 )";
 
@@ -110,12 +123,51 @@ Render::Render() {
     glDeleteShader(gvs);
     glDeleteShader(gfs);
 
+    // Compile pause icon shader
+    GLuint pvs = compileShader(pauseVertexShaderSource, GL_VERTEX_SHADER);
+    GLuint pfs = compileShader(pauseFragmentShaderSource, GL_FRAGMENT_SHADER);
+    pauseShaderProgram = linkProgram(pvs, pfs);
+    glDeleteShader(pvs);
+    glDeleteShader(pfs);
+
+    // Pause icon geometry: two vertical bars in NDC (top-left corner)
+    // Bar 1: x from -0.92 to -0.88, y from 0.82 to 0.94
+    // Bar 2: x from -0.85 to -0.81, y from 0.82 to 0.94
+    float pauseVerts[] = {
+        // Bar 1 (two triangles)
+        -0.92f,  0.82f,
+        -0.88f,  0.82f,
+        -0.88f,  0.94f,
+        -0.92f,  0.82f,
+        -0.88f,  0.94f,
+        -0.92f,  0.94f,
+        // Bar 2 (two triangles)
+        -0.85f,  0.82f,
+        -0.81f,  0.82f,
+        -0.81f,  0.94f,
+        -0.85f,  0.82f,
+        -0.81f,  0.94f,
+        -0.85f,  0.94f,
+    };
+
+    glGenVertexArrays(1, &pauseVAO);
+    glGenBuffers(1, &pauseVBO);
+    glBindVertexArray(pauseVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, pauseVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pauseVerts), pauseVerts, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
     glEnable(GL_DEPTH_TEST);
 }
 
 Render::~Render() {
     glDeleteProgram(shaderProgram);
     glDeleteProgram(groundShaderProgram);
+    glDeleteProgram(pauseShaderProgram);
+    glDeleteVertexArrays(1, &pauseVAO);
+    glDeleteBuffers(1, &pauseVBO);
 }
 
 GLuint Render::compileShader(const std::string& source, GLenum shaderType) const {
@@ -181,7 +233,7 @@ void Render::drawBody(const Cube& cube, const Camera& camera, float aspectRatio,
 void Render::drawGround(const Ground& ground, const Camera& camera, float aspectRatio) const {
     glUseProgram(groundShaderProgram);
 
-    const glm::mat4 model = glm::mat4(1.0f); // ground sits at origin, no transform needed
+    const glm::mat4 model = glm::mat4(1.0f);
     const glm::mat4 view = camera.getViewMatrix();
     const glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
 
@@ -190,4 +242,18 @@ void Render::drawGround(const Ground& ground, const Camera& camera, float aspect
     glUniformMatrix4fv(glGetUniformLocation(groundShaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
     ground.draw();
+}
+
+void Render::drawPauseIcon() const {
+    glUseProgram(pauseShaderProgram);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBindVertexArray(pauseVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 12);
+    glBindVertexArray(0);
+
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
 }

@@ -243,8 +243,8 @@ std::vector<RigidBody> spawnBilliards() {
 
     // Cue cube — launched from the left with slight z-offset for asymmetric scatter
     RigidBody cue;
-    cue.position = glm::vec3(-4.0f, 0.5f, 0.1f);
-    cue.velocity = glm::vec3(6.0f, 0.0f, 0.0f);
+    cue.position = glm::vec3(10.0f, 0.5f, 0.1f);
+    cue.velocity = glm::vec3(-100.0f, 0.0f, 0.0f);
     setCubeMassProperties(cue, 1.0f);
     cue.restitution = 0.4f;
     cue.friction = 0.3f;
@@ -304,12 +304,12 @@ int main() {
     // -----------------------------------------------------------------
     // Uncomment exactly ONE line below to choose which demo runs.
     // -----------------------------------------------------------------
-    std::vector<RigidBody> bodies = spawnStableTower();
+    // std::vector<RigidBody> bodies = spawnStableTower();
     // std::vector<RigidBody> bodies = spawnDominoChain();
     // std::vector<RigidBody> bodies = spawnRotatedDrop();
     // std::vector<RigidBody> bodies = spawnNewtonsCradle();
     // std::vector<RigidBody> bodies = spawnAvalanche();
-    // std::vector<RigidBody> bodies = spawnBilliards();
+    std::vector<RigidBody> bodies = spawnBilliards();
 
     // Fixed timestep
     static constexpr float FIXED_DT = 1.0f / 60.0f;
@@ -362,6 +362,11 @@ int main() {
         // Draw all physics bodies
         for (const auto& body : bodies) {
             renderer.drawBody(cube, camera, aspectRatio, body.position, body.orientation, body.isColliding);
+        }
+
+        // Pause indicator
+        if (simulationPaused) {
+            renderer.drawPauseIcon();
         }
 
         glfwSwapBuffers(window);
