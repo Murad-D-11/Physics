@@ -34,7 +34,7 @@ class Camera {
         float farPlane;
 
         static constexpr float minDistance = 1.5f;
-        static constexpr float maxDistance = 20.0f;
+        static constexpr float maxDistance = 200.0f;
         static constexpr float minPitch = -89.0f;
         static constexpr float maxPitch = 89.0f;
         static constexpr float mouseSensitivity = 0.3f;

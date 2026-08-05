@@ -251,7 +251,7 @@ std::vector<RigidBody> spawnBilliards() {
     // Cue cube — launched from the left with slight z-offset for asymmetric scatter
     RigidBody cue;
     cue.position = glm::vec3(10.0f, 0.5f, 0.1f);
-    cue.velocity = glm::vec3(-100.0f, 0.0f, 0.0f);
+    cue.velocity = glm::vec3(-67.0f, 0.0f, 0.0f);
     setCubeMassProperties(cue, 1.0f);
     cue.restitution = 0.4f;
     cue.friction = 0.3f;
@@ -298,6 +298,7 @@ int main() {
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetCursorPosCallback(window, cursorPosCallback);
     glfwSetScrollCallback(window, scrollCallback);
+    glfwSetKeyCallback(window, keyCallback);
 
     Render renderer;
     Cube cube(1.0f);
@@ -333,27 +334,31 @@ int main() {
         lastTime = currentTime;
         accumulator += frameTime;
 
-        // Physics loop
-        const float physicsStart = static_cast<float>(glfwGetTime());
+        // Physics loop (only when unpaused)
+        if (!simulationPaused) {
+            const float physicsStart = static_cast<float>(glfwGetTime());
 
-        while (accumulator >= FIXED_DT) {
-            for (auto& body : bodies) {
-                physicsSolver.integrate(body, FIXED_DT);
+            while (accumulator >= FIXED_DT) {
+                for (auto& body : bodies) {
+                    physicsSolver.integrate(body, FIXED_DT);
+                }
+                physicsSolver.detectAndResolve(bodies);
+                accumulator -= FIXED_DT;
             }
-            physicsSolver.detectAndResolve(bodies);
-            accumulator -= FIXED_DT;
-        }
 
-        const float physicsTimeMs = (static_cast<float>(glfwGetTime()) - physicsStart) * 1000.0f;
+            const float physicsTimeMs = (static_cast<float>(glfwGetTime()) - physicsStart) * 1000.0f;
 
-        // Debug statistics
-        if (currentTime - lastDebugTime >= 0.1f) {
-            const int pairCount = static_cast<int>(bodies.size() * (bodies.size() - 1) / 2);
-            std::cout << "[Physics] Bodies: " << bodies.size()
-                      << "  |  Pairs: " << pairCount
-                      << "  |  Contacts: " << physicsSolver.lastContactCount
-                      << "  |  Time: " << std::fixed << std::setprecision(2) << physicsTimeMs << " ms\n";
-            lastDebugTime = currentTime;
+            // Debug statistics
+            if (currentTime - lastDebugTime >= 0.1f) {
+                const int pairCount = static_cast<int>(bodies.size() * (bodies.size() - 1) / 2);
+                std::cout << "[Physics] Bodies: " << bodies.size()
+                          << "  |  Pairs: " << pairCount
+                          << "  |  Contacts: " << physicsSolver.lastContactCount
+                          << "  |  Time: " << std::fixed << std::setprecision(2) << physicsTimeMs << " ms\n";
+                lastDebugTime = currentTime;
+            }
+        } else {
+            accumulator = 0.0f; // don't let time pile up while paused
         }
 
         // Render
