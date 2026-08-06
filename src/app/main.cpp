@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -73,6 +74,57 @@ void setCubeMassProperties(RigidBody& body, float mass) {
 // Each function returns a self-contained scene centered near the origin.
 // ===========================================================================
 
+std::vector<RigidBody> spawnExplosion() {
+    // A cluster of cubes sitting together, then an "explosion" gives each one
+    // an outward radial velocity from the center — like a bomb going off.
+    // No magic forces needed: we just set initial velocities pointing away
+    // from the origin, scaled by a blast strength. Physics handles the rest
+    // (collisions on the way out, gravity arcing them back down, pile settling).
+    std::vector<RigidBody> bodies;
+
+    const float blastStrength = 24.0f;
+    const float g = 1.1f; // spacing
+
+    // 3x3x3 cube cluster centered at the origin, elevated so they arc nicely
+    for (int x = -1; x <= 1; ++x) {
+        for (int y = 0; y <= 2; ++y) {
+            for (int z = -1; z <= 1; ++z) {
+                RigidBody cube;
+                cube.position = glm::vec3(
+                    static_cast<float>(x) * g,
+                    1.5f + static_cast<float>(y) * g,
+                    static_cast<float>(z) * g
+                );
+
+                // Radial velocity away from the cluster center
+                glm::vec3 dir = cube.position - glm::vec3(0.0f, 2.5f, 0.0f);
+                const float dist = glm::length(dir);
+                if (dist > 0.01f) {
+                    dir /= dist;
+                } else {
+                    dir = glm::vec3(0.0f, 1.0f, 0.0f);
+                }
+                // Strength falls off slightly with distance for a natural look
+                cube.velocity = dir * blastStrength * (1.0f - 0.2f * dist);
+
+                // Add some random-ish spin for drama
+                cube.angularVelocity = glm::vec3(
+                    static_cast<float>(x) * 3.0f,
+                    static_cast<float>(z) * 2.0f,
+                    static_cast<float>(y) * -2.5f
+                );
+
+                setCubeMassProperties(cube, 1.0f);
+                cube.restitution = 0.3f;
+                cube.friction = 0.4f;
+                bodies.push_back(cube);
+            }
+        }
+    }
+
+    return bodies;
+}
+
 std::vector<RigidBody> spawnStableTower() {
     // 6 cubes stacked precisely. Tests resting contact stability,
     // accumulated impulse convergence, and warm starting.
@@ -81,7 +133,7 @@ std::vector<RigidBody> spawnStableTower() {
 
     for (int i = 0; i < 6; ++i) {
         RigidBody cube;
-        cube.position = glm::vec3(0.0f, 0.5f + static_cast<float>(i) * 1.01f, 0.0f);
+        cube.position = glm::vec3(0.0f, 0.5f + static_cast<float>(i) * 1.05f, 0.0f);
         cube.velocity = glm::vec3(0.0f);
         cube.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         setCubeMassProperties(cube, 1.0f);
@@ -93,99 +145,93 @@ std::vector<RigidBody> spawnStableTower() {
     return bodies;
 }
 
-std::vector<RigidBody> spawnDominoChain() {
-    // 8 tall thin dominoes spaced in a line. The first is given an angular
-    // push to topple it. Tests OBB edge-face contacts, angular momentum
-    // transfer, and friction-driven chain reaction.
-    // Expected: first domino falls into second, chain reaction topples all.
+std::vector<RigidBody> spawnDominoSpiral() {
+    // Hundreds of dominoes on an Archimedean spiral, stepped by constant arc
+    // length so spacing stays reliable at every radius. The innermost domino
+    // is pre-tilted past its tipping point; the cascade travels outward.
     std::vector<RigidBody> bodies;
 
-    const float spacing = 0.8f;
-    const glm::vec3 dominoScale(0.2f, 1.0f, 0.5f);
+    const int count = 100;                           // tune freely
+    const glm::vec3 dominoScale(0.15f, 0.9f, 0.45f); // thin, tall, wide
+    const float halfHeight = dominoScale.y * 0.5f;
+    const float halfThick  = dominoScale.x * 0.5f;
 
-    for (int i = 0; i < 8; ++i) {
+    const float spacing = 0.45f; // center-to-center along the spiral
+    const float r0 = 1.5f;       // inner radius
+    const float b  = 0.18f;      // radial growth per radian (loop gap = 2*pi*b)
+    const glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+    // Walk the spiral, placing a domino every `spacing` units of arc length
+    std::vector<glm::vec3> pos;
+    pos.reserve(count);
+    float theta = 0.0f;
+    for (int i = 0; i < count; ++i) {
+        const float r = r0 + b * theta;
+        pos.push_back(glm::vec3(r * std::cos(theta), halfHeight, r * std::sin(theta)));
+        theta += spacing / std::sqrt(r * r + b * b); // constant arc-length step
+    }
+
+    for (int i = 0; i < count; ++i) {
+        glm::vec3 tangent = (i < count - 1) ? (pos[i + 1] - pos[i]) : (pos[i] - pos[i - 1]);
+        tangent.y = 0.0f;
+        tangent = glm::normalize(tangent);
+
         RigidBody domino;
         domino.scale = dominoScale;
-        domino.position = glm::vec3(static_cast<float>(i) * spacing - 2.8f, 0.5f, 0.0f);
+        domino.position = pos[i];
         domino.velocity = glm::vec3(0.0f);
-        domino.orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-        setCubeMassProperties(domino, 1.0f);
-        domino.restitution = 0.1f;
+        domino.orientation = glm::angleAxis(std::atan2(-tangent.z, tangent.x), up);
+        setCubeMassProperties(domino, 0.5f);
+        domino.restitution = 0.03f;
         domino.friction = 0.5f;
         bodies.push_back(domino);
     }
 
-    // Give the first domino a small angular push to start the chain
-    bodies[0].angularVelocity = glm::vec3(0.0f, 0.0f, -2.0f);
-
-    return bodies;
-}
-
-std::vector<RigidBody> spawnRotatedDrop() {
-    // A cube rotated 45 degrees about Z dropped onto a flat cube below.
-    // Tests OBB edge-to-face contact generation and angular settling.
-    // Expected: rotated cube lands on its edge, tips to one side, settles flat.
-    std::vector<RigidBody> bodies;
-
-    // Base cube, resting on floor
-    RigidBody base;
-    base.position = glm::vec3(0.0f, 0.5f, 0.0f);
-    base.velocity = glm::vec3(0.0f);
-    setCubeMassProperties(base, 2.0f);
-    base.restitution = 0.2f;
-    base.friction = 0.6f;
-    bodies.push_back(base);
-
-    // Rotated cube falling onto it
-    RigidBody rotated;
-    rotated.position = glm::vec3(0.0f, 4.0f, 0.0f);
-    rotated.velocity = glm::vec3(0.0f);
-    rotated.orientation = glm::angleAxis(glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    setCubeMassProperties(rotated, 1.0f);
-    rotated.restitution = 0.2f;
-    rotated.friction = 0.5f;
-    bodies.push_back(rotated);
+    // Pre-tilt the innermost domino toward the next so gravity starts the chain
+    glm::vec3 tangent0 = glm::normalize(pos[1] - pos[0]);
+    glm::vec3 tiltAxis = glm::normalize(glm::cross(up, tangent0));
+    const float tiltAngle = glm::radians(14.0f);
+    bodies[0].orientation = glm::angleAxis(tiltAngle, tiltAxis) * bodies[0].orientation;
+    bodies[0].position.y = halfHeight * std::cos(tiltAngle) + halfThick * std::sin(tiltAngle);
 
     return bodies;
 }
 
 std::vector<RigidBody> spawnNewtonsCradle() {
-    // Newton's cradle: 5 cubes sandwiched between two immovable walls.
-    // The walls act like the strings in a real cradle — they reflect
-    // momentum back into the chain, so it oscillates indefinitely.
-    // Demonstrates: conservation of momentum and kinetic energy (e ≈ 1),
-    // impulse propagation through resting contact chains.
+    // Newton's cradle: 5 cubes between two immovable walls.
+    // Walls are spaced further out so you can see the end cubes separate
+    // before bouncing back. Perfectly elastic, zero friction.
     std::vector<RigidBody> bodies;
 
     // Left wall (infinite mass)
     RigidBody leftWall;
-    leftWall.position = glm::vec3(-3.5f, 0.5f, 0.0f);
+    leftWall.position = glm::vec3(-5.0f, 0.5f, 0.0f);
     leftWall.velocity = glm::vec3(0.0f);
-    leftWall.scale = glm::vec3(0.3f, 1.0f, 1.0f);
+    leftWall.scale = glm::vec3(0.3f, 1.0f, 1.5f);
     setCubeMassProperties(leftWall, 1.0f);
-    leftWall.inverseMass = 0.0f;    // infinite mass — immovable
+    leftWall.inverseMass = 0.0f;
     leftWall.inverseInertiaLocal = glm::mat3(0.0f);
     leftWall.inverseInertiaWorld = glm::mat3(0.0f);
-    leftWall.restitution = 1.0f;
-    leftWall.friction = 0.0f;
+    leftWall.restitution = 0.9f;
+    leftWall.friction = 0.1f;
     bodies.push_back(leftWall);
 
-    // 5 dynamic cubes in a row, touching
+    // 5 dynamic cubes, spaced with small gaps so you see separation
     for (int i = 0; i < 5; ++i) {
         RigidBody cube;
-        cube.position = glm::vec3(-2.0f + static_cast<float>(i) * 1.0f, 0.5f, 0.0f);
+        cube.position = glm::vec3(-2.0f + static_cast<float>(i) * 1.05f, 0.5f, 0.0f);
         cube.velocity = glm::vec3(0.0f);
         setCubeMassProperties(cube, 1.0f);
-        cube.restitution = 1.0f;    // perfectly elastic for clean transfer
-        cube.friction = 0.0f;       // no friction to avoid energy loss
+        cube.restitution = 1.0f;
+        cube.friction = 0.0f;
         bodies.push_back(cube);
     }
 
     // Right wall (infinite mass)
     RigidBody rightWall;
-    rightWall.position = glm::vec3(3.5f, 0.5f, 0.0f);
+    rightWall.position = glm::vec3(5.0f, 0.5f, 0.0f);
     rightWall.velocity = glm::vec3(0.0f);
-    rightWall.scale = glm::vec3(0.3f, 1.0f, 1.0f);
+    rightWall.scale = glm::vec3(0.3f, 1.0f, 1.5f);
     setCubeMassProperties(rightWall, 1.0f);
     rightWall.inverseMass = 0.0f;
     rightWall.inverseInertiaLocal = glm::mat3(0.0f);
@@ -194,7 +240,7 @@ std::vector<RigidBody> spawnNewtonsCradle() {
     rightWall.friction = 0.0f;
     bodies.push_back(rightWall);
 
-    // Give the leftmost dynamic cube an initial push to the right
+    // Give the leftmost dynamic cube a push
     bodies[1].velocity = glm::vec3(4.0f, 0.0f, 0.0f);
 
     return bodies;
@@ -326,154 +372,100 @@ std::vector<RigidBody> spawnElasticVsInelastic() {
     return bodies;
 }
 
-std::vector<RigidBody> spawnMassRatio() {
-    // A light cube (mass 1) hits a heavy cube (mass 8), then a heavy cube hits a light one.
-    // Demonstrates: momentum conservation — the light cube bounces back, the heavy one barely slows.
-    // Shows the m1/m2 ratio's effect on post-collision velocities.
+std::vector<RigidBody> spawnWreckingBall() {
     std::vector<RigidBody> bodies;
 
-    // Light hits heavy (z = -1.5)
-    RigidBody lightMover;
-    lightMover.position = glm::vec3(-4.0f, 0.5f, -1.5f);
-    lightMover.velocity = glm::vec3(4.0f, 0.0f, 0.0f);
-    setCubeMassProperties(lightMover, 1.0f);
-    lightMover.restitution = 0.8f;
-    lightMover.friction = 0.1f;
-    bodies.push_back(lightMover);
+    const float g = 1.1f; // 10% gap between bricks — prevents self-collapse
 
-    RigidBody heavyTarget;
-    heavyTarget.position = glm::vec3(0.0f, 0.5f, -1.5f);
-    heavyTarget.velocity = glm::vec3(0.0f);
-    setCubeMassProperties(heavyTarget, 8.0f);
-    heavyTarget.restitution = 0.8f;
-    heavyTarget.friction = 0.1f;
-    bodies.push_back(heavyTarget);
+    auto brick = [&](float x, float y, float z) {
+        RigidBody b;
+        b.position = glm::vec3(x, y, z);
+        b.velocity = glm::vec3(0.0f);
+        setCubeMassProperties(b, 1.0f);
+        b.restitution = 0.15f;
+        b.friction = 0.6f;
+        bodies.push_back(b);
+    };
 
-    // Heavy hits light (z = +1.5)
-    RigidBody heavyMover;
-    heavyMover.position = glm::vec3(-4.0f, 0.5f, 1.5f);
-    heavyMover.velocity = glm::vec3(4.0f, 0.0f, 0.0f);
-    setCubeMassProperties(heavyMover, 8.0f);
-    heavyMover.restitution = 0.8f;
-    heavyMover.friction = 0.1f;
-    bodies.push_back(heavyMover);
-
-    RigidBody lightTarget;
-    lightTarget.position = glm::vec3(0.0f, 0.5f, 1.5f);
-    lightTarget.velocity = glm::vec3(0.0f);
-    setCubeMassProperties(lightTarget, 1.0f);
-    lightTarget.restitution = 0.8f;
-    lightTarget.friction = 0.1f;
-    bodies.push_back(lightTarget);
-
-    return bodies;
-}
-
-std::vector<RigidBody> spawnAngularMomentum() {
-    // Two stationary cubes hit by identical projectiles — one dead-center, one
-    // at the corner. Demonstrates: angular momentum from off-center impulse.
-    // The center-hit cube translates cleanly; the corner-hit cube spins wildly.
-    std::vector<RigidBody> bodies;
-
-    // Center hit (z = -2)
-    RigidBody targetCenter;
-    targetCenter.position = glm::vec3(0.0f, 0.5f, -2.0f);
-    targetCenter.velocity = glm::vec3(0.0f);
-    setCubeMassProperties(targetCenter, 1.0f);
-    targetCenter.restitution = 0.5f;
-    targetCenter.friction = 0.3f;
-    bodies.push_back(targetCenter);
-
-    RigidBody projCenter;
-    projCenter.position = glm::vec3(-4.0f, 0.5f, -2.0f);
-    projCenter.velocity = glm::vec3(5.0f, 0.0f, 0.0f);
-    setCubeMassProperties(projCenter, 1.0f);
-    projCenter.restitution = 0.5f;
-    projCenter.friction = 0.3f;
-    bodies.push_back(projCenter);
-
-    // Corner hit (z = +2) — projectile offset vertically
-    RigidBody targetCorner;
-    targetCorner.position = glm::vec3(0.0f, 0.5f, 2.0f);
-    targetCorner.velocity = glm::vec3(0.0f);
-    setCubeMassProperties(targetCorner, 1.0f);
-    targetCorner.restitution = 0.5f;
-    targetCorner.friction = 0.3f;
-    bodies.push_back(targetCorner);
-
-    RigidBody projCorner;
-    projCorner.position = glm::vec3(-4.0f, 0.1f, 2.0f); // lower → hits bottom edge
-    projCorner.velocity = glm::vec3(5.0f, 0.0f, 0.0f);
-    projCorner.scale = glm::vec3(0.5f, 0.5f, 0.5f); // smaller projectile
-    setCubeMassProperties(projCorner, 1.0f);
-    projCorner.restitution = 0.5f;
-    projCorner.friction = 0.3f;
-    bodies.push_back(projCorner);
-
-    return bodies;
-}
-
-
-std::vector<RigidBody> spawnFrictionRamp() {
-    // Three cubes on the floor with identical pushes but different friction values.
-    // Demonstrates: Coulomb friction — how friction coefficient affects deceleration.
-    // Low friction slides far, high friction stops almost immediately.
-    std::vector<RigidBody> bodies;
-
-    const float frictions[] = {0.05f, 0.4f, 1.0f};
-    const float zPositions[] = {-2.0f, 0.0f, 2.0f};
-
-    for (int i = 0; i < 3; ++i) {
-        RigidBody cube;
-        cube.position = glm::vec3(-4.0f, 0.5f, zPositions[i]);
-        cube.velocity = glm::vec3(5.0f, 0.0f, 0.0f);
-        setCubeMassProperties(cube, 1.0f);
-        cube.restitution = 0.1f;
-        cube.friction = frictions[i];
-        bodies.push_back(cube);
+    // Left tower (2x2 base, 4 tall) at z = -2.5
+    for (int row = 0; row < 4; ++row) {
+        brick(-0.5f * g, 0.5f + static_cast<float>(row) * g, -2.5f - 0.5f * g);
+        brick( 0.5f * g, 0.5f + static_cast<float>(row) * g, -2.5f - 0.5f * g);
+        brick(-0.5f * g, 0.5f + static_cast<float>(row) * g, -2.5f + 0.5f * g);
+        brick( 0.5f * g, 0.5f + static_cast<float>(row) * g, -2.5f + 0.5f * g);
     }
 
-    return bodies;
-}
-
-
-std::vector<RigidBody> spawnChainReaction() {
-    // A tiny cube hits a slightly larger one, which hits a larger one, etc.
-    // Each cube is 2x the mass of the one before it.
-    // Demonstrates: how a light fast object can barely budge a heavy one,
-    // while the reverse (heavy hitting light) sends it flying.
-    // This is the "ping-pong ball on basketball" experiment.
-    std::vector<RigidBody> bodies;
-
-    // 5 cubes of increasing mass: 0.25, 0.5, 1, 2, 4 kg
-    const float masses[] = {0.25f, 0.5f, 1.0f, 2.0f, 4.0f};
-    const float scales[] = {0.5f, 0.65f, 0.8f, 1.0f, 1.2f};
-
-    for (int i = 0; i < 5; ++i) {
-        RigidBody cube;
-        cube.scale = glm::vec3(scales[i]);
-        float xPos = static_cast<float>(i) * 1.5f - 1.0f;
-        cube.position = glm::vec3(xPos, scales[i] * 0.5f, 0.0f);
-        cube.velocity = glm::vec3(0.0f);
-        setCubeMassProperties(cube, masses[i]);
-        cube.restitution = 0.9f;
-        cube.friction = 0.1f;
-        bodies.push_back(cube);
+    // Right tower (2x2 base, 4 tall) at z = +2.5
+    for (int row = 0; row < 4; ++row) {
+        brick(-0.5f * g, 0.5f + static_cast<float>(row) * g, 2.5f - 0.5f * g);
+        brick( 0.5f * g, 0.5f + static_cast<float>(row) * g, 2.5f - 0.5f * g);
+        brick(-0.5f * g, 0.5f + static_cast<float>(row) * g, 2.5f + 0.5f * g);
+        brick( 0.5f * g, 0.5f + static_cast<float>(row) * g, 2.5f + 0.5f * g);
     }
 
-    // Launcher — lightest, fast
-    RigidBody launcher;
-    launcher.scale = glm::vec3(0.4f);
-    launcher.position = glm::vec3(-4.0f, 0.2f, 0.0f);
-    launcher.velocity = glm::vec3(8.0f, 0.0f, 0.0f);
-    setCubeMassProperties(launcher, 0.125f);
-    launcher.restitution = 0.9f;
-    launcher.friction = 0.1f;
-    bodies.push_back(launcher);
+    // Connecting wall (single-thick, 2 tall, between towers)
+    for (int row = 0; row < 2; ++row) {
+        brick(0.0f, 0.5f + static_cast<float>(row) * g, -1.1f);
+        brick(0.0f, 0.5f + static_cast<float>(row) * g,  0.0f);
+        brick(0.0f, 0.5f + static_cast<float>(row) * g,  1.1f);
+    }
+
+    // Boulder
+    RigidBody boulder;
+    boulder.scale = glm::vec3(1.5f, 1.5f, 1.5f);
+    boulder.position = glm::vec3(-5.0f, 8.0f, 2.0f);
+    boulder.velocity = glm::vec3(6.0f, -2.0f, 0.0f);
+    setCubeMassProperties(boulder, 8.0f);
+    boulder.restitution = 0.25f;
+    boulder.friction = 0.4f;
+    bodies.push_back(boulder);
 
     return bodies;
 }
 
+std::vector<RigidBody> spawnInertiaDemo() {
+    // Demonstrates Newton's first law (inertia): two cubes stacked on top of
+    // each other move together to the right. The bottom cube slams into a
+    // heavy immovable wall and stops dead. The top cube, with nothing acting
+    // on it horizontally, keeps sailing forward at its original speed.
+    //
+    // This is the classic "tablecloth trick" or "brick on a cart hitting a wall."
+    // The top cube has low friction so the bottom stopping doesn't drag it along.
+    std::vector<RigidBody> bodies;
+
+    // Bottom cube (the "cart") — moving right, will hit the wall
+    RigidBody bottom;
+    bottom.position = glm::vec3(-4.0f, 0.5f, 0.0f);
+    bottom.velocity = glm::vec3(5.0f, 0.0f, 0.0f);
+    setCubeMassProperties(bottom, 1.0f);
+    bottom.restitution = 0.05f; // nearly inelastic so it stops dead on impact
+    bottom.friction = 0.00f;    // low friction with the top cube
+    bodies.push_back(bottom);
+
+    // Top cube (the "passenger") — same velocity, riding on top
+    RigidBody top;
+    top.position = glm::vec3(-4.0f, 1.5f, 0.0f); // sitting on the bottom cube
+    top.velocity = glm::vec3(5.0f, 0.0f, 0.0f);  // same initial speed
+    setCubeMassProperties(top, 1.0f);
+    top.restitution = 0.1f;
+    top.friction = 0.05f; // low friction so it slides off cleanly when bottom stops
+    bodies.push_back(top);
+
+    // Wall (infinite mass) — the obstacle the bottom cube hits
+    RigidBody wall;
+    wall.position = glm::vec3(0.0f, 0.4f, 0.0f);
+    wall.scale = glm::vec3(0.4f, 0.8f, 2.0f); // thin, tall, wide
+    wall.velocity = glm::vec3(0.0f);
+    setCubeMassProperties(wall, 1.0f);
+    wall.inverseMass = 0.0f;
+    wall.inverseInertiaLocal = glm::mat3(0.0f);
+    wall.inverseInertiaWorld = glm::mat3(0.0f);
+    wall.restitution = 0.05f;
+    wall.friction = 0.8f;
+    bodies.push_back(wall);
+
+    return bodies;
+}
 
 // ===========================================================================
 // Main
@@ -528,18 +520,14 @@ int main() {
     // Uncomment exactly ONE line below to choose which demo runs.
     // Press P to start/pause the simulation.
     // -----------------------------------------------------------------
-    std::vector<RigidBody> bodies = spawnNewtonsCradle();
-    // std::vector<RigidBody> bodies = spawnStableTower();
-    // std::vector<RigidBody> bodies = spawnDominoChain();
-    // std::vector<RigidBody> bodies = spawnRotatedDrop();
-    // std::vector<RigidBody> bodies = spawnAvalanche();
+    std::vector<RigidBody> bodies = spawnStableTower();
+    // std::vector<RigidBody> bodies = spawnExplosion();
+    // std::vector<RigidBody> bodies = spawnWreckingBall();
     // std::vector<RigidBody> bodies = spawnBilliards();
+    // std::vector<RigidBody> bodies = spawnInertiaDemo();
     // std::vector<RigidBody> bodies = spawnElasticVsInelastic();
-    // std::vector<RigidBody> bodies = spawnMassRatio();
-    // std::vector<RigidBody> bodies = spawnAngularMomentum();
-    // std::vector<RigidBody> bodies = spawnFrictionRamp();
-    // std::vector<RigidBody> bodies = spawnChainReaction();
-
+    // std::vector<RigidBody> bodies = spawnNewtonsCradle(); 
+    // std::vector<RigidBody> bodies = spawnDominoSpiral();
 
     // Fixed timestep
     static constexpr float FIXED_DT = 1.0f / 60.0f;
@@ -595,7 +583,7 @@ int main() {
 
         // Draw all physics bodies
         for (const auto& body : bodies) {
-            renderer.drawBody(cube, camera, aspectRatio, body.position, body.orientation, body.isColliding);
+            renderer.drawBody(cube, camera, aspectRatio, body.position, body.orientation, body.scale, body.isColliding);
         }
 
         // Pause indicator

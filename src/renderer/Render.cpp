@@ -1,4 +1,5 @@
 #include "render.h"
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
@@ -131,8 +132,6 @@ Render::Render() {
     glDeleteShader(pfs);
 
     // Pause icon geometry: two vertical bars in NDC (top-left corner)
-    // Bar 1: x from -0.92 to -0.88, y from 0.82 to 0.94
-    // Bar 2: x from -0.85 to -0.81, y from 0.82 to 0.94
     float pauseVerts[] = {
         // Bar 1 (two triangles)
         -0.92f,  0.82f,
@@ -213,12 +212,13 @@ void Render::beginFrame() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Render::drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, bool isColliding) const {
+void Render::drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, glm::vec3 scale, bool isColliding) const {
     glUseProgram(shaderProgram);
 
     const glm::mat4 translation = glm::translate(glm::mat4(1.0f), position);
     const glm::mat4 rotation = glm::mat4_cast(orientation);
-    const glm::mat4 model = translation * rotation;
+    const glm::mat4 scaling = glm::scale(glm::mat4(1.0f), scale);
+    const glm::mat4 model = translation * rotation * scaling;
     const glm::mat4 view = camera.getViewMatrix();
     const glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
 

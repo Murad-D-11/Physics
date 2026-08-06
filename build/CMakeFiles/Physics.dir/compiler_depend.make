@@ -1235,6 +1235,7 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: C:/Users/Sobachya\ Mor
   C:/mingw64/include/c++/13.2.0/bits/stl_vector.h \
   C:/mingw64/include/c++/13.2.0/bits/uniform_int_dist.h \
   C:/mingw64/include/c++/13.2.0/bits/unordered_map.h \
+  C:/mingw64/include/c++/13.2.0/bits/unordered_set.h \
   C:/mingw64/include/c++/13.2.0/bits/uses_allocator.h \
   C:/mingw64/include/c++/13.2.0/bits/uses_allocator_args.h \
   C:/mingw64/include/c++/13.2.0/bits/utility.h \
@@ -1277,6 +1278,7 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: C:/Users/Sobachya\ Mor
   C:/mingw64/include/c++/13.2.0/type_traits \
   C:/mingw64/include/c++/13.2.0/typeinfo \
   C:/mingw64/include/c++/13.2.0/unordered_map \
+  C:/mingw64/include/c++/13.2.0/unordered_set \
   C:/mingw64/include/c++/13.2.0/vector \
   C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++allocator.h \
   C:/mingw64/include/c++/13.2.0/x86_64-w64-mingw32/bits/c++config.h \
@@ -1435,16 +1437,6 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Des
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_half.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/fwd.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/glm.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/scalar_constants.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/scalar_constants.inl \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/constants.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/constants.inl \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_clip_space.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_clip_space.inl \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_projection.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_projection.inl \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_transform.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_transform.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/setup.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/setup.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_float.hpp \
@@ -1462,6 +1454,17 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Des
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_transform.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_trigonometric.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_trigonometric.inl \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_relational.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_relational.inl \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/setup.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_clip_space.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_clip_space.inl \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_projection.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_projection.inl \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_transform.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_transform.inl \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/scalar_constants.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/scalar_constants.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_bool1.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_bool1_precision.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_double1.hpp \
@@ -1470,17 +1473,17 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Des
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_float1_precision.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_int1.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_int1_sized.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_relational.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_relational.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_uint1.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_uint1_sized.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/constants.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/constants.inl \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/matrix_transform.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/matrix_transform.inl \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/vec1.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/epsilon.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/epsilon.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/quaternion.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/quaternion.inl \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/vec1.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/matrix_transform.hpp \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/matrix_transform.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/type_ptr.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/type_ptr.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/integer.hpp \
@@ -2658,6 +2661,8 @@ C:/mingw64/x86_64-w64-mingw32/include/libloaderapi.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/jobapi.h:
 
+C:/mingw64/x86_64-w64-mingw32/include/ioapiset.h:
+
 C:/mingw64/include/c++/13.2.0/bits/stl_algo.h:
 
 C:/mingw64/include/c++/13.2.0/system_error:
@@ -2856,8 +2861,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/mingw64/include/c++/13.2.0/bits/localefwd.h:
 
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/vec1.hpp:
-
 C:/mingw64/x86_64-w64-mingw32/include/synchapi.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/epsilon.inl:
@@ -3005,6 +3008,10 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/setup.hpp:
 
 C:/mingw64/x86_64-w64-mingw32/include/_mingw_secapi.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/vec1.hpp:
+
+C:/mingw64/include/c++/13.2.0/bits/unordered_set.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_mat4x3.inl:
 
@@ -3372,6 +3379,12 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/mingw64/include/c++/13.2.0/bits/stl_iterator_base_types.h:
 
+C:/mingw64/x86_64-w64-mingw32/include/interlockedapi.h:
+
+C:/mingw64/include/c++/13.2.0/bits/node_handle.h:
+
+C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vbmi2vlintrin.h:
+
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double3x3_precision.hpp:
 
 C:/mingw64/include/c++/13.2.0/bits/stl_tempbuf.h:
@@ -3722,8 +3735,6 @@ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/clflushoptintrin.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/emmintrin.h:
 
-C:/mingw64/x86_64-w64-mingw32/include/ioapiset.h:
-
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vbmivlintrin.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/fma4intrin.h:
@@ -3786,6 +3797,8 @@ C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/xsavesintrin.h:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/xtestintrin.h:
 
+C:/mingw64/include/c++/13.2.0/unordered_set:
+
 C:/mingw64/x86_64-w64-mingw32/include/apiset.h:
 
 C:/mingw64/include/c++/13.2.0/bits/enable_special_members.h:
@@ -3815,9 +3828,3 @@ C:/mingw64/include/c++/13.2.0/tr1/hypergeometric.tcc:
 C:/mingw64/x86_64-w64-mingw32/include/guiddef.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/inaddr.h:
-
-C:/mingw64/include/c++/13.2.0/bits/node_handle.h:
-
-C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/avx512vbmi2vlintrin.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/interlockedapi.h:

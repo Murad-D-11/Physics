@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <string>
 #include "cube.h"
 #include "ground.h"
@@ -19,7 +20,7 @@ public:
     Render& operator=(const Render&) = delete;
 
     void beginFrame() const;
-    void drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, bool isColliding) const;
+    void drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, glm::vec3 scale, bool isColliding) const;
     void drawGround(const Ground& ground, const Camera& camera, float aspectRatio) const;
     void drawPauseIcon() const;
 
@@ -27,9 +28,9 @@ private:
     GLuint compileShader(const std::string& source, GLenum shaderType) const;
     GLuint linkProgram(GLuint vertexShader, GLuint fragmentShader) const;
 
-    GLuint shaderProgram = 0;       // cube shader
-    GLuint groundShaderProgram = 0; // ground grid shader
-    GLuint pauseShaderProgram = 0;  // pause icon shader (screen-space)
+    GLuint shaderProgram = 0;
+    GLuint groundShaderProgram = 0;
+    GLuint pauseShaderProgram = 0;
     GLuint pauseVAO = 0, pauseVBO = 0;
 
     static const char* vertexShaderSource;
