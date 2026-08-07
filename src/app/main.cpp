@@ -151,7 +151,7 @@ std::vector<RigidBody> spawnDominoSpiral() {
     // is pre-tilted past its tipping point; the cascade travels outward.
     std::vector<RigidBody> bodies;
 
-    const int count = 100;                           // tune freely
+    const int count = 150;                           // tune freely
     const glm::vec3 dominoScale(0.15f, 0.9f, 0.45f); // thin, tall, wide
     const float halfHeight = dominoScale.y * 0.5f;
     const float halfThick  = dominoScale.x * 0.5f;
@@ -276,54 +276,80 @@ std::vector<RigidBody> spawnAvalanche() {
 }
 
 std::vector<RigidBody> spawnBilliards() {
-    // A triangle formation of 6 cubes on the floor, struck by one launched cube.
-    // Tests off-center OBB impacts, angular + linear momentum scattering.
-    // Expected: formation breaks apart with realistic deflections and spins.
+    // A triangle rack of cubes struck by a cue cube, enclosed by four
+    // immovable rails like a pool table so the cubes bounce off the walls.
     std::vector<RigidBody> bodies;
 
     const float gap = 1.05f;
     const glm::vec3 triBase(1.5f, 0.5f, 0.0f);
 
+    // --- Rack: triangle of 6 cubes ---
     // Row 1 (3 cubes)
     for (int i = 0; i < 3; ++i) {
         RigidBody cube;
         cube.position = triBase + glm::vec3(0.0f, 0.0f, (static_cast<float>(i) - 1.0f) * gap);
         cube.velocity = glm::vec3(0.0f);
         setCubeMassProperties(cube, 1.0f);
-        cube.restitution = 0.4f;
-        cube.friction = 0.3f;
+        cube.restitution = 0.6f; // a bit bouncier so wall rebounds stay lively
+        cube.friction = 0.001f;
         bodies.push_back(cube);
     }
-
     // Row 2 (2 cubes)
     for (int i = 0; i < 2; ++i) {
         RigidBody cube;
         cube.position = triBase + glm::vec3(gap, 0.0f, (static_cast<float>(i) - 0.5f) * gap);
         cube.velocity = glm::vec3(0.0f);
         setCubeMassProperties(cube, 1.0f);
-        cube.restitution = 0.4f;
-        cube.friction = 0.3f;
+        cube.restitution = 0.6f;
+        cube.friction = 0.001f;
         bodies.push_back(cube);
     }
-
     // Row 3 (1 cube, the apex)
     {
         RigidBody cube;
         cube.position = triBase + glm::vec3(2.0f * gap, 0.0f, 0.0f);
         cube.velocity = glm::vec3(0.0f);
         setCubeMassProperties(cube, 1.0f);
-        cube.restitution = 0.4f;
-        cube.friction = 0.3f;
+        cube.restitution = 0.6f;
+        cube.friction = 0.001f;
         bodies.push_back(cube);
     }
 
-    // Cue cube — launched from the left with slight z-offset for asymmetric scatter
+    // --- Pool table rails (four immovable walls forming a rectangle) ---
+    // Table interior spans roughly x in [-8, 8], z in [-5, 5].
+    const float halfX = 8.0f;
+    const float halfZ = 5.0f;
+    const float railThickness = 0.5f;
+    const float railHeight = 1.0f;
+
+    auto rail = [&](glm::vec3 pos, glm::vec3 scale) {
+        RigidBody wall;
+        wall.position = pos;
+        wall.scale = scale;
+        wall.velocity = glm::vec3(0.0f);
+        setCubeMassProperties(wall, 1.0f);
+        wall.inverseMass = 0.0f; // immovable
+        wall.inverseInertiaLocal = glm::mat3(0.0f);
+        wall.inverseInertiaWorld = glm::mat3(0.0f);
+        wall.restitution = 0.7f; // rails bounce the cubes back
+        wall.friction = 0.2f;
+        bodies.push_back(wall);
+    };
+
+    // Long rails (top and bottom in z), spanning the full x width
+    rail(glm::vec3(0.0f, 0.5f,  halfZ + railThickness * 0.5f), glm::vec3(halfX * 2.0f + railThickness * 2.0f, railHeight, railThickness));
+    rail(glm::vec3(0.0f, 0.5f, -halfZ - railThickness * 0.5f), glm::vec3(halfX * 2.0f + railThickness * 2.0f, railHeight, railThickness));
+    // End rails (left and right in x), spanning the full z depth
+    rail(glm::vec3( halfX + railThickness * 0.5f, 0.5f, 0.0f), glm::vec3(railThickness, railHeight, halfZ * 2.0f));
+    rail(glm::vec3(-halfX - railThickness * 0.5f, 0.5f, 0.0f), glm::vec3(railThickness, railHeight, halfZ * 2.0f));
+
+    // --- Cue cube — launched from the right toward the rack ---
     RigidBody cue;
-    cue.position = glm::vec3(10.0f, 0.5f, 0.1f);
-    cue.velocity = glm::vec3(-67.0f, 0.0f, 0.0f);
+    cue.position = glm::vec3(6.0f, 0.5f, 0.1f); // slight z-offset for asymmetric break
+    cue.velocity = glm::vec3(-24.0f, 0.0f, 0.0f);
     setCubeMassProperties(cue, 1.0f);
-    cue.restitution = 0.4f;
-    cue.friction = 0.3f;
+    cue.restitution = 0.6f;
+    cue.friction = 0.2f;
     bodies.push_back(cue);
 
     return bodies;
@@ -412,9 +438,9 @@ std::vector<RigidBody> spawnWreckingBall() {
 
     // Boulder
     RigidBody boulder;
-    boulder.scale = glm::vec3(1.5f, 1.5f, 1.5f);
-    boulder.position = glm::vec3(-5.0f, 8.0f, 2.0f);
-    boulder.velocity = glm::vec3(6.0f, -2.0f, 0.0f);
+    boulder.scale = glm::vec3(1.9f, 1.9f, 1.9f);
+    boulder.position = glm::vec3(-10.0f, 3.0f, 1.0f);
+    boulder.velocity = glm::vec3(24.0f, -2.0f, 0.0f);
     setCubeMassProperties(boulder, 8.0f);
     boulder.restitution = 0.25f;
     boulder.friction = 0.4f;
@@ -526,7 +552,7 @@ int main() {
     // std::vector<RigidBody> bodies = spawnBilliards();
     // std::vector<RigidBody> bodies = spawnInertiaDemo();
     // std::vector<RigidBody> bodies = spawnElasticVsInelastic();
-    // std::vector<RigidBody> bodies = spawnNewtonsCradle(); 
+    // std::vector<RigidBody> bodies = spawnNewtonsCradle();
     // std::vector<RigidBody> bodies = spawnDominoSpiral();
 
     // Fixed timestep

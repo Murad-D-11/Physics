@@ -104,6 +104,7 @@ std::vector<CollisionInfo> PhysicsSolver::generateFloorContacts(const RigidBody&
 // ============================================================================
 
 namespace {
+    // Packs a signed 3D cell coordinate into a 64-bit key (21 bits per axis).
     inline uint64_t packCell(int x, int y, int z) {
         const uint64_t ux = static_cast<uint64_t>(x + 1048576) & 0x1FFFFF;
         const uint64_t uy = static_cast<uint64_t>(y + 1048576) & 0x1FFFFF;
@@ -118,6 +119,7 @@ void PhysicsSolver::buildBroadphasePairs(const std::vector<RigidBody>& bodies,
                                          std::vector<std::pair<int, int>>& outPairs) const {
     const float inv = 1.0f / SPATIAL_CELL_SIZE;
 
+    // Bucket every body into all grid cells its AABB overlaps
     std::unordered_map<uint64_t, std::vector<int>> grid;
     grid.reserve(bodies.size() * 2);
 
@@ -135,6 +137,7 @@ void PhysicsSolver::buildBroadphasePairs(const std::vector<RigidBody>& bodies,
                     grid[packCell(cx, cy, cz)].push_back(i);
     }
 
+    // Emit unique candidate pairs from bodies that share a cell
     std::unordered_set<uint64_t> seen;
     seen.reserve(bodies.size() * 4);
 
@@ -237,7 +240,6 @@ void PhysicsSolver::storeCache(const std::vector<Contact>& contacts) {
 
 // ============================================================================
 // Velocity Solver (Accumulated Impulse, Catto-style)
-// Restitution + friction only. Penetration is handled by the position solve.
 // ============================================================================
 
 void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
@@ -246,7 +248,7 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
         const glm::vec3 velAtB = c.b->velocity + glm::cross(c.b->angularVelocity, c.rB);
         const glm::vec3 dv = velAtB - velAtA;
 
-        // Normal impulse (restitution only; no Baumgarte here)
+        // Normal impulse
         const float vn = glm::dot(dv, c.info.normal);
 
         float restitutionBias = 0.0f;
@@ -255,7 +257,13 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
             restitutionBias = -e * c.initialRelVelN;
         }
 
-        float lambda = c.effectiveMassNormal * (-(vn - restitutionBias));
+        float positionBias = 0.0f;
+        const float excess = c.info.penetration - PENETRATION_SLOP;
+        if (excess > 0.0f) {
+            positionBias = (BAUMGARTE_FACTOR / FIXED_DT) * excess;
+        }
+
+        float lambda = c.effectiveMassNormal * (-(vn - restitutionBias - positionBias));
 
         const float oldAccumN = c.accumulatedNormalImpulse;
         c.accumulatedNormalImpulse = std::max(0.0f, oldAccumN + lambda);
@@ -312,66 +320,13 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
 }
 
 // ============================================================================
-// Split-Impulse Position Solver
-// Resolves penetration using pseudo-velocities that never touch real velocity,
-// so overlap correction adds no kinetic energy (unlike Baumgarte).
-// ============================================================================
-
-void PhysicsSolver::solvePositions(std::vector<Contact>& contacts) {
-    for (auto& c : contacts) {
-        const float excess = c.info.penetration - PENETRATION_SLOP;
-        if (excess <= 0.0f) continue;
-
-        const float bias = (POSITION_BETA / FIXED_DT) * excess;
-
-        const glm::vec3 vpA = c.a->pseudoLinearVel + glm::cross(c.a->pseudoAngularVel, c.rA);
-        const glm::vec3 vpB = c.b->pseudoLinearVel + glm::cross(c.b->pseudoAngularVel, c.rB);
-        const float vpn = glm::dot(vpB - vpA, c.info.normal);
-
-        float lambda = c.effectiveMassNormal * (bias - vpn);
-
-        const float oldP = c.accumulatedPositionImpulse;
-        c.accumulatedPositionImpulse = std::max(0.0f, oldP + lambda);
-        lambda = c.accumulatedPositionImpulse - oldP;
-
-        const glm::vec3 P = lambda * c.info.normal;
-        c.a->pseudoLinearVel  -= P * c.a->inverseMass;
-        c.b->pseudoLinearVel  += P * c.b->inverseMass;
-        c.a->pseudoAngularVel -= c.a->inverseInertiaWorld * glm::cross(c.rA, P);
-        c.b->pseudoAngularVel += c.b->inverseInertiaWorld * glm::cross(c.rB, P);
-    }
-}
-
-void PhysicsSolver::integratePseudoVelocities(std::vector<RigidBody>& bodies) {
-    // Apply pseudo-velocities to positions only. dt cancels against the
-    // (POSITION_BETA / FIXED_DT) bias, giving a net correction of
-    // ~POSITION_BETA * penetration per step.
-    for (auto& body : bodies) {
-        if (body.inverseMass == 0.0f) continue;
-
-        body.position += body.pseudoLinearVel * FIXED_DT;
-
-        const glm::vec3& pa = body.pseudoAngularVel;
-        if (glm::dot(pa, pa) > 0.0f) {
-            const glm::quat q(0.0f, pa.x, pa.y, pa.z);
-            body.orientation += (q * body.orientation) * (0.5f * FIXED_DT);
-            body.orientation = glm::normalize(body.orientation);
-        }
-    }
-}
-
-// ============================================================================
 // Main Solver Entry Point
 // ============================================================================
 
 void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     for (auto& body : bodies) {
         body.isColliding = false;
-        body.pseudoLinearVel = glm::vec3(0.0f);
-        body.pseudoAngularVel = glm::vec3(0.0f);
     }
-    floorBody.pseudoLinearVel = glm::vec3(0.0f);
-    floorBody.pseudoAngularVel = glm::vec3(0.0f);
 
     const std::size_t n = bodies.size();
     std::vector<Contact> contacts;
@@ -392,11 +347,6 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     std::vector<std::pair<int, int>> candidatePairs;
     buildBroadphasePairs(bodies, aabbMin, aabbMax, candidatePairs);
 
-    // Restore deterministic contact order (ascending i, then j). The sequential
-    // impulse solver needs a consistent order every frame to keep stacks stable;
-    // the hash grid otherwise emits pairs in arbitrary, frame-varying order.
-    std::sort(candidatePairs.begin(), candidatePairs.end());
-
     // Narrowphase on candidate pairs (AABB refine, then OBB-SAT + manifold)
     for (const auto& pr : candidatePairs) {
         const int i = pr.first;
@@ -414,7 +364,7 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
                                 glm::vec3(0.0f), glm::vec3(0.0f),
                                 0.0f, 0.0f, 0.0f,
                                 glm::vec3(0.0f), glm::vec3(0.0f),
-                                0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                                0.0f, 0.0f, 0.0f, 0.0f});
         }
     }
 
@@ -425,7 +375,7 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
                                 glm::vec3(0.0f), glm::vec3(0.0f),
                                 0.0f, 0.0f, 0.0f,
                                 glm::vec3(0.0f), glm::vec3(0.0f),
-                                0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+                                0.0f, 0.0f, 0.0f, 0.0f});
         }
     }
 
@@ -459,16 +409,9 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     matchAndLoadCache(contacts);
     warmStart(contacts);
 
-    // Velocity solve: real dynamics (restitution + friction)
     for (int iter = 0; iter < SOLVER_ITERATIONS; ++iter) {
         solveVelocities(contacts);
     }
-
-    // Position solve: split impulse (energy-neutral penetration correction)
-    for (int iter = 0; iter < POSITION_ITERATIONS; ++iter) {
-        solvePositions(contacts);
-    }
-    integratePseudoVelocities(bodies);
 
     storeCache(contacts);
 }
