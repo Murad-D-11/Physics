@@ -26,7 +26,7 @@ PhysicsSolver::PhysicsSolver() {
 PhysicsSolver::~PhysicsSolver() {}
 
 // ============================================================================
-// Integration
+// Integration (discrete, single body — retained for reference / reuse)
 // ============================================================================
 
 void PhysicsSolver::integrate(RigidBody& body, float deltaTime) {
@@ -49,6 +49,34 @@ void PhysicsSolver::integrate(RigidBody& body, float deltaTime) {
         body.orientation = glm::normalize(body.orientation);
 
         body.torque = glm::vec3(0.0f);
+    }
+}
+
+// ============================================================================
+// Split integration used by the CCD sub-stepper
+// ============================================================================
+
+void PhysicsSolver::applyGravity(RigidBody& body, float dt) const {
+    if (body.inverseMass == 0.0f) return;
+    const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+    body.velocity += gravity * dt;
+}
+
+void PhysicsSolver::integratePositions(std::vector<RigidBody>& bodies, float dt) {
+    if (dt <= 0.0f) return;
+    for (auto& body : bodies) {
+        if (body.inverseMass == 0.0f) continue;
+
+        body.position += body.velocity * dt;
+
+        if (body.inverseInertiaLocal != glm::mat3(0.0f)) {
+            const glm::quat angVelQuat(0.0f, body.angularVelocity.x, body.angularVelocity.y, body.angularVelocity.z);
+            body.orientation += (angVelQuat * body.orientation) * (0.5f * dt);
+            body.orientation = glm::normalize(body.orientation);
+
+            const glm::mat3 R = glm::mat3_cast(body.orientation);
+            body.inverseInertiaWorld = R * body.inverseInertiaLocal * glm::transpose(R);
+        }
     }
 }
 
@@ -320,7 +348,7 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
 }
 
 // ============================================================================
-// Main Solver Entry Point
+// Discrete detection + resolution (unchanged pipeline)
 // ============================================================================
 
 void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
@@ -414,4 +442,177 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     }
 
     storeCache(contacts);
+}
+
+// ============================================================================
+// Continuous Collision Detection (Conservative Advancement)
+// ============================================================================
+
+OBB PhysicsSolver::predictOBB(const RigidBody& b, float t) {
+    OBB o;
+    o.center = b.position + b.velocity * t;
+
+    glm::quat q = b.orientation;
+    const glm::quat wq(0.0f, b.angularVelocity.x, b.angularVelocity.y, b.angularVelocity.z);
+    q = q + (wq * q) * (0.5f * t);
+    q = glm::normalize(q);
+
+    o.halfExtents = b.scale * 0.5f;
+    o.axes = glm::mat3_cast(q);
+    return o;
+}
+
+bool PhysicsSolver::isCCDCandidate(const RigidBody& b, float dt) const {
+    if (b.inverseMass == 0.0f) return false; // static bodies never initiate a sweep
+    const float minHalf = std::min(std::min(b.scale.x, b.scale.y), b.scale.z) * 0.5f;
+    const float rmax = glm::length(b.scale * 0.5f);
+    const float disp = glm::length(b.velocity) * dt + glm::length(b.angularVelocity) * rmax * dt;
+    return disp > CCD_MOTION_FACTOR * minHalf;
+}
+
+PhysicsSolver::TOIResult PhysicsSolver::computePairTOI(const RigidBody& A, const RigidBody& B, float dt) const {
+    TOIResult res;
+
+    const float rmaxA = glm::length(A.scale * 0.5f);
+    const float rmaxB = glm::length(B.scale * 0.5f);
+    const float angBound = glm::length(A.angularVelocity) * rmaxA + glm::length(B.angularVelocity) * rmaxB;
+
+    float t = 0.0f;
+    for (int iter = 0; iter < CCD_MAX_ITERATIONS; ++iter) {
+        const OBB oa = predictOBB(A, t);
+        const OBB ob = predictOBB(B, t);
+        const DistanceResult dr = Collision::distanceOBB(oa, ob);
+
+        if (dr.distance < CCD_TOLERANCE) {
+            if (iter == 0) return res; // already touching at t=0 -> discrete path handles it
+            res.hit = true;
+            res.toi = t;
+            res.closingSpeed = std::max(1e-4f, glm::dot(A.velocity - B.velocity, dr.normal) + angBound);
+            return res;
+        }
+
+        const float closing = glm::dot(A.velocity - B.velocity, dr.normal) + angBound;
+        if (closing <= 1e-6f) return res; // separating -> no impact in this interval
+
+        t += dr.distance / closing; // conservative: never steps past first contact
+        if (t >= dt) return res;     // impact lies beyond the interval
+    }
+
+    // Iteration cap reached near contact: report current t conservatively.
+    const OBB oa = predictOBB(A, t);
+    const OBB ob = predictOBB(B, t);
+    const DistanceResult dr = Collision::distanceOBB(oa, ob);
+    res.hit = true;
+    res.toi = t;
+    res.closingSpeed = std::max(1e-4f, glm::dot(A.velocity - B.velocity, dr.normal) + angBound);
+    return res;
+}
+
+PhysicsSolver::TOIResult PhysicsSolver::computeFloorTOI(const RigidBody& B, float dt) const {
+    TOIResult res;
+
+    const float floorTopY = floorBody.position.y + floorBody.scale.y * 0.5f;
+    const float rmax = glm::length(B.scale * 0.5f);
+    const float angBound = glm::length(B.angularVelocity) * rmax;
+
+    float t = 0.0f;
+    for (int iter = 0; iter < CCD_MAX_ITERATIONS; ++iter) {
+        const OBB o = predictOBB(B, t);
+        glm::vec3 corners[8];
+        o.getCorners(corners);
+        float lowestY = corners[0].y;
+        for (int k = 1; k < 8; ++k) lowestY = std::min(lowestY, corners[k].y);
+        const float d = lowestY - floorTopY;
+
+        if (d < CCD_TOLERANCE) {
+            if (iter == 0) return res; // already touching floor -> discrete handles it
+            res.hit = true;
+            res.toi = t;
+            res.closingSpeed = std::max(1e-4f, -B.velocity.y + angBound);
+            return res;
+        }
+
+        const float closing = -B.velocity.y + angBound;
+        if (closing <= 1e-6f) return res;
+
+        t += d / closing;
+        if (t >= dt) return res;
+    }
+
+    res.hit = true;
+    res.toi = t;
+    res.closingSpeed = std::max(1e-4f, -B.velocity.y + angBound);
+    return res;
+}
+
+PhysicsSolver::TOIResult PhysicsSolver::findEarliestTOI(const std::vector<RigidBody>& bodies, float dt) const {
+    TOIResult best;
+    best.hit = false;
+    best.toi = dt; // default: no early impact -> advance the whole interval
+
+    for (std::size_t i = 0; i < bodies.size(); ++i) {
+        if (!isCCDCandidate(bodies[i], dt)) continue;
+
+        // Sweep against the floor
+        const TOIResult tf = computeFloorTOI(bodies[i], dt);
+        if (tf.hit && tf.toi < best.toi) best = tf;
+
+        // Sweep against every other body
+        for (std::size_t j = 0; j < bodies.size(); ++j) {
+            if (j == i) continue;
+            // If both are candidates, only test the unordered pair once.
+            if (j < i && isCCDCandidate(bodies[j], dt)) continue;
+
+            const TOIResult tp = computePairTOI(bodies[i], bodies[j], dt);
+            if (tp.hit && tp.toi < best.toi) best = tp;
+        }
+    }
+
+    return best;
+}
+
+// ============================================================================
+// Full CCD-aware step
+// ============================================================================
+
+void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
+    // 1. Apply forces once for the whole frame (semi-implicit Euler).
+    for (auto& b : bodies) applyGravity(b, dt);
+
+    // 2. Sub-step to each earliest time of impact, resolve, and continue with
+    //    the leftover time. At low speeds no body qualifies for CCD, so this
+    //    reduces to a single full-dt advance + one resolve (identical to the
+    //    old discrete path).
+    float remaining = dt;
+    int guard = 0;
+
+    while (remaining > CCD_TIME_EPS && guard < CCD_MAX_SUBSTEPS) {
+        ++guard;
+
+        const TOIResult toi = findEarliestTOI(bodies, remaining);
+
+        float advance;
+        if (toi.hit) {
+            // Advance to just past first contact so the discrete SAT seats a
+            // tiny real overlap (~slop) that the impulse solver resolves. The
+            // extra "seat" distance is ~(tolerance + slop) regardless of speed,
+            // far thinner than any wall, so nothing tunnels.
+            const float seat = (CCD_TOLERANCE + PENETRATION_SLOP) / toi.closingSpeed;
+            advance = std::min(remaining, toi.toi + seat);
+        } else {
+            advance = remaining;
+        }
+        if (advance < 0.0f) advance = 0.0f;
+
+        integratePositions(bodies, advance);
+        detectAndResolve(bodies);
+
+        remaining -= advance;
+    }
+
+    // Flush any leftover time if the substep guard tripped (many-impact frames).
+    if (remaining > CCD_TIME_EPS) {
+        integratePositions(bodies, remaining);
+        detectAndResolve(bodies);
+    }
 }

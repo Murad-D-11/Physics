@@ -198,6 +198,7 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/CollisionInfo.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/OBB.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Camera.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.h \
@@ -3343,8 +3344,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/gtc/constants.inl:
 
-C:/mingw64/include/c++/13.2.0/bits/stl_heap.h:
-
 C:/mingw64/x86_64-w64-mingw32/include/time.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_clip_space.inl:
@@ -3366,6 +3365,8 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_double2_precision.hpp:
 
 C:/mingw64/lib/gcc/x86_64-w64-mingw32/13.2.0/include/f16cintrin.h:
+
+C:/mingw64/include/c++/13.2.0/bits/stl_heap.h:
 
 C:/mingw64/include/c++/13.2.0/bits/stl_iterator.h:
 

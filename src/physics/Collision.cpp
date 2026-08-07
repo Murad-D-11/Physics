@@ -344,3 +344,46 @@ void Collision::resolvePenetration(RigidBody& a, RigidBody& b, const CollisionIn
     a.position -= info.normal * info.penetration * ratioA;
     b.position += info.normal * info.penetration * ratioB;
 }
+
+DistanceResult Collision::distanceOBB(const OBB& a, const OBB& b) {
+    DistanceResult result;
+    const glm::vec3 d = b.center - a.center;
+
+    // 15 candidate separating axes: 3 A faces, 3 B faces, 9 edge-edge crosses
+    glm::vec3 axes[15];
+    int n = 0;
+    for (int i = 0; i < 3; ++i) axes[n++] = a.axes[i];
+    for (int i = 0; i < 3; ++i) axes[n++] = b.axes[i];
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j)
+            axes[n++] = glm::cross(a.axes[i], b.axes[j]);
+
+    float bestGap = -std::numeric_limits<float>::max();
+    glm::vec3 bestNormal(0.0f, 1.0f, 0.0f);
+
+    for (int k = 0; k < 15; ++k) {
+        const float len = glm::length(axes[k]);
+        if (len < 1e-6f) continue; // degenerate (parallel edges)
+        const glm::vec3 axis = axes[k] / len;
+
+        const float rA = std::abs(glm::dot(axis, a.axes[0])) * a.halfExtents.x
+                       + std::abs(glm::dot(axis, a.axes[1])) * a.halfExtents.y
+                       + std::abs(glm::dot(axis, a.axes[2])) * a.halfExtents.z;
+        const float rB = std::abs(glm::dot(axis, b.axes[0])) * b.halfExtents.x
+                       + std::abs(glm::dot(axis, b.axes[1])) * b.halfExtents.y
+                       + std::abs(glm::dot(axis, b.axes[2])) * b.halfExtents.z;
+
+        const float centerDist = glm::dot(d, axis);
+        const float gap = std::abs(centerDist) - (rA + rB);
+
+        if (gap > bestGap) {
+            bestGap = gap;
+            bestNormal = (centerDist < 0.0f) ? -axis : axis; // orient A -> B
+        }
+    }
+
+    result.distance = bestGap;
+    result.overlapping = (bestGap <= 0.0f);
+    result.normal = bestNormal;
+    return result;
+}

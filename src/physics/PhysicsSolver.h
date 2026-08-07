@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <unordered_map>
+#include "obb.h"
 #include "rigidbody.h"
 #include "collisioninfo.h"
 
@@ -12,8 +13,12 @@ class PhysicsSolver {
         PhysicsSolver();
         ~PhysicsSolver();
 
+        // Discrete primitives (kept public; used internally by step()).
         void integrate(RigidBody& body, float deltaTime);
         void detectAndResolve(std::vector<RigidBody>& bodies);
+
+        // Full CCD-aware advance of the whole scene by dt. This is what main() calls.
+        void step(std::vector<RigidBody>& bodies, float dt);
 
         int lastContactCount = 0; // number of active contacts (updated by detectAndResolve)
 
@@ -76,20 +81,35 @@ class PhysicsSolver {
             }
         };
 
-        // --- Methods ---
+        /**
+         * Result of a Time-of-Impact query over an interval.
+         */
+        struct TOIResult {
+            bool hit = false;
+            float toi = 0.0f;          // time of first contact within the interval
+            float closingSpeed = 0.0f; // approach rate along the contact normal at TOI
+        };
+
+        // --- Discrete solver internals ---
         std::vector<CollisionInfo> generateFloorContacts(const RigidBody& body) const;
         void precomputeContact(Contact& c);
         void warmStart(std::vector<Contact>& contacts);
         void solveVelocities(std::vector<Contact>& contacts);
         void matchAndLoadCache(std::vector<Contact>& contacts);
         void storeCache(const std::vector<Contact>& contacts);
-
-        // Spatial-hash broadphase: fills outPairs with candidate (i, j) index pairs
-        // whose world AABBs share at least one grid cell.
         void buildBroadphasePairs(const std::vector<RigidBody>& bodies,
                                   const std::vector<glm::vec3>& aabbMin,
                                   const std::vector<glm::vec3>& aabbMax,
                                   std::vector<std::pair<int, int>>& outPairs) const;
+
+        // --- CCD internals ---
+        static OBB predictOBB(const RigidBody& b, float t); // transform advanced by t at constant velocity
+        void applyGravity(RigidBody& body, float dt) const; // v += g*dt (dynamic only)
+        void integratePositions(std::vector<RigidBody>& bodies, float dt); // x,orientation += vel*dt
+        bool isCCDCandidate(const RigidBody& b, float dt) const;
+        TOIResult computePairTOI(const RigidBody& a, const RigidBody& b, float dt) const;
+        TOIResult computeFloorTOI(const RigidBody& b, float dt) const;
+        TOIResult findEarliestTOI(const std::vector<RigidBody>& bodies, float dt) const;
 
         // --- State ---
         RigidBody floorBody;
@@ -107,4 +127,11 @@ class PhysicsSolver {
         static constexpr float WARM_START_SCALE = 0.8f;
         static constexpr float FIXED_DT = 1.0f / 60.0f;
         static constexpr float SPATIAL_CELL_SIZE = 2.0f; // grid cell edge; ~= largest body extent
+
+        // CCD tuning
+        static constexpr int   CCD_MAX_SUBSTEPS   = 8;      // max TOI events resolved per frame
+        static constexpr int   CCD_MAX_ITERATIONS = 32;     // conservative-advancement iterations
+        static constexpr float CCD_TOLERANCE      = 0.01f;  // "touching" gap threshold
+        static constexpr float CCD_TIME_EPS       = 1e-5f;  // remaining-time cutoff
+        static constexpr float CCD_MOTION_FACTOR  = 0.5f;   // fraction of min half-extent to trigger CCD
 };

@@ -8,12 +8,23 @@ struct RigidBody;
 struct SATResult {
     bool colliding = false;
     float penetration = 0.0f;
-    
+
     glm::vec3 normal = glm::vec3(0.0f); // always points from A toward B
-    
+
     int axisType = -1; // 0-2: face of A, 3-5: face of B, 6-14: edge-edge
     int axisIndexA = -1; // which axis of A (for edge-edge: which edge direction)
     int axisIndexB = -1; // which axis of B (for edge-edge: which edge direction)
+};
+
+/**
+ * Separation query result used by continuous collision detection.
+ * distance > 0  : boxes are apart by this gap (normal points A -> B)
+ * distance <= 0 : boxes overlap; -distance is the SAT penetration depth
+ */
+struct DistanceResult {
+    bool overlapping = false;
+    float distance = 0.0f;
+    glm::vec3 normal = glm::vec3(0.0f); // points from A toward B
 };
 
 /**
@@ -33,8 +44,14 @@ class Collision {
          */
         static std::vector<CollisionInfo> generateManifold(const OBB& a, const OBB& b, const SATResult& sat);
 
+        /**
+         * SAT-based separation distance between two OBBs. When disjoint, returns
+         * the gap and the axis of maximum separation (a conservative lower bound
+         * on true distance, which is exactly what conservative advancement needs).
+         */
+        static DistanceResult distanceOBB(const OBB& a, const OBB& b);
+
         // Position correction (kept for reference but replaced by Baumgarte in the solver)
-        // static std::vector<CollisionInfo> test(const AABB& a, const AABB& b); // tests whether two AABBs overlap, returns a CollisionInfo which describes status of the collision event
         static void resolvePenetration(RigidBody& a, RigidBody& b, const CollisionInfo& info); // pushes body A and B so they no longer overlap
     private:
         /**

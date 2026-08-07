@@ -346,7 +346,7 @@ std::vector<RigidBody> spawnBilliards() {
     // --- Cue cube — launched from the right toward the rack ---
     RigidBody cue;
     cue.position = glm::vec3(6.0f, 0.5f, 0.1f); // slight z-offset for asymmetric break
-    cue.velocity = glm::vec3(-24.0f, 0.0f, 0.0f);
+    cue.velocity = glm::vec3(-2400.0f, 0.0f, 0.0f);
     setCubeMassProperties(cue, 1.0f);
     cue.restitution = 0.6f;
     cue.friction = 0.2f;
@@ -546,10 +546,10 @@ int main() {
     // Uncomment exactly ONE line below to choose which demo runs.
     // Press P to start/pause the simulation.
     // -----------------------------------------------------------------
-    std::vector<RigidBody> bodies = spawnStableTower();
+    // std::vector<RigidBody> bodies = spawnStableTower();
     // std::vector<RigidBody> bodies = spawnExplosion();
     // std::vector<RigidBody> bodies = spawnWreckingBall();
-    // std::vector<RigidBody> bodies = spawnBilliards();
+    std::vector<RigidBody> bodies = spawnBilliards();
     // std::vector<RigidBody> bodies = spawnInertiaDemo();
     // std::vector<RigidBody> bodies = spawnElasticVsInelastic();
     // std::vector<RigidBody> bodies = spawnNewtonsCradle();
@@ -575,10 +575,7 @@ int main() {
             const float physicsStart = static_cast<float>(glfwGetTime());
 
             while (accumulator >= FIXED_DT) {
-                for (auto& body : bodies) {
-                    physicsSolver.integrate(body, FIXED_DT);
-                }
-                physicsSolver.detectAndResolve(bodies);
+                physicsSolver.step(bodies, FIXED_DT); // CCD-aware advance (integrate + TOI + resolve)
                 accumulator -= FIXED_DT;
             }
 
@@ -596,6 +593,7 @@ int main() {
         } else {
             accumulator = 0.0f; // don't let time pile up while paused
         }
+
 
         // Render
         int width, height;
