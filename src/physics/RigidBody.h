@@ -16,6 +16,12 @@ class RigidBody {
 
         bool isColliding = false;
 
+        // Sleeping / island state (managed by PhysicsSolver).
+        bool asleep = false; // sleeping bodies skip integration and solving
+        float sleepTimer = 0.0f; // time spent below sleep thresholds
+        int islandId = -1; // connected-component id; used for wake propagation
+
+
         glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         glm::vec3 angularVelocity = glm::vec3(0.0f);
         glm::vec3 torque = glm::vec3(0.0f);

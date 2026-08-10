@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
+#include <utility>
 #include <cstdint>
 #include <unordered_map>
 #include "obb.h"
@@ -17,23 +18,19 @@ class PhysicsSolver {
         void integrate(RigidBody& body, float deltaTime);
         void detectAndResolve(std::vector<RigidBody>& bodies);
 
-        // Full CCD-aware advance of the whole scene by dt. This is what main() calls.
+        // Full CCD-aware + sleeping advance of the whole scene by dt.
         void step(std::vector<RigidBody>& bodies, float dt);
 
         int lastContactCount = 0; // number of active contacts (updated by detectAndResolve)
 
     private:
-        /**
-         * A single contact point with all precomputed solver data and accumulated impulses.
-         * One colliding pair may produce multiple Contact instances (one per manifold point).
-         */
         struct Contact {
             RigidBody* a;
             RigidBody* b;
             CollisionInfo info;
 
-            glm::vec3 rA; // contact point - a.position
-            glm::vec3 rB; // contact point - b.position
+            glm::vec3 rA;
+            glm::vec3 rB;
 
             float effectiveMassNormal;
             float effectiveMassTangent1;
@@ -49,19 +46,12 @@ class PhysicsSolver {
             float accumulatedTangentImpulse2 = 0.0f;
         };
 
-        /**
-         * Accumulated impulses kept between frames for warm starting.
-         */
         struct CachedImpulse {
             float normal = 0.0f;
             float tangent1 = 0.0f;
             float tangent2 = 0.0f;
         };
 
-        /**
-         * Identity of a contact point across frames: the body pair plus the
-         * geometric feature ID that produced it.
-         */
         struct ContactKey {
             RigidBody* a;
             RigidBody* b;
@@ -81,13 +71,10 @@ class PhysicsSolver {
             }
         };
 
-        /**
-         * Result of a Time-of-Impact query over an interval.
-         */
         struct TOIResult {
             bool hit = false;
-            float toi = 0.0f;          // time of first contact within the interval
-            float closingSpeed = 0.0f; // approach rate along the contact normal at TOI
+            float toi = 0.0f;
+            float closingSpeed = 0.0f;
         };
 
         // --- Discrete solver internals ---
@@ -103,17 +90,22 @@ class PhysicsSolver {
                                   std::vector<std::pair<int, int>>& outPairs) const;
 
         // --- CCD internals ---
-        static OBB predictOBB(const RigidBody& b, float t); // transform advanced by t at constant velocity
-        void applyGravity(RigidBody& body, float dt) const; // v += g*dt (dynamic only)
-        void integratePositions(std::vector<RigidBody>& bodies, float dt); // x,orientation += vel*dt
+        static OBB predictOBB(const RigidBody& b, float t);
+        void applyGravity(RigidBody& body, float dt) const;
+        void integratePositions(std::vector<RigidBody>& bodies, float dt);
         bool isCCDCandidate(const RigidBody& b, float dt) const;
         TOIResult computePairTOI(const RigidBody& a, const RigidBody& b, float dt) const;
         TOIResult computeFloorTOI(const RigidBody& b, float dt) const;
         TOIResult findEarliestTOI(const std::vector<RigidBody>& bodies, float dt) const;
 
+        // --- Sleeping / islands ---
+        void updateSleeping(std::vector<RigidBody>& bodies, float dt);
+        void wakeIsland(std::vector<RigidBody>& bodies, int islandId);
+
         // --- State ---
         RigidBody floorBody;
         std::unordered_map<ContactKey, CachedImpulse, ContactKeyHash> contactCache;
+        std::vector<std::pair<int, int>> islandEdges; // dynamic-dynamic contact graph (rebuilt each detectAndResolve)
 
         // --- Constants ---
         static constexpr int SOLVER_ITERATIONS = 10;
@@ -126,12 +118,18 @@ class PhysicsSolver {
         static constexpr float FACE_CONTACT_EPSILON = 0.005f;
         static constexpr float WARM_START_SCALE = 0.8f;
         static constexpr float FIXED_DT = 1.0f / 60.0f;
-        static constexpr float SPATIAL_CELL_SIZE = 2.0f; // grid cell edge; ~= largest body extent
+        static constexpr float SPATIAL_CELL_SIZE = 2.0f;
 
         // CCD tuning
-        static constexpr int   CCD_MAX_SUBSTEPS   = 8;      // max TOI events resolved per frame
-        static constexpr int   CCD_MAX_ITERATIONS = 32;     // conservative-advancement iterations
-        static constexpr float CCD_TOLERANCE      = 0.01f;  // "touching" gap threshold
-        static constexpr float CCD_TIME_EPS       = 1e-5f;  // remaining-time cutoff
-        static constexpr float CCD_MOTION_FACTOR  = 0.5f;   // fraction of min half-extent to trigger CCD
+        static constexpr int   CCD_MAX_SUBSTEPS   = 8;
+        static constexpr int   CCD_MAX_ITERATIONS = 32;
+        static constexpr float CCD_TOLERANCE      = 0.01f;
+        static constexpr float CCD_TIME_EPS       = 1e-5f;
+        static constexpr float CCD_MOTION_FACTOR  = 0.5f;
+
+        // Sleeping tuning
+        static constexpr float SLEEP_LINEAR_THRESHOLD  = 0.08f; // m/s
+        static constexpr float SLEEP_ANGULAR_THRESHOLD = 0.10f; // rad/s
+        static constexpr float SLEEP_TIME             = 0.5f;   // sustained stability before sleeping
+        static constexpr float ISLAND_CONTACT_MARGIN  = 0.02f;  // gap under which two bodies share an island
 };

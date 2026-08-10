@@ -295,6 +295,8 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/epsilon.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/../detail/setup.hpp \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glm/gtc/epsilon.inl \
+ C:/mingw64/include/c++/13.2.0/utility \
+ C:/mingw64/include/c++/13.2.0/bits/stl_relops.h \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\obb.h \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\rigidbody.h \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\physics\collisioninfo.h \
