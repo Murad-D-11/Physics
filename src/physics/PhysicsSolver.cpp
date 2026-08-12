@@ -61,6 +61,18 @@ void PhysicsSolver::integrate(RigidBody& body, float deltaTime) {
 
 void PhysicsSolver::applyGravity(RigidBody& body, float dt) const {
     if (body.inverseMass == 0.0f || body.asleep) return;
+
+    // Near-rest damping: bleed off the iterative solver's residual jitter so a
+    // settling island's velocities decay below the sleep threshold and it can
+    // actually sleep. Gated to nearly-stationary bodies, so real motion (falls,
+    // launches, mid-swing) is untouched -- this only speeds convergence to the
+    // equilibrium the solver already targets; it does not freeze or lock bodies.
+    if (glm::dot(body.velocity, body.velocity) < SETTLE_LINEAR * SETTLE_LINEAR &&
+        glm::dot(body.angularVelocity, body.angularVelocity) < SETTLE_ANGULAR * SETTLE_ANGULAR) {
+        body.velocity *= REST_DAMPING;
+        body.angularVelocity *= REST_DAMPING;
+    }
+
     const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
     body.velocity += gravity * dt;
 }
@@ -714,9 +726,10 @@ void PhysicsSolver::updateSleeping(std::vector<RigidBody>& bodies, float dt) {
         if (b.inverseMass == 0.0f) { b.islandId = -1; continue; }
 
         const bool slow = glm::dot(b.velocity, b.velocity) < linSq
-                       && glm::dot(b.angularVelocity, b.angularVelocity) < angSq;
+               && glm::dot(b.angularVelocity, b.angularVelocity) < angSq;
         if (slow) b.sleepTimer += dt;
-        else      b.sleepTimer = 0.0f;
+        else      b.sleepTimer = std::max(0.0f, b.sleepTimer - SLEEP_DECAY_RATE * dt);
+
     }
 
     std::unordered_map<int, float> islandMinTimer;

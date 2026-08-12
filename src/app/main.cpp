@@ -187,12 +187,19 @@ std::vector<RigidBody> spawnDominoSpiral() {
         bodies.push_back(domino);
     }
 
-    // Pre-tilt the innermost domino toward the next so gravity starts the chain
+    // Start the chain with a decisive push, not a metastable near-balance release.
+    // A domino 4-5 deg past its ~9.5 deg balance angle tips so slowly that its
+    // angular velocity stays under the sleep threshold and it falls asleep
+    // mid-tip. An initial angular velocity well above SLEEP_ANGULAR_THRESHOLD
+    // (0.20 rad/s) keeps it "awake" and carries it past the balance point, after
+    // which gravity accelerates the topple on its own.
     glm::vec3 tangent0 = glm::normalize(pos[1] - pos[0]);
     glm::vec3 tiltAxis = glm::normalize(glm::cross(up, tangent0));
     const float tiltAngle = glm::radians(14.0f);
     bodies[0].orientation = glm::angleAxis(tiltAngle, tiltAxis) * bodies[0].orientation;
     bodies[0].position.y = halfHeight * std::cos(tiltAngle) + halfThick * std::sin(tiltAngle);
+    bodies[0].angularVelocity = tiltAxis * 3.0f; // the "flick" that starts the cascade
+
 
     return bodies;
 }

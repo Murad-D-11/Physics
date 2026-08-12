@@ -134,4 +134,8 @@ class PhysicsSolver {
         static constexpr float SLEEP_ANGULAR_THRESHOLD = 0.20f;
         static constexpr float SLEEP_TIME             = 0.5f;
         static constexpr float ISLAND_CONTACT_MARGIN  = 0.02f;
+        static constexpr float REST_DAMPING   = 0.80f; // per-frame velocity retention for near-rest bodies
+        static constexpr float SETTLE_LINEAR  = 0.30f; // below this speed, near-rest damping engages (m/s)
+        static constexpr float SETTLE_ANGULAR = 0.40f; // below this spin, near-rest damping engages (rad/s)
+        static constexpr float SLEEP_DECAY_RATE = 3.0f; // a "fast" frame costs 3 slow frames of accumulated rest
 };

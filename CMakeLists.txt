@@ -12,6 +12,11 @@ endif()
 
 add_executable(${PROJECT_NAME} src/app/main.cpp src/renderer/camera.cpp src/renderer/cube.cpp src/renderer/render.cpp src/renderer/glad.c src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp src/renderer/ground.cpp)
 
+# Always optimize this target. GLM + std containers run ~20x slower at -O0, and
+# editor/CMake tooling tends to reconfigure to a Debug (-O0) build, which
+# silently reintroduces the slowdown. Forcing -O2 on the target avoids that.
+target_compile_options(${PROJECT_NAME} PRIVATE -O2)
+
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include) # locate include
 target_link_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib) # locate lib
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw3dll) # locate .dll
