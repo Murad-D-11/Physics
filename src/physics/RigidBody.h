@@ -17,18 +17,17 @@ class RigidBody {
         bool isColliding = false;
 
         // Sleeping / island state (managed by PhysicsSolver).
-        bool asleep = false; // sleeping bodies skip integration and solving
-        float sleepTimer = 0.0f; // time spent below sleep thresholds
-        int islandId = -1; // connected-component id; used for wake propagation
-
+        bool asleep = false;
+        float sleepTimer = 0.0f;
+        int islandId = -1;
 
         glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         glm::vec3 angularVelocity = glm::vec3(0.0f);
         glm::vec3 torque = glm::vec3(0.0f);
 
-        // Split-impulse position correction. These are NOT real velocities --
-        // they only push bodies out of penetration during the position solve,
-        // then are discarded each step, so overlap correction injects no energy.
+        // Split-impulse position correction. NOT real velocity -- these only
+        // push bodies out of penetration during the position solve, then are
+        // discarded each step, so overlap correction injects no energy (no creep).
         glm::vec3 pseudoLinearVel = glm::vec3(0.0f);
         glm::vec3 pseudoAngularVel = glm::vec3(0.0f);
 
@@ -68,8 +67,4 @@ class RigidBody {
         // ^^^^^ Inertia Tensor ^^^^^ //
 
         float rollingResistance = 0.02f;
-        /**
-         * AUDIT: DISABLED
-         * kinetic energy loss from a non-spherical object rolling
-         */
 };

@@ -4,6 +4,12 @@ project(Physics)
 set(CMAKE_CXX_STANDARD 17) # minimum c++ version
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Default to an optimized build. Without a build type, CMake configures with
+# no optimization (-O0), which makes GLM + std containers roughly 20x slower.
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 add_executable(${PROJECT_NAME} src/app/main.cpp src/renderer/camera.cpp src/renderer/cube.cpp src/renderer/render.cpp src/renderer/glad.c src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp src/renderer/ground.cpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include) # locate include

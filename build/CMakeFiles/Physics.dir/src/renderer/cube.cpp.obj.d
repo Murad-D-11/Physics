@@ -1,5 +1,5 @@
-CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj: \
- C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\cube.cpp \
+CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj: \
+ C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\Cube.cpp \
  C:\Users\Sobachya\ Morda\Desktop\Desktop\ Folder\Coding\ Projects\Workspaces\Physics\src\renderer\cube.h \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/glad/glad.h \
  C:/Users/SOBACH~1/Desktop/DESKTO~1/CODING~1/WORKSP~1/Physics/include/KHR/khrplatform.h \

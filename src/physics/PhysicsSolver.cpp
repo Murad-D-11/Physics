@@ -2,7 +2,10 @@
 #include "obb.h"
 #include "collision.h"
 #include <algorithm>
+#include <chrono>
 #include <cmath>
+#include <iostream>
+#include <functional>
 #include <unordered_set>
 
 // ============================================================================
@@ -118,7 +121,7 @@ std::vector<CollisionInfo> PhysicsSolver::generateFloorContacts(const RigidBody&
             info.collided = true;
             info.point = worldCorners[i];
             info.penetration = floorTopY - y;
-            info.normal = glm::vec3(0.0f, -1.0f, 0.0f); // A(body) -> B(floor)
+            info.normal = glm::vec3(0.0f, -1.0f, 0.0f);
             info.featureId = static_cast<uint32_t>(i);
             contacts.push_back(info);
         }
@@ -264,7 +267,7 @@ void PhysicsSolver::storeCache(const std::vector<Contact>& contacts) {
 }
 
 // ============================================================================
-// Velocity Solver (Accumulated Impulse, Catto-style)
+// Velocity Solver (restitution + friction; penetration via split-impulse)
 // ============================================================================
 
 void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
@@ -281,13 +284,7 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
             restitutionBias = -e * c.initialRelVelN;
         }
 
-        float positionBias = 0.0f;
-        const float excess = c.info.penetration - PENETRATION_SLOP;
-        if (excess > 0.0f) {
-            positionBias = (BAUMGARTE_FACTOR / FIXED_DT) * excess;
-        }
-
-        float lambda = c.effectiveMassNormal * (-(vn - restitutionBias - positionBias));
+        float lambda = c.effectiveMassNormal * (-(vn - restitutionBias));
 
         const float oldAccumN = c.accumulatedNormalImpulse;
         c.accumulatedNormalImpulse = std::max(0.0f, oldAccumN + lambda);
@@ -344,19 +341,69 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
 }
 
 // ============================================================================
-// Discrete detection + resolution (sleep-aware)
+// Split-Impulse Position Solver (energy-neutral penetration correction)
+// ============================================================================
+
+void PhysicsSolver::solvePositions(std::vector<Contact>& contacts) {
+    for (auto& c : contacts) {
+        const float excess = c.info.penetration - PENETRATION_SLOP;
+        if (excess <= 0.0f) continue;
+
+        const float bias = (POSITION_BETA / FIXED_DT) * excess;
+
+        const glm::vec3 vpA = c.a->pseudoLinearVel + glm::cross(c.a->pseudoAngularVel, c.rA);
+        const glm::vec3 vpB = c.b->pseudoLinearVel + glm::cross(c.b->pseudoAngularVel, c.rB);
+        const float vpn = glm::dot(vpB - vpA, c.info.normal);
+
+        float lambda = c.effectiveMassNormal * (bias - vpn);
+
+        const float oldP = c.accumulatedPositionImpulse;
+        c.accumulatedPositionImpulse = std::max(0.0f, oldP + lambda);
+        lambda = c.accumulatedPositionImpulse - oldP;
+
+        const glm::vec3 P = lambda * c.info.normal;
+        c.a->pseudoLinearVel  -= P * c.a->inverseMass;
+        c.b->pseudoLinearVel  += P * c.b->inverseMass;
+        c.a->pseudoAngularVel -= c.a->inverseInertiaWorld * glm::cross(c.rA, P);
+        c.b->pseudoAngularVel += c.b->inverseInertiaWorld * glm::cross(c.rB, P);
+    }
+}
+
+void PhysicsSolver::integratePseudoVelocities(std::vector<RigidBody>& bodies) {
+    for (auto& body : bodies) {
+        if (body.inverseMass == 0.0f || body.asleep) continue;
+
+        body.position += body.pseudoLinearVel * FIXED_DT;
+
+        const glm::vec3& pa = body.pseudoAngularVel;
+        if (glm::dot(pa, pa) > 0.0f && body.inverseInertiaLocal != glm::mat3(0.0f)) {
+            const glm::quat q(0.0f, pa.x, pa.y, pa.z);
+            body.orientation += (q * body.orientation) * (0.5f * FIXED_DT);
+            body.orientation = glm::normalize(body.orientation);
+
+            const glm::mat3 R = glm::mat3_cast(body.orientation);
+            body.inverseInertiaWorld = R * body.inverseInertiaLocal * glm::transpose(R);
+        }
+    }
+}
+
+// ============================================================================
+// Discrete detection + resolution (single narrowphase pass, sleep-aware)
 // ============================================================================
 
 void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     for (auto& body : bodies) {
         body.isColliding = false;
+        body.pseudoLinearVel = glm::vec3(0.0f);
+        body.pseudoAngularVel = glm::vec3(0.0f);
     }
+    floorBody.pseudoLinearVel = glm::vec3(0.0f);
+    floorBody.pseudoAngularVel = glm::vec3(0.0f);
 
     const std::size_t n = bodies.size();
     islandEdges.clear();
     std::vector<Contact> contacts;
 
-    // Precompute OBBs and world-space AABBs
     std::vector<OBB> obbs(n);
     std::vector<glm::vec3> aabbMin(n), aabbMax(n);
     for (std::size_t i = 0; i < n; ++i) {
@@ -370,10 +417,14 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
 
     std::vector<std::pair<int, int>> candidatePairs;
     buildBroadphasePairs(bodies, aabbMin, aabbMax, candidatePairs);
+    std::sort(candidatePairs.begin(), candidatePairs.end()); // deterministic order for stable stacks
 
-    // ---- Pass A: contact graph edges + wake detection ----
-    // An edge connects two dynamic bodies that are touching (within a small
-    // margin). If an awake body touches a sleeping one, its island is woken.
+    // Single narrowphase pass: one SAT per pair. Build island edges + wake from
+    // the SAT result (no separate distanceOBB pass), then generate manifolds for
+    // pairs that aren't both sleeping.
+    struct Pending { int i; int j; SATResult sat; };
+    std::vector<Pending> pending;
+    pending.reserve(candidatePairs.size());
     std::unordered_set<int> islandsToWake;
 
     for (const auto& pr : candidatePairs) {
@@ -384,44 +435,32 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         if (aabbMin[i].y > aabbMax[j].y || aabbMax[i].y < aabbMin[j].y) continue;
         if (aabbMin[i].z > aabbMax[j].z || aabbMax[i].z < aabbMin[j].z) continue;
 
+        const SATResult sat = Collision::testOBB(obbs[i], obbs[j]);
+        if (!sat.colliding) continue;
+
         const bool dynI = bodies[i].inverseMass > 0.0f;
         const bool dynJ = bodies[j].inverseMass > 0.0f;
-        if (!(dynI && dynJ)) continue; // islands only span dynamic bodies
-
-        const DistanceResult dr = Collision::distanceOBB(obbs[i], obbs[j]);
-        if (dr.distance < ISLAND_CONTACT_MARGIN) {
-            islandEdges.emplace_back(i, j);
-
-            // Wake: one asleep, the other awake and touching
+        if (dynI && dynJ) {
+            islandEdges.emplace_back(i, j); // contact-graph edge
             const bool asleepI = bodies[i].asleep;
             const bool asleepJ = bodies[j].asleep;
             if (asleepI && !asleepJ) islandsToWake.insert(bodies[i].islandId);
             else if (asleepJ && !asleepI) islandsToWake.insert(bodies[j].islandId);
         }
+
+        pending.push_back({ i, j, sat });
     }
 
     for (int id : islandsToWake) wakeIsland(bodies, id);
 
-    // ---- Pass B: manifold generation (skip sleeping-sleeping pairs) ----
-    for (const auto& pr : candidatePairs) {
-        const int i = pr.first;
-        const int j = pr.second;
-
-        if (aabbMin[i].x > aabbMax[j].x || aabbMax[i].x < aabbMin[j].x) continue;
-        if (aabbMin[i].y > aabbMax[j].y || aabbMax[i].y < aabbMin[j].y) continue;
-        if (aabbMin[i].z > aabbMax[j].z || aabbMax[i].z < aabbMin[j].z) continue;
-
-        if (bodies[i].asleep && bodies[j].asleep) continue; // both sleeping: no solve
-
-        const SATResult sat = Collision::testOBB(obbs[i], obbs[j]);
-        if (!sat.colliding) continue;
-
-        for (const CollisionInfo& info : Collision::generateManifold(obbs[i], obbs[j], sat)) {
-            contacts.push_back({&bodies[i], &bodies[j], info,
+    for (const auto& pm : pending) {
+        if (bodies[pm.i].asleep && bodies[pm.j].asleep) continue; // both sleeping: no solve
+        for (const CollisionInfo& info : Collision::generateManifold(obbs[pm.i], obbs[pm.j], pm.sat)) {
+            contacts.push_back({&bodies[pm.i], &bodies[pm.j], info,
                                 glm::vec3(0.0f), glm::vec3(0.0f),
                                 0.0f, 0.0f, 0.0f,
                                 glm::vec3(0.0f), glm::vec3(0.0f),
-                                0.0f, 0.0f, 0.0f, 0.0f});
+                                0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
         }
     }
 
@@ -433,7 +472,7 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
                                 glm::vec3(0.0f), glm::vec3(0.0f),
                                 0.0f, 0.0f, 0.0f,
                                 glm::vec3(0.0f), glm::vec3(0.0f),
-                                0.0f, 0.0f, 0.0f, 0.0f});
+                                0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
         }
     }
 
@@ -470,6 +509,11 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         solveVelocities(contacts);
     }
 
+    for (int iter = 0; iter < POSITION_ITERATIONS; ++iter) {
+        solvePositions(contacts);
+    }
+    integratePseudoVelocities(bodies);
+
     storeCache(contacts);
 }
 
@@ -493,10 +537,13 @@ OBB PhysicsSolver::predictOBB(const RigidBody& b, float t) {
 
 bool PhysicsSolver::isCCDCandidate(const RigidBody& b, float dt) const {
     if (b.inverseMass == 0.0f || b.asleep) return false;
-    const float minHalf = std::min(std::min(b.scale.x, b.scale.y), b.scale.z) * 0.5f;
-    const float rmax = glm::length(b.scale * 0.5f);
-    const float disp = glm::length(b.velocity) * dt + glm::length(b.angularVelocity) * rmax * dt;
-    return disp > CCD_MOTION_FACTOR * minHalf;
+    // Tunneling is translational: only a fast-moving CENTER can skip through
+    // thin geometry. Gate on LINEAR speed only -- rotation does not translate
+    // the center, so tumbling dominoes no longer trigger the CCD substep loop.
+    // Rotation is still accounted for inside the TOI sweep once a body qualifies.
+    const float minExtent = std::min(std::min(b.scale.x, b.scale.y), b.scale.z);
+    const float disp = glm::length(b.velocity) * dt;
+    return disp > CCD_MOTION_FACTOR * minExtent;
 }
 
 PhysicsSolver::TOIResult PhysicsSolver::computePairTOI(const RigidBody& A, const RigidBody& B, float dt) const {
@@ -581,9 +628,6 @@ PhysicsSolver::TOIResult PhysicsSolver::findEarliestTOI(const std::vector<RigidB
     const std::size_t n = bodies.size();
     if (n == 0) return best;
 
-    // Flag fast bodies and build swept AABBs (current box expanded by this
-    // step's motion), so the broadphase only pairs bodies that could actually
-    // meet during dt. This replaces the old O(n^2) all-pairs sweep.
     std::vector<char> candidate(n);
     std::vector<glm::vec3> sweptMin(n), sweptMax(n);
     bool anyCandidate = false;
@@ -610,16 +654,14 @@ PhysicsSolver::TOIResult PhysicsSolver::findEarliestTOI(const std::vector<RigidB
         sweptMax[i] = hi;
     }
 
-    if (!anyCandidate) return best; // nothing fast -> advance the whole interval
+    if (!anyCandidate) return best;
 
-    // Floor sweep for each fast body (cheap, only candidates)
     for (std::size_t i = 0; i < n; ++i) {
         if (!candidate[i]) continue;
         const TOIResult tf = computeFloorTOI(bodies[i], dt);
         if (tf.hit && tf.toi < best.toi) best = tf;
     }
 
-    // Body-body sweeps only for broadphase pairs with at least one fast body
     std::vector<std::pair<int, int>> pairs;
     buildBroadphasePairs(bodies, sweptMin, sweptMax, pairs);
 
@@ -653,7 +695,6 @@ void PhysicsSolver::updateSleeping(std::vector<RigidBody>& bodies, float dt) {
     const int n = static_cast<int>(bodies.size());
     if (n == 0) return;
 
-    // --- Union-Find over dynamic bodies connected by contact-graph edges ---
     std::vector<int> parent(n);
     for (int i = 0; i < n; ++i) parent[i] = i;
 
@@ -665,13 +706,12 @@ void PhysicsSolver::updateSleeping(std::vector<RigidBody>& bodies, float dt) {
 
     for (const auto& e : islandEdges) unite(e.first, e.second);
 
-    // --- Per-body stability timer ---
     const float linSq = SLEEP_LINEAR_THRESHOLD * SLEEP_LINEAR_THRESHOLD;
     const float angSq = SLEEP_ANGULAR_THRESHOLD * SLEEP_ANGULAR_THRESHOLD;
 
     for (int i = 0; i < n; ++i) {
         RigidBody& b = bodies[i];
-        if (b.inverseMass == 0.0f) { b.islandId = -1; continue; } // static
+        if (b.inverseMass == 0.0f) { b.islandId = -1; continue; }
 
         const bool slow = glm::dot(b.velocity, b.velocity) < linSq
                        && glm::dot(b.angularVelocity, b.angularVelocity) < angSq;
@@ -679,9 +719,6 @@ void PhysicsSolver::updateSleeping(std::vector<RigidBody>& bodies, float dt) {
         else      b.sleepTimer = 0.0f;
     }
 
-    // --- Per-island minimum timer: an island sleeps only when EVERY member
-    //     has been stable for at least SLEEP_TIME (equilibrium of the whole
-    //     connected component, not an isolated body). ---
     std::unordered_map<int, float> islandMinTimer;
     for (int i = 0; i < n; ++i) {
         if (bodies[i].inverseMass == 0.0f) continue;
@@ -716,17 +753,25 @@ void PhysicsSolver::updateSleeping(std::vector<RigidBody>& bodies, float dt) {
 // ============================================================================
 
 void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
-    // 1. Apply forces once (skips sleeping bodies).
+    using clock = std::chrono::high_resolution_clock;
+
+    double ccdMs = 0.0;    // time inside findEarliestTOI (the CCD search)
+    double solveMs = 0.0;  // time inside detectAndResolve (broadphase + narrowphase + solve)
+    int substeps = 0;
+
     for (auto& b : bodies) applyGravity(b, dt);
 
-    // 2. CCD sub-stepping (sleeping bodies are neither integrated nor swept).
     float remaining = dt;
     int guard = 0;
 
     while (remaining > CCD_TIME_EPS && guard < CCD_MAX_SUBSTEPS) {
         ++guard;
+        ++substeps;
 
+        const auto tCCD0 = clock::now();
         const TOIResult toi = findEarliestTOI(bodies, remaining);
+        const auto tCCD1 = clock::now();
+        ccdMs += std::chrono::duration<double, std::milli>(tCCD1 - tCCD0).count();
 
         float advance;
         if (toi.hit) {
@@ -738,16 +783,38 @@ void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
         if (advance < 0.0f) advance = 0.0f;
 
         integratePositions(bodies, advance);
+
+        const auto tSolve0 = clock::now();
         detectAndResolve(bodies);
+        const auto tSolve1 = clock::now();
+        solveMs += std::chrono::duration<double, std::milli>(tSolve1 - tSolve0).count();
 
         remaining -= advance;
     }
 
     if (remaining > CCD_TIME_EPS) {
         integratePositions(bodies, remaining);
+
+        const auto tSolve0 = clock::now();
         detectAndResolve(bodies);
+        const auto tSolve1 = clock::now();
+        solveMs += std::chrono::duration<double, std::milli>(tSolve1 - tSolve0).count();
     }
 
-    // 3. Update islands + sleep state once per frame.
     updateSleeping(bodies, dt);
+
+    // Diagnostic: print only on expensive frames so normal running stays quiet.
+    const double totalMs = ccdMs + solveMs;
+    if (totalMs > 3.0) {
+        int awake = 0;
+        for (const auto& b : bodies) {
+            if (b.inverseMass > 0.0f && !b.asleep) ++awake;
+        }
+        std::cout << "[PhysProfile] total=" << totalMs << "ms"
+                  << "  ccd=" << ccdMs << "ms"
+                  << "  solve=" << solveMs << "ms"
+                  << "  substeps=" << substeps
+                  << "  awake=" << awake << "/" << bodies.size()
+                  << "  contacts=" << lastContactCount << "\n";
+    }
 }

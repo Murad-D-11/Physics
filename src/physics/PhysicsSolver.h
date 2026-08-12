@@ -14,14 +14,11 @@ class PhysicsSolver {
         PhysicsSolver();
         ~PhysicsSolver();
 
-        // Discrete primitives (kept public; used internally by step()).
         void integrate(RigidBody& body, float deltaTime);
         void detectAndResolve(std::vector<RigidBody>& bodies);
-
-        // Full CCD-aware + sleeping advance of the whole scene by dt.
         void step(std::vector<RigidBody>& bodies, float dt);
 
-        int lastContactCount = 0; // number of active contacts (updated by detectAndResolve)
+        int lastContactCount = 0;
 
     private:
         struct Contact {
@@ -44,6 +41,7 @@ class PhysicsSolver {
             float accumulatedNormalImpulse = 0.0f;
             float accumulatedTangentImpulse1 = 0.0f;
             float accumulatedTangentImpulse2 = 0.0f;
+            float accumulatedPositionImpulse = 0.0f; // split-impulse position solve
         };
 
         struct CachedImpulse {
@@ -82,6 +80,8 @@ class PhysicsSolver {
         void precomputeContact(Contact& c);
         void warmStart(std::vector<Contact>& contacts);
         void solveVelocities(std::vector<Contact>& contacts);
+        void solvePositions(std::vector<Contact>& contacts);
+        void integratePseudoVelocities(std::vector<RigidBody>& bodies);
         void matchAndLoadCache(std::vector<Contact>& contacts);
         void storeCache(const std::vector<Contact>& contacts);
         void buildBroadphasePairs(const std::vector<RigidBody>& bodies,
@@ -105,15 +105,17 @@ class PhysicsSolver {
         // --- State ---
         RigidBody floorBody;
         std::unordered_map<ContactKey, CachedImpulse, ContactKeyHash> contactCache;
-        std::vector<std::pair<int, int>> islandEdges; // dynamic-dynamic contact graph (rebuilt each detectAndResolve)
+        std::vector<std::pair<int, int>> islandEdges;
+        float sceneMinThickness = 1.0f; // smallest collider extent in the scene (set each step)
 
         // --- Constants ---
         static constexpr int SOLVER_ITERATIONS = 10;
+        static constexpr int POSITION_ITERATIONS = 4;
         static constexpr float FLOOR_Y = 0.0f;
         static constexpr float FLOOR_THICKNESS = 1.0f;
         static constexpr float FLOOR_HALF_EXTENT = 500.0f;
         static constexpr float REST_THRESHOLD = 0.5f;
-        static constexpr float BAUMGARTE_FACTOR = 0.1f;
+        static constexpr float POSITION_BETA = 0.2f;
         static constexpr float PENETRATION_SLOP = 0.005f;
         static constexpr float FACE_CONTACT_EPSILON = 0.005f;
         static constexpr float WARM_START_SCALE = 0.8f;
@@ -121,15 +123,15 @@ class PhysicsSolver {
         static constexpr float SPATIAL_CELL_SIZE = 2.0f;
 
         // CCD tuning
-        static constexpr int   CCD_MAX_SUBSTEPS   = 8;
+        static constexpr int   CCD_MAX_SUBSTEPS   = 4;
         static constexpr int   CCD_MAX_ITERATIONS = 32;
         static constexpr float CCD_TOLERANCE      = 0.01f;
         static constexpr float CCD_TIME_EPS       = 1e-5f;
-        static constexpr float CCD_MOTION_FACTOR  = 0.5f;
+        static constexpr float CCD_MOTION_FACTOR  = 0.8f;
 
         // Sleeping tuning
-        static constexpr float SLEEP_LINEAR_THRESHOLD  = 0.08f; // m/s
-        static constexpr float SLEEP_ANGULAR_THRESHOLD = 0.10f; // rad/s
-        static constexpr float SLEEP_TIME             = 0.5f;   // sustained stability before sleeping
-        static constexpr float ISLAND_CONTACT_MARGIN  = 0.02f;  // gap under which two bodies share an island
+        static constexpr float SLEEP_LINEAR_THRESHOLD  = 0.15f;
+        static constexpr float SLEEP_ANGULAR_THRESHOLD = 0.20f;
+        static constexpr float SLEEP_TIME             = 0.5f;
+        static constexpr float ISLAND_CONTACT_MARGIN  = 0.02f;
 };
