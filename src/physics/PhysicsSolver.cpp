@@ -61,18 +61,6 @@ void PhysicsSolver::integrate(RigidBody& body, float deltaTime) {
 
 void PhysicsSolver::applyGravity(RigidBody& body, float dt) const {
     if (body.inverseMass == 0.0f || body.asleep) return;
-
-    // Near-rest damping: bleed off the iterative solver's residual jitter so a
-    // settling island's velocities decay below the sleep threshold and it can
-    // actually sleep. Gated to nearly-stationary bodies, so real motion (falls,
-    // launches, mid-swing) is untouched -- this only speeds convergence to the
-    // equilibrium the solver already targets; it does not freeze or lock bodies.
-    if (glm::dot(body.velocity, body.velocity) < SETTLE_LINEAR * SETTLE_LINEAR &&
-        glm::dot(body.angularVelocity, body.angularVelocity) < SETTLE_ANGULAR * SETTLE_ANGULAR) {
-        body.velocity *= REST_DAMPING;
-        body.angularVelocity *= REST_DAMPING;
-    }
-
     const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
     body.velocity += gravity * dt;
 }
@@ -124,7 +112,7 @@ std::vector<CollisionInfo> PhysicsSolver::generateFloorContacts(const RigidBody&
 
     const float floorTopY = floorBody.position.y + floorBody.scale.y * 0.5f;
 
-    if (lowestY >= floorTopY) return contacts;
+    if (lowestY >= floorTopY + SPECULATIVE_MARGIN) return contacts; // beyond margin: no contact
 
     for (int i = 0; i < 8 && contacts.size() < 4; ++i) {
         const float y = worldCorners[i].y;
@@ -132,7 +120,7 @@ std::vector<CollisionInfo> PhysicsSolver::generateFloorContacts(const RigidBody&
             CollisionInfo info;
             info.collided = true;
             info.point = worldCorners[i];
-            info.penetration = floorTopY - y;
+            info.penetration = floorTopY - y;   // signed: >0 below floor, <0 just above
             info.normal = glm::vec3(0.0f, -1.0f, 0.0f);
             info.featureId = static_cast<uint32_t>(i);
             contacts.push_back(info);
@@ -290,13 +278,22 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
 
         const float vn = glm::dot(dv, c.info.normal);
 
-        float restitutionBias = 0.0f;
+        // Speculative non-penetration WITHOUT energy injection.
+        //   gap (penetration < 0):  permit approach only up to just touching this
+        //                           step (targetVn = penetration/dt, negative).
+        //   touching/overlap (>=0): permit NO further approach (targetVn = 0).
+        // Existing overlap is removed by the energy-free position solve below,
+        // never by injecting separating velocity here (that separating push was
+        // the source of the resting drift and the tower rocking).
+        float targetVn = std::min(c.info.penetration, 0.0f) / FIXED_DT;
+
+        // Restitution applies only to genuine impacts; resting contacts get none.
         const float e = std::min(c.a->restitution, c.b->restitution);
-        if (c.initialRelVelN < -REST_THRESHOLD) {
-            restitutionBias = -e * c.initialRelVelN;
+        if (c.initialRelVelN < -REST_THRESHOLD) {         // genuine impact -> add bounce
+            targetVn = std::max(targetVn, -e * c.initialRelVelN);
         }
 
-        float lambda = c.effectiveMassNormal * (-(vn - restitutionBias));
+        float lambda = c.effectiveMassNormal * (targetVn - vn);
 
         const float oldAccumN = c.accumulatedNormalImpulse;
         c.accumulatedNormalImpulse = std::max(0.0f, oldAccumN + lambda);
@@ -307,6 +304,7 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
         c.b->velocity += normalImpulse * c.b->inverseMass;
         c.a->angularVelocity -= c.a->inverseInertiaWorld * glm::cross(c.rA, normalImpulse);
         c.b->angularVelocity += c.b->inverseInertiaWorld * glm::cross(c.rB, normalImpulse);
+
 
         // Friction — Tangent 1
         {
@@ -361,7 +359,8 @@ void PhysicsSolver::solvePositions(std::vector<Contact>& contacts) {
         const float excess = c.info.penetration - PENETRATION_SLOP;
         if (excess <= 0.0f) continue;
 
-        const float bias = (POSITION_BETA / FIXED_DT) * excess;
+        float bias = (POSITION_BETA / FIXED_DT) * excess;
+        if (bias > MAX_CORRECTION_SPEED) bias = MAX_CORRECTION_SPEED; // gentle, no violent shove
 
         const glm::vec3 vpA = c.a->pseudoLinearVel + glm::cross(c.a->pseudoAngularVel, c.rA);
         const glm::vec3 vpB = c.b->pseudoLinearVel + glm::cross(c.b->pseudoAngularVel, c.rB);
@@ -521,10 +520,31 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         solveVelocities(contacts);
     }
 
+    // Energy-free penetration removal (split impulse). Operates on pseudo-
+    // velocities that are integrated into position only, so correcting overlap
+    // never changes a body's real momentum -> no bounce, no rocking at rest.
     for (int iter = 0; iter < POSITION_ITERATIONS; ++iter) {
         solvePositions(contacts);
     }
     integratePseudoVelocities(bodies);
+
+    if (captureDiagnostics) {
+        lastSolvedContacts.clear();
+        lastSolvedContacts.reserve(contacts.size());
+        for (const auto& c : contacts) {
+            ContactDebug d;
+            d.a = c.a;
+            d.b = c.b;
+            d.point = c.info.point;
+            d.normal = c.info.normal;
+            d.penetration = c.info.penetration;
+            d.normalImpulse = c.accumulatedNormalImpulse;
+            d.frictionImpulse = std::sqrt(c.accumulatedTangentImpulse1 * c.accumulatedTangentImpulse1
+                                        + c.accumulatedTangentImpulse2 * c.accumulatedTangentImpulse2);
+            d.floorContact = (c.b == &floorBody);
+            lastSolvedContacts.push_back(d);
+        }
+    }
 
     storeCache(contacts);
 }
@@ -774,6 +794,25 @@ void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
 
     for (auto& b : bodies) applyGravity(b, dt);
 
+    // (1) Resolve contact constraints at the CURRENT configuration BEFORE moving.
+    // Symplectic order: we integrate the *constrained* velocity, not the raw
+    // gravity-loaded one. On a resting contact the normal + friction constraints
+    // drive the relative velocity to zero here, so the subsequent integration
+    // produces (almost) no motion. Solving AFTER integrating instead let every
+    // body slide tangentially by ~g*sin(theta)*dt^2 each frame before friction
+    // could act -- harmless on flat contacts, but a permanent creep on the
+    // spiral's leaning (slanted-normal) pile. This is the standard Box2D/Bullet
+    // ordering and is what makes resting piles actually stop.
+    {
+        const auto tSolve0 = clock::now();
+        detectAndResolve(bodies);
+        const auto tSolve1 = clock::now();
+        solveMs += std::chrono::duration<double, std::milli>(tSolve1 - tSolve0).count();
+    }
+
+    // (2) Advance positions with continuous collision detection. Any new impact
+    // uncovered part-way through the step is resolved before continuing so fast
+    // bodies still cannot tunnel.
     float remaining = dt;
     int guard = 0;
 
@@ -796,22 +835,17 @@ void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
         if (advance < 0.0f) advance = 0.0f;
 
         integratePositions(bodies, advance);
-
-        const auto tSolve0 = clock::now();
-        detectAndResolve(bodies);
-        const auto tSolve1 = clock::now();
-        solveMs += std::chrono::duration<double, std::milli>(tSolve1 - tSolve0).count();
-
         remaining -= advance;
-    }
 
-    if (remaining > CCD_TIME_EPS) {
-        integratePositions(bodies, remaining);
-
-        const auto tSolve0 = clock::now();
-        detectAndResolve(bodies);
-        const auto tSolve1 = clock::now();
-        solveMs += std::chrono::duration<double, std::milli>(tSolve1 - tSolve0).count();
+        // Only resolve again if there is still time left in the step (i.e. we
+        // stopped early at a TOI). The final slice's contacts are resolved at
+        // the start of the next step.
+        if (remaining > CCD_TIME_EPS) {
+            const auto tSolve0 = clock::now();
+            detectAndResolve(bodies);
+            const auto tSolve1 = clock::now();
+            solveMs += std::chrono::duration<double, std::milli>(tSolve1 - tSolve0).count();
+        }
     }
 
     updateSleeping(bodies, dt);

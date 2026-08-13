@@ -15,7 +15,8 @@
 					"source" : ".",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1
 					]
 				}
 			],
@@ -30,7 +31,8 @@
 					"name" : "Physics",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1
 					]
 				}
 			],
@@ -39,8 +41,15 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "Physics::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Physics-Release-065de4cac22da79a8fcf.json",
+					"jsonFile" : "target-Physics-Release-c5211e6fca59f18acbff.json",
 					"name" : "Physics",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "PhysicsTests::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-PhysicsTests-Release-3906adb3d984e7a5e46a.json",
+					"name" : "PhysicsTests",
 					"projectIndex" : 0
 				}
 			]

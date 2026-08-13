@@ -5,6 +5,13 @@
 
 struct RigidBody;
 
+// Speculative-contact margin (metres). Contacts are generated when bodies are
+// within this distance of touching, not only once they already overlap. The
+// velocity solver then removes exactly the closing velocity that would breach
+// the surface this step, so bodies settle at the surface instead of sinking in
+// and being pushed back out (the source of resting jitter / slide / sink-in).
+inline constexpr float SPECULATIVE_MARGIN = 0.05f;
+
 struct SATResult {
     bool colliding = false;
     float penetration = 0.0f;

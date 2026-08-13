@@ -22,3 +22,11 @@ target_link_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/lib) # locat
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw3dll) # locate .dll
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/glfw3.dll" "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+
+# ---------------------------------------------------------------------------
+# Headless resting-contact audit harness (no OpenGL). Links only the physics
+# translation units. Build with:  cmake --build build --target PhysicsTests
+# ---------------------------------------------------------------------------
+add_executable(PhysicsTests src/app/physics_tests.cpp src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp)
+target_compile_options(PhysicsTests PRIVATE -O2)
+target_include_directories(PhysicsTests PRIVATE ${CMAKE_SOURCE_DIR}/include)

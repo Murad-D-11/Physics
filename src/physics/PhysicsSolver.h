@@ -20,6 +20,24 @@ class PhysicsSolver {
 
         int lastContactCount = 0;
 
+        // --- Opt-in solver diagnostics (used by the headless contact tests) ---
+        // When captureDiagnostics is true, detectAndResolve records the solved
+        // contact set (post velocity+position solve) so tests can audit normals,
+        // penetration, and accumulated normal/friction impulses. Zero cost when
+        // left false.
+        struct ContactDebug {
+            const void* a = nullptr;
+            const void* b = nullptr;
+            glm::vec3 point = glm::vec3(0.0f);
+            glm::vec3 normal = glm::vec3(0.0f);
+            float penetration = 0.0f;
+            float normalImpulse = 0.0f;
+            float frictionImpulse = 0.0f;
+            bool floorContact = false;
+        };
+        bool captureDiagnostics = false;
+        std::vector<ContactDebug> lastSolvedContacts;
+
     private:
         struct Contact {
             RigidBody* a;
@@ -109,13 +127,19 @@ class PhysicsSolver {
         float sceneMinThickness = 1.0f; // smallest collider extent in the scene (set each step)
 
         // --- Constants ---
-        static constexpr int SOLVER_ITERATIONS = 10;
-        static constexpr int POSITION_ITERATIONS = 4;
+        static constexpr int SOLVER_ITERATIONS = 24;
+        static constexpr int POSITION_ITERATIONS = 8;
         static constexpr float FLOOR_Y = 0.0f;
         static constexpr float FLOOR_THICKNESS = 1.0f;
         static constexpr float FLOOR_HALF_EXTENT = 500.0f;
         static constexpr float REST_THRESHOLD = 0.5f;
         static constexpr float POSITION_BETA = 0.2f;
+        // Cap on how fast the (frictionless) split-impulse position solve may
+        // remove overlap, in metres/second. Deep penetration is then resolved
+        // gently over several frames instead of one violent lateral shove --
+        // the source of angled dominoes sliding off each other. Below the slop,
+        // no correction runs at all, so a settled pile goes completely still.
+        static constexpr float MAX_CORRECTION_SPEED = 0.4f;
         static constexpr float PENETRATION_SLOP = 0.005f;
         static constexpr float FACE_CONTACT_EPSILON = 0.005f;
         static constexpr float WARM_START_SCALE = 0.8f;

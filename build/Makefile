@@ -128,6 +128,19 @@ Physics/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/build
 .PHONY : Physics/fast
 
+#=============================================================================
+# Target rules for targets named PhysicsTests
+
+# Build rule for target.
+PhysicsTests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 PhysicsTests
+.PHONY : PhysicsTests
+
+# fast build rule for target.
+PhysicsTests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/build
+.PHONY : PhysicsTests/fast
+
 src/app/main.obj: src/app/main.cpp.obj
 .PHONY : src/app/main.obj
 
@@ -152,12 +165,37 @@ src/app/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/app/main.cpp.s
 .PHONY : src/app/main.cpp.s
 
+src/app/physics_tests.obj: src/app/physics_tests.cpp.obj
+.PHONY : src/app/physics_tests.obj
+
+# target to build an object file
+src/app/physics_tests.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj
+.PHONY : src/app/physics_tests.cpp.obj
+
+src/app/physics_tests.i: src/app/physics_tests.cpp.i
+.PHONY : src/app/physics_tests.i
+
+# target to preprocess a source file
+src/app/physics_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.i
+.PHONY : src/app/physics_tests.cpp.i
+
+src/app/physics_tests.s: src/app/physics_tests.cpp.s
+.PHONY : src/app/physics_tests.s
+
+# target to generate assembly for a file
+src/app/physics_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.s
+.PHONY : src/app/physics_tests.cpp.s
+
 src/physics/Collision.obj: src/physics/Collision.cpp.obj
 .PHONY : src/physics/Collision.obj
 
 # target to build an object file
 src/physics/Collision.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.obj
 .PHONY : src/physics/Collision.cpp.obj
 
 src/physics/Collision.i: src/physics/Collision.cpp.i
@@ -166,6 +204,7 @@ src/physics/Collision.i: src/physics/Collision.cpp.i
 # target to preprocess a source file
 src/physics/Collision.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.i
 .PHONY : src/physics/Collision.cpp.i
 
 src/physics/Collision.s: src/physics/Collision.cpp.s
@@ -174,6 +213,7 @@ src/physics/Collision.s: src/physics/Collision.cpp.s
 # target to generate assembly for a file
 src/physics/Collision.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.s
 .PHONY : src/physics/Collision.cpp.s
 
 src/physics/OBB.obj: src/physics/OBB.cpp.obj
@@ -182,6 +222,7 @@ src/physics/OBB.obj: src/physics/OBB.cpp.obj
 # target to build an object file
 src/physics/OBB.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.obj
 .PHONY : src/physics/OBB.cpp.obj
 
 src/physics/OBB.i: src/physics/OBB.cpp.i
@@ -190,6 +231,7 @@ src/physics/OBB.i: src/physics/OBB.cpp.i
 # target to preprocess a source file
 src/physics/OBB.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.i
 .PHONY : src/physics/OBB.cpp.i
 
 src/physics/OBB.s: src/physics/OBB.cpp.s
@@ -198,6 +240,7 @@ src/physics/OBB.s: src/physics/OBB.cpp.s
 # target to generate assembly for a file
 src/physics/OBB.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.s
 .PHONY : src/physics/OBB.cpp.s
 
 src/physics/PhysicsSolver.obj: src/physics/PhysicsSolver.cpp.obj
@@ -206,6 +249,7 @@ src/physics/PhysicsSolver.obj: src/physics/PhysicsSolver.cpp.obj
 # target to build an object file
 src/physics/PhysicsSolver.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj
 .PHONY : src/physics/PhysicsSolver.cpp.obj
 
 src/physics/PhysicsSolver.i: src/physics/PhysicsSolver.cpp.i
@@ -214,6 +258,7 @@ src/physics/PhysicsSolver.i: src/physics/PhysicsSolver.cpp.i
 # target to preprocess a source file
 src/physics/PhysicsSolver.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.i
 .PHONY : src/physics/PhysicsSolver.cpp.i
 
 src/physics/PhysicsSolver.s: src/physics/PhysicsSolver.cpp.s
@@ -222,6 +267,7 @@ src/physics/PhysicsSolver.s: src/physics/PhysicsSolver.cpp.s
 # target to generate assembly for a file
 src/physics/PhysicsSolver.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.s
 .PHONY : src/physics/PhysicsSolver.cpp.s
 
 src/renderer/Camera.obj: src/renderer/Camera.cpp.obj
@@ -353,9 +399,13 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... Physics
+	@echo ... PhysicsTests
 	@echo ... src/app/main.obj
 	@echo ... src/app/main.i
 	@echo ... src/app/main.s
+	@echo ... src/app/physics_tests.obj
+	@echo ... src/app/physics_tests.i
+	@echo ... src/app/physics_tests.s
 	@echo ... src/physics/Collision.obj
 	@echo ... src/physics/Collision.i
 	@echo ... src/physics/Collision.s

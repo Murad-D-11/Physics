@@ -63,6 +63,7 @@ CMAKE_BINARY_DIR = "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projec
 
 # The main recursive "all" target.
 all: CMakeFiles/Physics.dir/all
+all: CMakeFiles/PhysicsTests.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -71,6 +72,7 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/Physics.dir/clean
+clean: CMakeFiles/PhysicsTests.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -98,6 +100,32 @@ Physics: CMakeFiles/Physics.dir/rule
 CMakeFiles/Physics.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/clean
 .PHONY : CMakeFiles/Physics.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/PhysicsTests.dir
+
+# All Build rule for target.
+CMakeFiles/PhysicsTests.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=11,12,13,14,15 "Built target PhysicsTests"
+.PHONY : CMakeFiles/PhysicsTests.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/PhysicsTests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" 5
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/PhysicsTests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" 0
+.PHONY : CMakeFiles/PhysicsTests.dir/rule
+
+# Convenience name for target.
+PhysicsTests: CMakeFiles/PhysicsTests.dir/rule
+.PHONY : PhysicsTests
+
+# clean rule for target.
+CMakeFiles/PhysicsTests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/clean
+.PHONY : CMakeFiles/PhysicsTests.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

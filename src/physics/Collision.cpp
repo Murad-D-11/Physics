@@ -40,7 +40,8 @@ SATResult Collision::testOBB(const OBB& a, const OBB& b) {
 
         const float overlap = projA + projB - dist;
 
-        if (overlap <= 0.0f) {
+        // was: if (overlap <= 0.0f) { ... return false; }
+        if (overlap <= -SPECULATIVE_MARGIN) {
             result.colliding = false;
             return false;
         }
@@ -312,17 +313,14 @@ std::vector<CollisionInfo> Collision::generateManifold(const OBB& a, const OBB& 
 
         for (const ClipVert& v : polygon) {
             const float depth = refFaceOffset - glm::dot(refNormal, v.pos);
-            if (depth >= 0.0f) {
+            if (depth >= -SPECULATIVE_MARGIN) {          // was: depth >= 0.0f
                 CollisionInfo info;
                 info.collided = true;
                 info.point = v.pos;
                 info.normal = sat.normal;
-                info.penetration = depth;
-
-                // Stable featureId: reference face + this vertex's geometric tag.
+                info.penetration = depth;                 // signed: >0 overlap, <0 gap
                 info.featureId = (refFaceId << 8) | (v.feature & 0xFFu);
                 if (flipNormal) info.featureId |= 0x40000000u;
-
                 manifold.push_back(info);
             }
         }
