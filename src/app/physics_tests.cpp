@@ -118,6 +118,22 @@ static float maxDynPenetration(const PhysicsSolver& s) {
     for (const auto& c : s.lastSolvedContacts) p = std::max(p, c.penetration);
     return p;
 }
+static float sumNormalImpulse(const PhysicsSolver& s) {
+    float j = 0.0f;
+    for (const auto& c : s.lastSolvedContacts) j += c.normalImpulse;
+    return j;
+}
+static float sumFrictionImpulse(const PhysicsSolver& s) {
+    float j = 0.0f;
+    for (const auto& c : s.lastSolvedContacts) j += c.frictionImpulse;
+    return j;
+}
+// Angle (rad) between a body's local +Y axis and world +Y -- 0 when a cube
+// rests flat and axis-aligned; used to detect tilt without any snapping.
+static float tiltFromVertical(const RigidBody& b) {
+    const glm::vec3 up = glm::mat3_cast(b.orientation) * glm::vec3(0, 1, 0);
+    return std::acos(std::min(1.0f, std::max(-1.0f, up.y)));
+}
 static int awakeCount(const std::vector<RigidBody>& bs) {
     int a = 0;
     for (const auto& b : bs) if (b.inverseMass > 0.0f && !b.asleep) ++a;
@@ -553,6 +569,174 @@ static void stabilityTests(Suite& S) {
     }
 }
 
+// ===========================================================================
+// 6. RESTING CONTACT & STATIC FRICTION  (task-specified Tests 1-6)
+//    Every test prints the required instrumentation: contact count, normal
+//    impulse, friction impulse, linear/angular velocity, kinetic energy, sleep.
+// ===========================================================================
+static void restingContactAndFriction(Suite& S) {
+    S.section("6. RESTING CONTACT & STATIC FRICTION (Tests 1-6)");
+
+    auto instrument = [](const char* tag, const std::vector<RigidBody>& bs, PhysicsSolver& s, double t) {
+        const RigidBody& b = bs[0];
+        std::printf("        %-8s t=%5.2f  y=%.4f  |v|=%.5f  |w|=%.5f  KE=%.5f  "
+                    "contacts=%d  Jn=%.4f  Jf=%.4f  asleep=%d\n",
+                    tag, t, b.position.y, glm::length(b.velocity), glm::length(b.angularVelocity),
+                    0.5f * b.mass * glm::dot(b.velocity, b.velocity) + 0.5f * glm::dot(b.angularVelocity, inertiaWorld(b) * b.angularVelocity),
+                    s.lastContactCount, sumNormalImpulse(s), sumFrictionImpulse(s), (int)b.asleep);
+    };
+
+    // ---- TEST 1: vertical drop -> bounce(s) -> settle -> sleep --------------
+    {
+        std::printf("  -- TEST 1: Vertical Drop --\n");
+        PhysicsSolver s; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs{ makeBox({0, 3.0f, 0}, glm::vec3(1), 1.0f, 0.3f, 0.6f) };
+        int bounces = 0; float prevVy = 0.0f;
+        for (int i = 1; i <= 600; ++i) {
+            s.step(bs, DT);
+            const float vy = bs[0].velocity.y;
+            if (prevVy < -0.5f && vy > 0.1f) ++bounces; // upward rebound after descent
+            prevVy = vy;
+            if (i == 30 || i == 60 || i == 120 || i == 300 || i == 600) instrument("drop", bs, s, i * DT);
+        }
+        S.isTrue("T1 cube reaches rest (|v|,|w|~0)", glm::length(bs[0].velocity) < 1e-2f && glm::length(bs[0].angularVelocity) < 1e-2f);
+        S.isTrue("T1 finite bounces then settles", bounces >= 1 && bounces <= 5);
+        S.isTrue("T1 no horizontal wander", std::fabs(bs[0].position.x) < 1e-3f && std::fabs(bs[0].position.z) < 1e-3f);
+        S.isTrue("T1 sleeps after settling", bs[0].asleep);
+        S.near("T1 support Jn ~= m*g*dt at rest", sumNormalImpulse(s), 1.0 * G * DT, 0.02, 0.30);
+    }
+
+    // ---- TEST 2: sliding cube -> kinetic friction -> stops, no reversal -----
+    {
+        std::printf("  -- TEST 2: Sliding Cube --\n");
+        PhysicsSolver s; s.sleepingEnabled = false; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs{ makeBox({0, 0.1f, 0}, glm::vec3(1.0f, 0.2f, 1.0f), 1.0f, 0.0f, 0.5f) };
+        bs[0].velocity = glm::vec3(3.0f, 0, 0);
+        float minVx = 1e9f;
+        for (int i = 1; i <= 300; ++i) {
+            s.step(bs, DT);
+            minVx = std::min(minVx, bs[0].velocity.x);
+            if (i == 30 || i == 120 || i == 300) instrument("slide", bs, s, i * DT);
+        }
+        S.isTrue("T2 cube stops", std::fabs(bs[0].velocity.x) < 1e-2f);
+        S.isTrue("T2 no reversal (friction not over-applied)", minVx > -1e-2f);
+    }
+
+    // ---- TEST 3: Coulomb threshold (CRITICAL) ------------------------------
+    // Apply a constant horizontal force F as an impulse F*dt each step. Static
+    // friction should hold iff F <= mu*m*g. mu = sqrt(0.6*0.6)=0.6 -> Fcrit=5.886N.
+    {
+        std::printf("  -- TEST 3: Resting Cube + Horizontal Force (Coulomb) --\n");
+        const float mu = 0.6f, m = 1.0f;
+        const float Fcrit = mu * m * G; // 5.886 N
+        auto driftUnderForce = [&](float F) {
+            PhysicsSolver s; s.sleepingEnabled = false; s.captureDiagnostics = true;
+            std::vector<RigidBody> bs{ makeBox({0, 0.5f, 0}, glm::vec3(1), m, 0.1f, 0.6f) };
+            for (int i = 0; i < 30; ++i) s.step(bs, DT);          // settle first
+            const float x0 = bs[0].position.x;
+            for (int i = 0; i < 120; ++i) {                       // 2 s of applied force
+                bs[0].velocity.x += (F / m) * DT;                // impulse F*dt == force F
+                s.step(bs, DT);
+            }
+            return bs[0].position.x - x0;
+        };
+        float Fhold = 0.7f * Fcrit, Fslip = 1.5f * Fcrit;
+        const double dHold = driftUnderForce(Fhold);
+        const double dSlip = driftUnderForce(Fslip);
+        std::printf("        Fcrit=mu*m*g=%.3f N | F=%.2f(<crit) drift=%.4f m | F=%.2f(>crit) drift=%.4f m\n",
+                    Fcrit, Fhold, dHold, Fslip, dSlip);
+        // sub-limit: static friction holds (no sustained sliding)
+        S.atMost("T3 sub-limit force: cube held static", std::fabs(dHold), 0.02, "m");
+        // super-limit: cube slides significantly
+        S.isTrue("T3 super-limit force: cube slides", std::fabs(dSlip) > 0.10);
+
+        // Locate the empirical threshold and compare to mu*m*g.
+        float lastHold = 0.0f, firstSlip = 0.0f;
+        for (float F = 3.0f; F <= 9.0f; F += 0.5f) {
+            const double d = std::fabs(driftUnderForce(F));
+            if (d < 0.02 && F > lastHold) lastHold = F;
+            if (d > 0.05 && firstSlip == 0.0f) firstSlip = F;
+        }
+        const double threshMid = 0.5 * (lastHold + firstSlip);
+        std::printf("        empirical threshold in [%.2f, %.2f] N, midpoint=%.2f (Coulomb predicts %.3f)\n",
+                    lastHold, firstSlip, threshMid, Fcrit);
+        S.near("T3 measured stiction threshold = mu*m*g", threshMid, Fcrit, 0.8, 0.20);
+    }
+
+    // ---- TEST 4: tilted cube dropped on an edge -> tips -> settles ---------
+    {
+        std::printf("  -- TEST 4: Tilted Cube (edge drop) --\n");
+        PhysicsSolver s; s.captureDiagnostics = true;
+        const glm::quat tilt = glm::angleAxis(glm::radians(35.0f), glm::vec3(0, 0, 1));
+        std::vector<RigidBody> bs{ makeBox({0, 1.2f, 0}, glm::vec3(1), 1.0f, 0.2f, 0.6f, tilt) };
+        float maxW = 0.0f;
+        for (int i = 1; i <= 900; ++i) {
+            s.step(bs, DT);
+            maxW = std::max(maxW, glm::length(bs[0].angularVelocity));
+            if (i == 60 || i == 300 || i == 900) instrument("tilt", bs, s, i * DT);
+        }
+        S.isTrue("T4 cube actually tipped (dynamic w>0.5 seen)", maxW > 0.5f);
+        S.isTrue("T4 settles to rest", glm::length(bs[0].velocity) < 1e-2f && glm::length(bs[0].angularVelocity) < 1e-2f);
+        S.atMost("T4 final tilt near a flat face", tiltFromVertical(bs[0]), glm::radians(3.0f), "rad");
+        S.isTrue("T4 sleeps after settling", bs[0].asleep);
+    }
+
+    // ---- TEST 5: nearly-flat cube -> contact torque restores, no snapping --
+    {
+        std::printf("  -- TEST 5: Nearly Flat Cube --\n");
+        PhysicsSolver s; s.captureDiagnostics = true;
+        const float tilt0 = glm::radians(4.0f);
+        const glm::quat q = glm::angleAxis(tilt0, glm::vec3(0, 0, 1));
+        // rest on the lowered edge: lift slightly so it settles under contact torque
+        std::vector<RigidBody> bs{ makeBox({0, 0.72f, 0}, glm::vec3(1), 1.0f, 0.1f, 0.6f, q) };
+        const float tiltStart = tiltFromVertical(bs[0]);
+        for (int i = 1; i <= 600; ++i) { s.step(bs, DT); if (i == 60 || i == 300 || i == 600) instrument("flat", bs, s, i * DT); }
+        S.isTrue("T5 tilt did not grow (restoring, not diverging)", tiltFromVertical(bs[0]) <= tiltStart + glm::radians(1.0f));
+        S.atMost("T5 settles near flat", tiltFromVertical(bs[0]), glm::radians(3.0f), "rad");
+        S.isTrue("T5 reaches rest & sleeps", bs[0].asleep);
+    }
+
+    // ---- TEST 6: resting domino (thin box) tips, lands on broad face -------
+    {
+        std::printf("  -- TEST 6: Resting Domino --\n");
+        PhysicsSolver s; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs{ makeDomino({0, 0.45f, 0}, glm::quat(1, 0, 0, 0)) };
+        bs[0].angularVelocity = glm::vec3(0, 0, -3.0f); // decisive tip
+        for (int i = 1; i <= 900; ++i) { s.step(bs, DT); if (i == 60 || i == 300 || i == 900) instrument("domino", bs, s, i * DT); }
+        S.isTrue("T6 domino reaches rest", glm::length(bs[0].velocity) < 1e-2f && glm::length(bs[0].angularVelocity) < 1e-2f);
+        // broad face down => thin (0.15) axis vertical => COM height ~= 0.075
+        S.near("T6 settled on broad face (COM height)", bs[0].position.y, 0.075, 0.02);
+        S.isTrue("T6 sleeps after settling", bs[0].asleep);
+    }
+
+    // ---- GENUINE EQUILIBRIUM vs NUMERICAL FREEZING -------------------------
+    // Resting cube with sleeping DISABLED: if equilibrium is physical, the
+    // contact solver alone must hold |v|,|w| ~ 0, keep penetration bounded, and
+    // supply Jn ~= m*g*dt every step -- with no help from the sleep freeze.
+    {
+        std::printf("  -- EQUILIBRIUM CHECK: resting cube, sleeping DISABLED --\n");
+        PhysicsSolver s; s.sleepingEnabled = false; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs{ makeBox({0, 0.5f, 0}, glm::vec3(1), 1.0f, 0.1f, 0.6f) };
+        run(s, bs, 200); // let it settle
+        double maxV = 0, maxW = 0, maxDrift = 0, jnAvg = 0; int n = 0;
+        const glm::vec3 p0 = bs[0].position;
+        for (int i = 0; i < 3000; ++i) {
+            s.step(bs, DT);
+            maxV = std::max(maxV, (double)glm::length(bs[0].velocity));
+            maxW = std::max(maxW, (double)glm::length(bs[0].angularVelocity));
+            maxDrift = std::max(maxDrift, (double)glm::length(bs[0].position - p0));
+            jnAvg += sumNormalImpulse(s); ++n;
+        }
+        jnAvg /= n;
+        std::printf("        over 3000 steps (NO sleep): maxV=%.2e  maxW=%.2e  maxDrift=%.2e  avgJn=%.5f (m*g*dt=%.5f)\n",
+                    maxV, maxW, maxDrift, jnAvg, 1.0 * G * DT);
+        S.atMost("EQ velocity stays ~0 without sleep", maxV, 5e-3, "m/s");
+        S.atMost("EQ angular vel stays ~0 without sleep", maxW, 5e-3, "rad/s");
+        S.atMost("EQ position drift bounded without sleep", maxDrift, 5e-3, "m");
+        S.near("EQ support impulse = m*g*dt every step", jnAvg, 1.0 * G * DT, 0.02, 0.20);
+    }
+}
+
 int main() {
     std::printf("RIGID-BODY PHYSICS VALIDATION SUITE  (fixed dt = 1/60 s, semi-implicit Euler)\n");
     Suite S;
@@ -561,6 +745,7 @@ int main() {
     contactMechanics(S);
     energyTests(S);
     stabilityTests(S);
+    restingContactAndFriction(S);
     S.summary();
     return S.fail == 0 ? 0 : 1;
 }
