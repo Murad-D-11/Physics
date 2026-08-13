@@ -553,14 +553,14 @@ int main() {
     // Uncomment exactly ONE line below to choose which demo runs.
     // Press P to start/pause the simulation.
     // -----------------------------------------------------------------
-    std::vector<RigidBody> bodies = spawnStableTower();
+    // std::vector<RigidBody> bodies = spawnStableTower();
     // std::vector<RigidBody> bodies = spawnExplosion();
     // std::vector<RigidBody> bodies = spawnWreckingBall();
     // std::vector<RigidBody> bodies = spawnBilliards();
     // std::vector<RigidBody> bodies = spawnInertiaDemo();
     // std::vector<RigidBody> bodies = spawnElasticVsInelastic();
     // std::vector<RigidBody> bodies = spawnNewtonsCradle();
-    // std::vector<RigidBody> bodies = spawnDominoSpiral();
+    std::vector<RigidBody> bodies = spawnDominoSpiral();
 
     // Fixed timestep
     static constexpr float FIXED_DT = 1.0f / 60.0f;

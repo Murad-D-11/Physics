@@ -87,6 +87,21 @@ static Metrics measure(const std::vector<RigidBody>& bodies, const PhysicsSolver
     return m;
 }
 
+// Largest positive penetration currently reported by the solver (residual
+// penetration across all contacts, floor + dynamic).
+static float maxPenetration(const PhysicsSolver& solver) {
+    float p = 0.0f;
+    for (const auto& c : solver.lastSolvedContacts) p = std::max(p, c.penetration);
+    return p;
+}
+
+// Angle (radians) between a body's current orientation and its start orientation.
+static float orientationDrift(const glm::quat& start, const glm::quat& now) {
+    float d = std::fabs(glm::dot(glm::normalize(start), glm::normalize(now)));
+    d = std::min(1.0f, d);
+    return 2.0f * std::acos(d);
+}
+
 static void printContacts(PhysicsSolver& solver, int maxRows) {
     int rows = 0;
     for (const auto& c : solver.lastSolvedContacts) {
@@ -102,14 +117,23 @@ static void printContacts(PhysicsSolver& solver, int maxRows) {
 static void runTest(const std::string& name,
                     std::vector<RigidBody> bodies,
                     int steps,
-                    int reportEvery) {
+                    int reportEvery,
+                    bool disableSleep = false) {
     std::printf("\n================ %s ================\n", name.c_str());
 
     PhysicsSolver solver;
     solver.captureDiagnostics = true;
+    if (disableSleep) {
+        solver.sleepingEnabled = false;
+        std::printf("  (sleeping DISABLED -- auditing raw solver stability)\n");
+    }
 
     std::vector<glm::vec3> startPos(bodies.size());
-    for (std::size_t i = 0; i < bodies.size(); ++i) startPos[i] = bodies[i].position;
+    std::vector<glm::quat> startRot(bodies.size());
+    for (std::size_t i = 0; i < bodies.size(); ++i) {
+        startPos[i] = bodies[i].position;
+        startRot[i] = bodies[i].orientation;
+    }
 
     for (int s = 0; s <= steps; ++s) {
         if (s > 0) solver.step(bodies, FIXED_DT);
@@ -119,24 +143,25 @@ static void runTest(const std::string& name,
 
             float maxDrift = 0.0f;
             int driftBody = -1;
+            float maxRot = 0.0f;
             for (std::size_t i = 0; i < bodies.size(); ++i) {
                 if (bodies[i].inverseMass == 0.0f) continue;
                 const glm::vec3 d = bodies[i].position - startPos[i];
                 const float horiz = std::sqrt(d.x * d.x + d.z * d.z);
                 if (horiz > maxDrift) { maxDrift = horiz; driftBody = static_cast<int>(i); }
+                maxRot = std::max(maxRot, orientationDrift(startRot[i], bodies[i].orientation));
             }
 
-            std::printf("t=%6.3f  KE=%.5f  PE=%.4f  E=%.4f  maxV=%.4f maxW=%.4f  "
-                        "contacts=%d  maxHorizDrift=%.4f(body %d)\n",
-                        s * FIXED_DT, m.ke, m.pe, m.ke + m.pe,
-                        m.maxLin, m.maxAng, m.contacts, maxDrift, driftBody);
+            std::printf("t=%7.3f  KE=%.6f  maxV=%.5f maxW=%.5f  contacts=%d  "
+                        "maxPen=%.5f  horizDrift=%.5f(b%d)  rotDrift=%.5f rad\n",
+                        s * FIXED_DT, m.ke, m.maxLin, m.maxAng, m.contacts,
+                        maxPenetration(solver), maxDrift, driftBody, maxRot);
             if (s % (reportEvery * 5) == 0 || s == steps) {
                 printContacts(solver, 4);
             }
         }
     }
 
-    // Final asleep report
     int awake = 0;
     for (const auto& b : bodies) if (b.inverseMass > 0.0f && !b.asleep) ++awake;
     std::printf("  final: awake=%d/%zu\n", awake, bodies.size());
@@ -245,6 +270,56 @@ int main() {
         bodies[0].angularVelocity = tiltAxis * 3.0f;
 
         runTest("Test G: 150-domino Archimedean spiral", bodies, 4200, 120);
+    }
+
+    // ---- Test H: tall vertical stack of unit cubes, SLEEPING DISABLED, run for
+    // thousands of steps. This is the constraint-stabilization stress test:
+    // residual penetration must stay bounded (~slop, not growing), and both
+    // horizontal drift and rotational drift must stay ~0 over the whole run.
+    auto makeCube = [](const glm::vec3& pos, float mass) {
+        RigidBody c;
+        c.scale = glm::vec3(1.0f);
+        c.position = pos;
+        c.orientation = glm::quat(1, 0, 0, 0);
+        c.velocity = glm::vec3(0.0f);
+        c.angularVelocity = glm::vec3(0.0f);
+        c.mass = mass;
+        c.inverseMass = 1.0f / mass;
+        c.updateInertiaTensor();
+        c.restitution = 0.1f;
+        c.friction = 0.6f;
+        return c;
+    };
+
+    {
+        std::vector<RigidBody> bodies;
+        const int H = 8;
+        for (int i = 0; i < H; ++i)
+            bodies.push_back(makeCube(glm::vec3(0.0f, 0.5f + i * 1.0f, 0.0f), 1.0f));
+        runTest("Test H: 8-cube tower, no sleep (fine timeline)", bodies, 1800, 30, true);
+    }
+
+    // ---- Test H2/H3: shorter towers, no sleep -- is collapse height-dependent?
+    {
+        std::vector<RigidBody> bodies;
+        for (int i = 0; i < 3; ++i)
+            bodies.push_back(makeCube(glm::vec3(0.0f, 0.5f + i * 1.0f, 0.0f), 1.0f));
+        runTest("Test H2: 3-cube tower, no sleep", bodies, 1800, 60, true);
+    }
+    {
+        std::vector<RigidBody> bodies;
+        for (int i = 0; i < 5; ++i)
+            bodies.push_back(makeCube(glm::vec3(0.0f, 0.5f + i * 1.0f, 0.0f), 1.0f));
+        runTest("Test H3: 5-cube tower, no sleep", bodies, 1800, 60, true);
+    }
+
+    // ---- Test I: same tower but WITH sleeping (production behaviour).
+    {
+        std::vector<RigidBody> bodies;
+        const int H = 8;
+        for (int i = 0; i < H; ++i)
+            bodies.push_back(makeCube(glm::vec3(0.0f, 0.5f + i * 1.0f, 0.0f), 1.0f));
+        runTest("Test I: 8-cube tower, 6000 steps, with sleep", bodies, 6000, 600, false);
     }
 
     return 0;

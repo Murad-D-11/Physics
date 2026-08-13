@@ -270,8 +270,10 @@ void PhysicsSolver::storeCache(const std::vector<Contact>& contacts) {
 // Velocity Solver (restitution + friction; penetration via split-impulse)
 // ============================================================================
 
-void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
-    for (auto& c : contacts) {
+void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts, bool reverse) {
+    const int count = static_cast<int>(contacts.size());
+    for (int idx = 0; idx < count; ++idx) {
+        Contact& c = contacts[reverse ? (count - 1 - idx) : idx];
         const glm::vec3 velAtA = c.a->velocity + glm::cross(c.a->angularVelocity, c.rA);
         const glm::vec3 velAtB = c.b->velocity + glm::cross(c.b->angularVelocity, c.rB);
         const glm::vec3 dv = velAtB - velAtA;
@@ -354,8 +356,10 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts) {
 // Split-Impulse Position Solver (energy-neutral penetration correction)
 // ============================================================================
 
-void PhysicsSolver::solvePositions(std::vector<Contact>& contacts) {
-    for (auto& c : contacts) {
+void PhysicsSolver::solvePositions(std::vector<Contact>& contacts, bool reverse) {
+    const int count = static_cast<int>(contacts.size());
+    for (int idx = 0; idx < count; ++idx) {
+        Contact& c = contacts[reverse ? (count - 1 - idx) : idx];
         const float excess = c.info.penetration - PENETRATION_SLOP;
         if (excess <= 0.0f) continue;
 
@@ -513,18 +517,35 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         precomputeContact(c);
     }
 
+    // Shock propagation ordering: solve lowest contacts first. In a stack the
+    // support load must travel from the ground up; a Gauss-Seidel sweep that
+    // visits the base contact before the ones above it propagates that support
+    // in a single pass, so a tall stack converges instead of slowly sinking and
+    // leaning (which then injects energy and topples). Ordering only changes
+    // convergence rate, not the converged solution -- momentum is preserved.
+    std::sort(contacts.begin(), contacts.end(),
+              [](const Contact& x, const Contact& y) {
+                  return x.info.point.y < y.info.point.y;
+              });
+
     matchAndLoadCache(contacts);
     warmStart(contacts);
 
+    // Symmetric Gauss-Seidel: alternate the sweep direction every iteration.
+    // A fixed sweep order gives the earliest-solved contacts a persistent
+    // advantage, which injects a consistent directional bias -- in a symmetric
+    // stack that bias seeds a lean that gravity then amplifies into a topple.
+    // Alternating the order cancels the bias while applying identical impulses
+    // (momentum-preserving; no damping/snapping).
     for (int iter = 0; iter < SOLVER_ITERATIONS; ++iter) {
-        solveVelocities(contacts);
+        solveVelocities(contacts, (iter & 1) != 0);
     }
 
     // Energy-free penetration removal (split impulse). Operates on pseudo-
     // velocities that are integrated into position only, so correcting overlap
     // never changes a body's real momentum -> no bounce, no rocking at rest.
     for (int iter = 0; iter < POSITION_ITERATIONS; ++iter) {
-        solvePositions(contacts);
+        solvePositions(contacts, (iter & 1) != 0);
     }
     integratePseudoVelocities(bodies);
 
@@ -848,7 +869,7 @@ void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
         }
     }
 
-    updateSleeping(bodies, dt);
+    if (sleepingEnabled) updateSleeping(bodies, dt);
 
     // Diagnostic: print only on expensive frames so normal running stays quiet.
     const double totalMs = ccdMs + solveMs;

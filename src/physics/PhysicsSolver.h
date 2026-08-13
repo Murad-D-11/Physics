@@ -38,6 +38,11 @@ class PhysicsSolver {
         bool captureDiagnostics = false;
         std::vector<ContactDebug> lastSolvedContacts;
 
+        // Sleeping is a performance optimization, not a stabilization mechanism.
+        // Disable it to audit the raw long-term stability of the constraint
+        // solver (a sleeping stack is frozen and would hide any solver drift).
+        bool sleepingEnabled = true;
+
     private:
         struct Contact {
             RigidBody* a;
@@ -97,8 +102,8 @@ class PhysicsSolver {
         std::vector<CollisionInfo> generateFloorContacts(const RigidBody& body) const;
         void precomputeContact(Contact& c);
         void warmStart(std::vector<Contact>& contacts);
-        void solveVelocities(std::vector<Contact>& contacts);
-        void solvePositions(std::vector<Contact>& contacts);
+        void solveVelocities(std::vector<Contact>& contacts, bool reverse);
+        void solvePositions(std::vector<Contact>& contacts, bool reverse);
         void integratePseudoVelocities(std::vector<RigidBody>& bodies);
         void matchAndLoadCache(std::vector<Contact>& contacts);
         void storeCache(const std::vector<Contact>& contacts);
@@ -127,7 +132,7 @@ class PhysicsSolver {
         float sceneMinThickness = 1.0f; // smallest collider extent in the scene (set each step)
 
         // --- Constants ---
-        static constexpr int SOLVER_ITERATIONS = 24;
+        static constexpr int SOLVER_ITERATIONS = 40;
         static constexpr int POSITION_ITERATIONS = 8;
         static constexpr float FLOOR_Y = 0.0f;
         static constexpr float FLOOR_THICKNESS = 1.0f;
