@@ -43,6 +43,11 @@ class PhysicsSolver {
         // solver (a sleeping stack is frozen and would hide any solver drift).
         bool sleepingEnabled = true;
 
+        // Gravity toggle. The validation suite disables gravity for free-space
+        // mechanics tests (momentum / angular-momentum conservation, torque
+        // response, gyroscopic) so those results are not polluted by weight.
+        bool gravityEnabled = true;
+
     private:
         struct Contact {
             RigidBody* a;

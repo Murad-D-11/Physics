@@ -813,7 +813,9 @@ void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
     double solveMs = 0.0;  // time inside detectAndResolve (broadphase + narrowphase + solve)
     int substeps = 0;
 
-    for (auto& b : bodies) applyGravity(b, dt);
+    if (gravityEnabled) {
+        for (auto& b : bodies) applyGravity(b, dt);
+    }
 
     // (1) Resolve contact constraints at the CURRENT configuration BEFORE moving.
     // Symplectic order: we integrate the *constrained* velocity, not the raw
