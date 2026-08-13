@@ -73,12 +73,26 @@ void PhysicsSolver::integratePositions(std::vector<RigidBody>& bodies, float dt)
         body.position += body.velocity * dt;
 
         if (body.inverseInertiaLocal != glm::mat3(0.0f)) {
+            // Angular-momentum-conserving integration:
+            // 1. Compute L = I_world · ω (angular momentum, conserved quantity).
+            // 2. Integrate orientation using current ω.
+            // 3. Recompute I_world from new orientation.
+            // 4. Recover ω = I_world_new⁻¹ · L.
+            // This exactly conserves L for torque-free motion, including
+            // asymmetric free precession (the Dzhanibekov effect).
+            const glm::mat3 Rpre = glm::mat3_cast(body.orientation);
+            const glm::mat3 IworldPre = Rpre * body.inertiaLocal * glm::transpose(Rpre);
+            const glm::vec3 L = IworldPre * body.angularVelocity;
+
             const glm::quat angVelQuat(0.0f, body.angularVelocity.x, body.angularVelocity.y, body.angularVelocity.z);
             body.orientation += (angVelQuat * body.orientation) * (0.5f * dt);
             body.orientation = glm::normalize(body.orientation);
 
             const glm::mat3 R = glm::mat3_cast(body.orientation);
             body.inverseInertiaWorld = R * body.inverseInertiaLocal * glm::transpose(R);
+
+            // Recover ω from conserved L using the updated inertia.
+            body.angularVelocity = body.inverseInertiaWorld * L;
         }
     }
 }
@@ -280,19 +294,21 @@ void PhysicsSolver::solveVelocities(std::vector<Contact>& contacts, bool reverse
 
         const float vn = glm::dot(dv, c.info.normal);
 
-        // Speculative non-penetration WITHOUT energy injection.
-        //   gap (penetration < 0):  permit approach only up to just touching this
-        //                           step (targetVn = penetration/dt, negative).
-        //   touching/overlap (>=0): permit NO further approach (targetVn = 0).
-        // Existing overlap is removed by the energy-free position solve below,
-        // never by injecting separating velocity here (that separating push was
-        // the source of the resting drift and the tower rocking).
+        // Speculative non-penetration + restitution.
+        //   gap (penetration < 0):  permit approach only up to just touching
+        //                           this step (targetVn = penetration/dt, negative).
+        //   touching/overlap (>=0): for RESTING contacts, permit no approach (0).
+        //                           for IMPACT contacts, demand the bounce velocity.
+        // Existing overlap is removed by the energy-free position solve below.
         float targetVn = std::min(c.info.penetration, 0.0f) / FIXED_DT;
 
-        // Restitution applies only to genuine impacts; resting contacts get none.
+        // Restitution: only for genuine impacts (high closing speed).
+        // The REST_THRESHOLD gate (0.5 m/s) already prevents bounce at resting
+        // contacts, so no additional penetration gate is needed.
         const float e = std::min(c.a->restitution, c.b->restitution);
-        if (c.initialRelVelN < -REST_THRESHOLD) {         // genuine impact -> add bounce
-            targetVn = std::max(targetVn, -e * c.initialRelVelN);
+        if (c.initialRelVelN < -REST_THRESHOLD) {
+            const float bounceTarget = -e * c.initialRelVelN;
+            targetVn = std::max(targetVn, bounceTarget);
         }
 
         float lambda = c.effectiveMassNormal * (targetVn - vn);
@@ -387,6 +403,15 @@ void PhysicsSolver::solvePositions(std::vector<Contact>& contacts, bool reverse)
 void PhysicsSolver::integratePseudoVelocities(std::vector<RigidBody>& bodies) {
     for (auto& body : bodies) {
         if (body.inverseMass == 0.0f || body.asleep) continue;
+
+        // Cap total pseudo-velocity so the combined position correction from
+        // multiple simultaneous contacts cannot inject unbounded PE. This
+        // prevents the transient energy rise during manifold transitions
+        // (e.g. edge→face where 4 new contacts each push upward independently).
+        const float pvLen = glm::length(body.pseudoLinearVel);
+        if (pvLen > MAX_CORRECTION_SPEED) {
+            body.pseudoLinearVel *= (MAX_CORRECTION_SPEED / pvLen);
+        }
 
         body.position += body.pseudoLinearVel * FIXED_DT;
 
