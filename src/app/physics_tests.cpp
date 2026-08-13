@@ -1647,6 +1647,239 @@ static void rotationalContactAudit(Suite& S) {
     }
 }
 
+// ===========================================================================
+// 11. ADVERSARIAL NUMERICAL ROBUSTNESS
+//     Intentional stress testing: timestep sensitivity, high-speed collisions,
+//     stack scaling, domino stress, degenerate geometry, sleeping chains,
+//     determinism, and performance profiling.
+// ===========================================================================
+static void adversarialRobustness(Suite& S) {
+    S.section("11. ADVERSARIAL NUMERICAL ROBUSTNESS");
+
+    // ---- 11.1 TIMESTEP SENSITIVITY ------------------------------------------
+    {
+        std::printf("  -- 11.1 TIMESTEP SENSITIVITY --\n");
+        std::printf("  %8s %10s %10s %10s %10s %8s\n", "Hz", "final_y", "final_E", "momentum", "contacts", "asleep");
+        const float dts[] = {1.0f/30, 1.0f/60, 1.0f/120, 1.0f/240};
+        float refY = 0, refE = 0;
+        for (float dt : dts) {
+            PhysicsSolver s;
+            std::vector<RigidBody> bs{ makeBox({0, 3.0f, 0}, glm::vec3(1), 1.0f, 0.2f, 0.6f) };
+            const int steps = static_cast<int>(5.0f / dt);
+            for (int i = 0; i < steps; ++i) s.step(bs, dt);
+            const float y = bs[0].position.y;
+            const float E = totalEnergy(bs);
+            const float px = bs[0].mass * bs[0].velocity.x;
+            if (dt == 1.0f/60) { refY = y; refE = E; }
+            std::printf("  %8.0f %10.4f %10.4f %10.2e %8d %8d\n",
+                        1.0f/dt, y, E, px, s.lastContactCount, (int)bs[0].asleep);
+        }
+        // All timesteps should settle to approximately the same rest height.
+        S.near("11.1 dt=1/30 settles to same y as 1/60", refY, 0.5, 0.02);
+    }
+
+    // ---- 11.2 HIGH-SPEED COLLISION ------------------------------------------
+    {
+        std::printf("  -- 11.2 HIGH-SPEED COLLISION --\n");
+        std::printf("  %10s %10s %10s %10s %8s\n", "speed", "final_x", "tunneled", "maxPen", "finite");
+        const float speeds[] = {10, 50, 100, 200, 500, 1000};
+        for (float spd : speeds) {
+            PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+            std::vector<RigidBody> bs{
+                makeStatic({0, 0, 0}, glm::vec3(0.5f, 4, 4), 0.0f, 0.5f), // wall at x=[-0.25,0.25]
+                makeBox({-5, 0, 0}, glm::vec3(0.5f), 1.0f, 0.2f, 0.2f)    // bullet
+            };
+            bs[1].velocity = glm::vec3(spd, 0, 0);
+            float maxPen = 0;
+            for (int i = 0; i < 120; ++i) {
+                s.step(bs, DT);
+                for (const auto& c : s.lastSolvedContacts) maxPen = std::max(maxPen, c.penetration);
+            }
+            const bool tunneled = bs[1].position.x > 0.25f;
+            const bool fin = std::isfinite(bs[1].position.x);
+            std::printf("  %10.0f %10.3f %10s %10.4f %8s\n",
+                        spd, bs[1].position.x, tunneled ? "YES!" : "no", maxPen, fin ? "yes" : "NO!");
+        }
+        // At 200 m/s (our CCD threshold), should NOT tunnel.
+        PhysicsSolver s200; s200.gravityEnabled = false; s200.sleepingEnabled = false;
+        std::vector<RigidBody> bs200{
+            makeStatic({0, 0, 0}, glm::vec3(0.5f, 4, 4), 0.0f, 0.5f),
+            makeBox({-5, 0, 0}, glm::vec3(0.5f), 1.0f, 0.2f, 0.2f)
+        };
+        bs200[1].velocity = glm::vec3(200, 0, 0);
+        for (int i = 0; i < 120; ++i) s200.step(bs200, DT);
+        S.isTrue("11.2 no tunneling at 200 m/s", bs200[1].position.x < 0.0f);
+        S.isTrue("11.2 result is finite", std::isfinite(bs200[1].position.x));
+    }
+
+    // ---- 11.3 STACK STRESS --------------------------------------------------
+    {
+        std::printf("  -- 11.3 STACK STRESS --\n");
+        std::printf("  %6s %10s %10s %10s %10s %10s\n", "height", "maxPen", "maxV", "maxW", "ms/step", "asleep");
+        const int heights[] = {5, 10, 20, 50};
+        for (int h : heights) {
+            PhysicsSolver s; s.captureDiagnostics = true;
+            std::vector<RigidBody> bs;
+            for (int i = 0; i < h; ++i) bs.push_back(makeBox({0, 0.5f + i, 0}, glm::vec3(1), 1.0f, 0.1f, 0.6f));
+            using clock = std::chrono::high_resolution_clock;
+            const auto t0 = clock::now();
+            const int steps = 1800;
+            for (int i = 0; i < steps; ++i) s.step(bs, DT);
+            const double ms = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
+            float maxV = 0, maxW = 0; int aw = 0;
+            for (auto& b : bs) { maxV = std::max(maxV, glm::length(b.velocity)); maxW = std::max(maxW, glm::length(b.angularVelocity)); if (b.inverseMass > 0 && !b.asleep) ++aw; }
+            std::printf("  %6d %10.5f %10.2e %10.2e %10.3f %10d\n",
+                        h, (double)maxDynPenetration(s), (double)maxV, (double)maxW, ms / steps, aw);
+        }
+        // 50-cube stack must not explode and must sleep.
+        PhysicsSolver s50; s50.captureDiagnostics = true;
+        std::vector<RigidBody> bs50;
+        for (int i = 0; i < 50; ++i) bs50.push_back(makeBox({0, 0.5f + i, 0}, glm::vec3(1), 1.0f, 0.1f, 0.6f));
+        for (int i = 0; i < 3000; ++i) s50.step(bs50, DT);
+        S.isTrue("11.3 50-cube stack sleeps", awakeCount(bs50) == 0);
+        S.isTrue("11.3 50-cube stack finite", std::isfinite(bs50.back().position.y));
+    }
+
+    // ---- 11.4 DOMINO STRESS -------------------------------------------------
+    {
+        std::printf("  -- 11.4 DOMINO STRESS --\n");
+        auto runDominoLine = [&](int count, float spacing, const char* name) {
+            PhysicsSolver s; s.captureDiagnostics = true;
+            std::vector<RigidBody> bs;
+            for (int i = 0; i < count; ++i) bs.push_back(makeDomino({i * spacing, 0.45f, 0}, glm::quat(1, 0, 0, 0)));
+            bs[0].angularVelocity = glm::vec3(0, 0, -3.0f);
+            using clock = std::chrono::high_resolution_clock;
+            const auto t0 = clock::now();
+            int maxContacts = 0;
+            for (int i = 0; i < 2400; ++i) { s.step(bs, DT); maxContacts = std::max(maxContacts, s.lastContactCount); }
+            const double ms = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
+            int aw = awakeCount(bs);
+            std::printf("        %-20s n=%3d  maxContacts=%4d  awake=%3d  wall=%.0fms (%.2f ms/step)\n",
+                        name, count, maxContacts, aw, ms, ms / 2400.0);
+            return aw == 0 && std::isfinite(bs.back().position.y);
+        };
+        bool ok1 = runDominoLine(20, 0.45f, "straight-20");
+        bool ok2 = runDominoLine(50, 0.35f, "dense-50");
+        bool ok3 = runDominoLine(100, 0.45f, "straight-100");
+        S.isTrue("11.4 all domino lines settle", ok1 && ok2 && ok3);
+    }
+
+    // ---- 11.5 DEGENERATE GEOMETRY -------------------------------------------
+    {
+        std::printf("  -- 11.5 DEGENERATE GEOMETRY --\n");
+        // Extremely thin box (0.01 m thick)
+        PhysicsSolver s1; s1.sleepingEnabled = false;
+        std::vector<RigidBody> bs1{ makeBox({0, 0.005f, 0}, glm::vec3(2.0f, 0.01f, 2.0f), 1.0f, 0.1f, 0.6f) };
+        run(s1, bs1, 120);
+        S.isTrue("11.5 thin box (0.01m) stays finite", std::isfinite(bs1[0].position.y));
+        S.atMost("11.5 thin box doesn't explode (|v|)", glm::length(bs1[0].velocity), 1.0, "m/s");
+
+        // Nearly parallel faces (two cubes offset by tiny angle)
+        PhysicsSolver s2; s2.sleepingEnabled = false;
+        const glm::quat tiny = glm::angleAxis(glm::radians(0.01f), glm::vec3(0, 0, 1));
+        std::vector<RigidBody> bs2{
+            makeBox({0, 0.5f, 0}, glm::vec3(1), 1.0f, 0.1f, 0.6f),
+            makeBox({0, 1.5f, 0}, glm::vec3(1), 1.0f, 0.1f, 0.6f, tiny)
+        };
+        run(s2, bs2, 300);
+        S.isTrue("11.5 near-parallel faces stable", std::isfinite(bs2[1].position.y) && glm::length(bs2[1].velocity) < 1.0f);
+
+        // Corner contact (cube balanced on corner)
+        PhysicsSolver s3; s3.sleepingEnabled = false;
+        const glm::quat corner = glm::angleAxis(glm::radians(45.0f), glm::normalize(glm::vec3(1, 0, 1)));
+        std::vector<RigidBody> bs3{ makeBox({0, 0.87f, 0}, glm::vec3(1), 1.0f, 0.2f, 0.6f, corner) };
+        run(s3, bs3, 300);
+        S.isTrue("11.5 corner contact finite", std::isfinite(bs3[0].position.y));
+    }
+
+    // ---- 11.6 SLEEPING STRESS (100+ bodies, chain waking) -------------------
+    {
+        std::printf("  -- 11.6 SLEEPING STRESS --\n");
+        PhysicsSolver s;
+        std::vector<RigidBody> bs;
+        // 10x10 grid of cubes on the floor (100 bodies)
+        for (int x = 0; x < 10; ++x)
+            for (int z = 0; z < 10; ++z)
+                bs.push_back(makeBox({x * 1.2f, 0.5f, z * 1.2f}, glm::vec3(1), 1.0f, 0.1f, 0.6f));
+        // Let them all sleep
+        for (int i = 0; i < 600; ++i) s.step(bs, DT);
+        const int sleepCount1 = 100 - awakeCount(bs);
+        std::printf("        after settling: %d/100 asleep\n", sleepCount1);
+
+        // Drop a cube on the corner of the grid — should wake neighbors
+        bs.push_back(makeBox({0, 5.0f, 0}, glm::vec3(1), 2.0f, 0.3f, 0.6f));
+        for (int i = 0; i < 60; ++i) s.step(bs, DT); // impact
+        const int awakeAfterImpact = awakeCount(bs);
+        std::printf("        after impact: %d awake (should wake some neighbors)\n", awakeAfterImpact);
+        // Let everything settle again
+        for (int i = 0; i < 1200; ++i) s.step(bs, DT);
+        const int finalAwake = awakeCount(bs);
+        std::printf("        after settling again: %d awake\n", finalAwake);
+
+        S.isTrue("11.6 most bodies initially sleep", sleepCount1 >= 95);
+        S.isTrue("11.6 impact wakes some neighbors", awakeAfterImpact >= 2);
+        S.isTrue("11.6 everything re-sleeps", finalAwake == 0);
+    }
+
+    // ---- 11.7 DETERMINISM ---------------------------------------------------
+    {
+        std::printf("  -- 11.7 DETERMINISM --\n");
+        auto runScene = []() {
+            PhysicsSolver s;
+            std::vector<RigidBody> bs;
+            for (int i = 0; i < 5; ++i) bs.push_back(makeBox({0, 0.5f + i, 0}, glm::vec3(1), 1.0f, 0.1f, 0.6f));
+            bs.push_back(makeBox({0.1f, 6.0f, 0.05f}, glm::vec3(0.8f), 1.5f, 0.3f, 0.5f)); // perturber
+            for (int i = 0; i < 600; ++i) s.step(bs, DT);
+            return bs;
+        };
+        auto bs1 = runScene();
+        auto bs2 = runScene();
+        bool identical = true;
+        for (std::size_t i = 0; i < bs1.size(); ++i) {
+            if (bs1[i].position != bs2[i].position || bs1[i].velocity != bs2[i].velocity) {
+                identical = false; break;
+            }
+        }
+        std::printf("        bitwise deterministic: %s\n", identical ? "YES" : "no");
+        S.isTrue("11.7 simulation is deterministic", identical);
+    }
+
+    // ---- 11.8 PERFORMANCE PROFILE -------------------------------------------
+    {
+        std::printf("  -- 11.8 PERFORMANCE PROFILE --\n");
+        PhysicsSolver s; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs;
+        // 150-domino spiral (the main production scene)
+        const int count = 150;
+        const glm::vec3 dominoScale(0.15f, 0.9f, 0.45f);
+        const float halfHeight = dominoScale.y * 0.5f, halfThick = dominoScale.x * 0.5f;
+        const float spacing = 0.45f, r0 = 1.5f, b = 0.18f;
+        const glm::vec3 up(0, 1, 0);
+        std::vector<glm::vec3> pos; pos.reserve(count); float theta = 0;
+        for (int i = 0; i < count; ++i) { float r = r0 + b * theta; pos.push_back(glm::vec3(r * std::cos(theta), halfHeight, r * std::sin(theta))); theta += spacing / std::sqrt(r * r + b * b); }
+        for (int i = 0; i < count; ++i) {
+            glm::vec3 tangent = (i < count - 1) ? (pos[i + 1] - pos[i]) : (pos[i] - pos[i - 1]);
+            tangent.y = 0; tangent = glm::normalize(tangent);
+            bs.push_back(makeDomino(pos[i], glm::angleAxis(std::atan2(-tangent.z, tangent.x), up)));
+        }
+        const glm::vec3 tangent0 = glm::normalize(pos[1] - pos[0]);
+        const glm::vec3 tiltAxis = glm::normalize(glm::cross(up, tangent0));
+        bs[0].orientation = glm::angleAxis(glm::radians(14.0f), tiltAxis) * bs[0].orientation;
+        bs[0].position.y = halfHeight * std::cos(glm::radians(14.0f)) + halfThick * std::sin(glm::radians(14.0f));
+        bs[0].angularVelocity = tiltAxis * 3.0f;
+
+        using clock = std::chrono::high_resolution_clock;
+        const auto t0 = clock::now();
+        int maxContacts = 0;
+        for (int i = 0; i < 2400; ++i) { s.step(bs, DT); maxContacts = std::max(maxContacts, s.lastContactCount); }
+        const double totalMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
+        std::printf("        150-spiral: %.0f ms total (%.2f ms/step), maxContacts=%d, awake=%d\n",
+                    totalMs, totalMs / 2400.0, maxContacts, awakeCount(bs));
+        S.atMost("11.8 spiral 2400 steps < 10 s", totalMs, 10000.0, "ms");
+        S.isTrue("11.8 spiral all at rest", awakeCount(bs) == 0);
+    }
+}
+
 int main() {
     std::printf("RIGID-BODY PHYSICS VALIDATION SUITE  (fixed dt = 1/60 s, semi-implicit Euler)\n");
     Suite S;
@@ -1660,6 +1893,7 @@ int main() {
     day21Audit(S);
     manifoldAudit(S);
     rotationalContactAudit(S);
+    adversarialRobustness(S);
     S.summary();
     return S.fail == 0 ? 0 : 1;
 }
