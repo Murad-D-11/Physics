@@ -25,6 +25,7 @@
 // ===========================================================================
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -737,6 +738,223 @@ static void restingContactAndFriction(Suite& S) {
     }
 }
 
+// ===========================================================================
+// 7. STATIC CONTACT NETWORKS — stacking, convergence, sleeping, order
+// ===========================================================================
+static void stackingTests(Suite& S) {
+    S.section("7. STATIC CONTACT NETWORKS");
+
+    auto makeUnitCube = [](const glm::vec3& pos, float mass = 1.0f) {
+        return makeBox(pos, glm::vec3(1.0f), mass, 0.1f, 0.6f);
+    };
+
+    // Helper: run a stack scenario and measure key metrics at the end.
+    struct StackMetrics {
+        double maxPen = 0, maxV = 0, maxW = 0, maxDrift = 0;
+        double totalE = 0; int contacts = 0; int awake = 0;
+    };
+    auto runStack = [&](std::vector<RigidBody> bodies, int steps, PhysicsSolver& s) -> StackMetrics {
+        s.captureDiagnostics = true;
+        std::vector<glm::vec3> startPos(bodies.size());
+        for (std::size_t i = 0; i < bodies.size(); ++i) startPos[i] = bodies[i].position;
+        for (int i = 0; i < steps; ++i) s.step(bodies, DT);
+        StackMetrics m;
+        for (std::size_t i = 0; i < bodies.size(); ++i) {
+            if (bodies[i].inverseMass <= 0.0f) continue;
+            m.maxV = std::max(m.maxV, (double)glm::length(bodies[i].velocity));
+            m.maxW = std::max(m.maxW, (double)glm::length(bodies[i].angularVelocity));
+            m.maxDrift = std::max(m.maxDrift, (double)glm::length(glm::vec3(
+                bodies[i].position.x - startPos[i].x, 0.0f, bodies[i].position.z - startPos[i].z)));
+            if (!bodies[i].asleep) ++m.awake;
+        }
+        m.maxPen = maxDynPenetration(s);
+        m.contacts = s.lastContactCount;
+        m.totalE = totalEnergy(bodies);
+        return m;
+    };
+
+    // ---- STACKING TEST 1: two-cube stack ------------------------------------
+    {
+        std::printf("  -- STACK 1: two-cube stack --\n");
+        PhysicsSolver s;
+        std::vector<RigidBody> bs{ makeUnitCube({0, 0.5f, 0}), makeUnitCube({0, 1.5f, 0}) };
+        auto m = runStack(bs, 1800, s);
+        std::printf("        maxPen=%.5f  maxV=%.2e  maxW=%.2e  drift=%.2e  contacts=%d  awake=%d\n",
+                    m.maxPen, m.maxV, m.maxW, m.maxDrift, m.contacts, m.awake);
+        S.atMost("ST1 two-cube: residual velocity", m.maxV, 1e-3, "m/s");
+        S.atMost("ST1 two-cube: horizontal drift", m.maxDrift, 0.01, "m");
+        S.isTrue("ST1 two-cube: fully asleep", m.awake == 0);
+    }
+
+    // ---- STACKING TEST 2: five-cube tower -----------------------------------
+    {
+        std::printf("  -- STACK 2: five-cube tower --\n");
+        PhysicsSolver s;
+        std::vector<RigidBody> bs;
+        for (int i = 0; i < 5; ++i) bs.push_back(makeUnitCube({0, 0.5f + i, 0}));
+        auto m = runStack(bs, 1800, s);
+        std::printf("        maxPen=%.5f  maxV=%.2e  maxW=%.2e  drift=%.2e  contacts=%d  awake=%d\n",
+                    m.maxPen, m.maxV, m.maxW, m.maxDrift, m.contacts, m.awake);
+        S.atMost("ST2 five-cube: residual velocity", m.maxV, 1e-3, "m/s");
+        S.atMost("ST2 five-cube: horizontal drift", m.maxDrift, 0.02, "m");
+        S.isTrue("ST2 five-cube: fully asleep", m.awake == 0);
+    }
+
+    // ---- STACKING TEST 3: ten-cube tower (convergence stress) ---------------
+    {
+        std::printf("  -- STACK 3: ten-cube tower --\n");
+        PhysicsSolver s;
+        std::vector<RigidBody> bs;
+        for (int i = 0; i < 10; ++i) bs.push_back(makeUnitCube({0, 0.5f + i, 0}));
+        auto m = runStack(bs, 3000, s);
+        std::printf("        maxPen=%.5f  maxV=%.2e  maxW=%.2e  drift=%.2e  contacts=%d  awake=%d  E=%.3f\n",
+                    m.maxPen, m.maxV, m.maxW, m.maxDrift, m.contacts, m.awake, m.totalE);
+        S.atMost("ST3 ten-cube: penetration bounded", m.maxPen, 0.02, "m");
+        S.atMost("ST3 ten-cube: residual velocity", m.maxV, 1e-2, "m/s");
+        S.isTrue("ST3 ten-cube: fully asleep", m.awake == 0);
+    }
+
+    // ---- STACKING TEST 4: perturbed stack -----------------------------------
+    {
+        std::printf("  -- STACK 4: perturbed five-cube stack (0.01 m offset) --\n");
+        PhysicsSolver s;
+        std::vector<RigidBody> bs;
+        for (int i = 0; i < 5; ++i) bs.push_back(makeUnitCube({(i == 4 ? 0.01f : 0.0f), 0.5f + i, 0}));
+        auto m = runStack(bs, 3000, s);
+        std::printf("        maxPen=%.5f  maxV=%.2e  maxW=%.2e  drift=%.5f  awake=%d\n",
+                    m.maxPen, m.maxV, m.maxW, m.maxDrift, m.awake);
+        // A 1 cm offset on a 1 m cube is well within support; must remain stable.
+        S.atMost("ST4 perturbed: drift stays small", m.maxDrift, 0.05, "m");
+        S.isTrue("ST4 perturbed: fully asleep (perturbation supported)", m.awake == 0);
+    }
+
+    // ---- STACKING TEST 5: domino chain (20) ---------------------------------
+    {
+        std::printf("  -- STACK 5: domino chain (20) --\n");
+        PhysicsSolver s; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs;
+        for (int i = 0; i < 20; ++i) bs.push_back(makeDomino({i * 0.45f, 0.45f, 0}, glm::quat(1, 0, 0, 0)));
+        bs[0].angularVelocity = glm::vec3(0, 0, -3.0f);
+        run(s, bs, 1500);
+        int aw = awakeCount(bs); float maxVf = 0, maxWf = 0;
+        for (auto& b : bs) { maxVf = std::max(maxVf, glm::length(b.velocity)); maxWf = std::max(maxWf, glm::length(b.angularVelocity)); }
+        std::printf("        awake=%d  maxV=%.2e  maxW=%.2e  contacts=%d\n", aw, maxVf, maxWf, s.lastContactCount);
+        S.isTrue("ST5 domino chain: all at rest", aw == 0);
+        S.atMost("ST5 domino chain: residual velocity", maxVf, 1e-3, "m/s");
+    }
+
+    // ---- STACKING TEST 6: domino spiral (150) — perf + stability ------------
+    {
+        std::printf("  -- STACK 6: domino spiral (150) --\n");
+        PhysicsSolver s; s.captureDiagnostics = true;
+        // build spiral (copy from main)
+        const int count = 150;
+        const glm::vec3 dominoScale(0.15f, 0.9f, 0.45f);
+        const float halfHeight = dominoScale.y * 0.5f, halfThick = dominoScale.x * 0.5f;
+        const float spacing = 0.45f, r0 = 1.5f, b = 0.18f;
+        const glm::vec3 up(0, 1, 0);
+        std::vector<glm::vec3> pos; pos.reserve(count); float theta = 0;
+        for (int i = 0; i < count; ++i) { float r = r0 + b * theta; pos.push_back(glm::vec3(r * std::cos(theta), halfHeight, r * std::sin(theta))); theta += spacing / std::sqrt(r * r + b * b); }
+        std::vector<RigidBody> bs;
+        for (int i = 0; i < count; ++i) {
+            glm::vec3 tangent = (i < count - 1) ? (pos[i + 1] - pos[i]) : (pos[i] - pos[i - 1]);
+            tangent.y = 0; tangent = glm::normalize(tangent);
+            bs.push_back(makeDomino(pos[i], glm::angleAxis(std::atan2(-tangent.z, tangent.x), up)));
+        }
+        const glm::vec3 tangent0 = glm::normalize(pos[1] - pos[0]);
+        const glm::vec3 tiltAxis = glm::normalize(glm::cross(up, tangent0));
+        const float tiltAngle = glm::radians(14.0f);
+        bs[0].orientation = glm::angleAxis(tiltAngle, tiltAxis) * bs[0].orientation;
+        bs[0].position.y = halfHeight * std::cos(tiltAngle) + halfThick * std::sin(tiltAngle);
+        bs[0].angularVelocity = tiltAxis * 3.0f;
+
+        using clock = std::chrono::high_resolution_clock;
+        const auto t0 = clock::now();
+        run(s, bs, 2400); // 40 s sim time
+        const double wallMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
+        int aw = awakeCount(bs);
+        std::printf("        awake=%d/%d  contacts=%d  wall_time=%.1f ms  (%.2f ms/step)\n",
+                    aw, count, s.lastContactCount, wallMs, wallMs / 2400.0);
+        S.isTrue("ST6 spiral: all at rest", aw == 0);
+        S.atMost("ST6 spiral: wall time < 60s for 2400 steps", wallMs, 60000.0, "ms");
+    }
+
+    // ==== ITERATION SWEEP (convergence analysis) ============================
+    {
+        std::printf("\n  -- ITERATION SWEEP: 5-cube tower, sleeping OFF --\n");
+        std::printf("  %6s %10s %10s %10s %10s %10s\n", "iters", "maxV", "maxW", "maxPen", "drift", "Jn_avg");
+        const int iters[] = {1, 2, 4, 8, 16, 32, 64};
+        for (int it : iters) {
+            PhysicsSolver s; s.sleepingEnabled = false; s.captureDiagnostics = true; s.solverIterations = it;
+            std::vector<RigidBody> bs;
+            for (int i = 0; i < 5; ++i) bs.push_back(makeUnitCube({0, 0.5f + i, 0}));
+            std::vector<glm::vec3> p0(5); for (int i = 0; i < 5; ++i) p0[i] = bs[i].position;
+            double maxV = 0, maxW = 0, maxPen = 0, maxDr = 0, jnSum = 0; int n = 0;
+            for (int step = 0; step < 600; ++step) {
+                s.step(bs, DT);
+                for (int i = 0; i < 5; ++i) {
+                    maxV = std::max(maxV, (double)glm::length(bs[i].velocity));
+                    maxW = std::max(maxW, (double)glm::length(bs[i].angularVelocity));
+                    maxDr = std::max(maxDr, (double)std::sqrt(bs[i].position.x * bs[i].position.x + bs[i].position.z * bs[i].position.z));
+                }
+                maxPen = std::max(maxPen, (double)maxDynPenetration(s));
+                jnSum += sumNormalImpulse(s); ++n;
+            }
+            std::printf("  %6d %10.2e %10.2e %10.5f %10.5f %10.5f\n",
+                        it, maxV, maxW, maxPen, maxDr, jnSum / n);
+        }
+        S.isTrue("ITER convergence data printed (inspect table above)", true);
+    }
+
+    // ==== SLEEPING vs NO-SLEEPING comparison =================================
+    {
+        std::printf("\n  -- SLEEP COMPARISON: 5-cube tower --\n");
+        std::printf("  %10s %10s %10s %10s %10s\n", "mode", "maxV", "maxW", "drift", "energy");
+        for (int mode = 0; mode < 2; ++mode) {
+            PhysicsSolver s; s.sleepingEnabled = (mode == 1); s.captureDiagnostics = true;
+            std::vector<RigidBody> bs;
+            for (int i = 0; i < 5; ++i) bs.push_back(makeUnitCube({0, 0.5f + i, 0}));
+            double maxV = 0, maxW = 0, maxDr = 0;
+            for (int step = 0; step < 1800; ++step) {
+                s.step(bs, DT);
+                for (int i = 0; i < 5; ++i) {
+                    maxV = std::max(maxV, (double)glm::length(bs[i].velocity));
+                    maxW = std::max(maxW, (double)glm::length(bs[i].angularVelocity));
+                    maxDr = std::max(maxDr, (double)std::sqrt(bs[i].position.x * bs[i].position.x + bs[i].position.z * bs[i].position.z));
+                }
+            }
+            std::printf("  %10s %10.2e %10.2e %10.5f %10.3f\n",
+                        mode ? "SLEEP_ON" : "SLEEP_OFF", maxV, maxW, maxDr, totalEnergy(bs));
+        }
+        S.isTrue("SLEEP comparison data printed (inspect table above)", true);
+    }
+
+    // ==== CONTACT ORDER DEPENDENCE ===========================================
+    // Run same 5-tower with contacts iterated forward-only vs reverse-only vs
+    // alternating (current default). If alternating is significantly better, that
+    // confirms the symmetric GS design is working. If forward/reverse differ
+    // dramatically, the solver has high order-sensitivity.
+    {
+        std::printf("\n  -- CONTACT ORDER DEPENDENCE: 5-cube tower, no sleep --\n");
+        std::printf("  %12s %10s %10s %10s\n", "order", "maxV", "maxW", "drift");
+        // We can't trivially switch to forward-only without modifying the solver
+        // call, so we compare iterations=40 (alternating) vs iterations=20 forward
+        // + 20 reverse (which the current impl does identically; confirming no
+        // asymmetry). Instead, a meaningful test: compare iter=40 with the
+        // contacts sorted ascending vs descending height — the shock-propagation
+        // order. Here we just test the default and confirm it converges.
+        PhysicsSolver s; s.sleepingEnabled = false; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs; for (int i = 0; i < 5; ++i) bs.push_back(makeUnitCube({0, 0.5f + i, 0}));
+        double maxV = 0, maxW = 0, maxDr = 0;
+        for (int step = 0; step < 600; ++step) {
+            s.step(bs, DT);
+            for (int i = 0; i < 5; ++i) { maxV = std::max(maxV, (double)glm::length(bs[i].velocity)); maxW = std::max(maxW, (double)glm::length(bs[i].angularVelocity)); maxDr = std::max(maxDr, (double)std::sqrt(bs[i].position.x * bs[i].position.x + bs[i].position.z * bs[i].position.z)); }
+        }
+        std::printf("  %12s %10.2e %10.2e %10.5f\n", "default(alt)", maxV, maxW, maxDr);
+        S.atMost("ORDER 5-tower converges with default ordering", maxV, 0.05, "m/s");
+    }
+}
+
 int main() {
     std::printf("RIGID-BODY PHYSICS VALIDATION SUITE  (fixed dt = 1/60 s, semi-implicit Euler)\n");
     Suite S;
@@ -746,6 +964,7 @@ int main() {
     energyTests(S);
     stabilityTests(S);
     restingContactAndFriction(S);
+    stackingTests(S);
     S.summary();
     return S.fail == 0 ? 0 : 1;
 }

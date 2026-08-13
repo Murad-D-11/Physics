@@ -48,6 +48,11 @@ class PhysicsSolver {
         // response, gyroscopic) so those results are not polluted by weight.
         bool gravityEnabled = true;
 
+        // Runtime-adjustable iteration counts for convergence experiments.
+        // Default to the compile-time constants; tests can override per-instance.
+        int solverIterations = SOLVER_ITERATIONS;
+        int positionIterations = POSITION_ITERATIONS;
+
     private:
         struct Contact {
             RigidBody* a;

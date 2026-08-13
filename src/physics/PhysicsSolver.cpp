@@ -537,14 +537,14 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     // stack that bias seeds a lean that gravity then amplifies into a topple.
     // Alternating the order cancels the bias while applying identical impulses
     // (momentum-preserving; no damping/snapping).
-    for (int iter = 0; iter < SOLVER_ITERATIONS; ++iter) {
+    for (int iter = 0; iter < solverIterations; ++iter) {
         solveVelocities(contacts, (iter & 1) != 0);
     }
 
     // Energy-free penetration removal (split impulse). Operates on pseudo-
     // velocities that are integrated into position only, so correcting overlap
     // never changes a body's real momentum -> no bounce, no rocking at rest.
-    for (int iter = 0; iter < POSITION_ITERATIONS; ++iter) {
+    for (int iter = 0; iter < positionIterations; ++iter) {
         solvePositions(contacts, (iter & 1) != 0);
     }
     integratePseudoVelocities(bodies);
