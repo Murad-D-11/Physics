@@ -10,7 +10,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-add_executable(${PROJECT_NAME} src/app/main.cpp src/renderer/camera.cpp src/renderer/cube.cpp src/renderer/render.cpp src/renderer/glad.c src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp src/renderer/ground.cpp)
+add_executable(${PROJECT_NAME} src/app/main.cpp src/renderer/camera.cpp src/renderer/cube.cpp src/renderer/sphere.cpp src/renderer/render.cpp src/renderer/glad.c src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp src/renderer/ground.cpp)
 
 # Always optimize this target. GLM + std containers run ~20x slower at -O0, and
 # editor/CMake tooling tends to reconfigure to a Debug (-O0) build, which

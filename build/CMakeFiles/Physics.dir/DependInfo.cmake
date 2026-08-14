@@ -17,6 +17,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Cube.cpp" "CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj.d"
   "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Ground.cpp" "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj.d"
   "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Render.cpp" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj.d"
+  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/sphere.cpp" "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

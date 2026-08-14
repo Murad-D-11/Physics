@@ -2,8 +2,22 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+// Shape type determines collision geometry and inertia computation.
+enum class ShapeType : int {
+    Box = 0,
+    Sphere = 1
+};
+
 class RigidBody {
     public:
+        // --- Shape ---
+        ShapeType shape = ShapeType::Box;
+
+        // For Box: scale defines the full extents (halfExtents = scale * 0.5).
+        // For Sphere: radius is the collision radius; scale is used only for
+        //             rendering (set scale = vec3(radius*2) for visual match).
+        float radius = 0.5f;
+
         glm::vec3 position = glm::vec3(0.0f, 25.0f, 0.0f);
         glm::vec3 velocity = glm::vec3(0.0f);
         glm::vec3 acceleration = glm::vec3(0.0f);
@@ -44,9 +58,18 @@ class RigidBody {
                 return;
             }
 
-            const float Ixx = (mass * (scale.y * scale.y + scale.z * scale.z)) / 12.0f;
-            const float Iyy = (mass * (scale.x * scale.x + scale.z * scale.z)) / 12.0f;
-            const float Izz = (mass * (scale.x * scale.x + scale.y * scale.y)) / 12.0f;
+            float Ixx, Iyy, Izz;
+
+            if (shape == ShapeType::Sphere) {
+                // Solid sphere: I = (2/5) m r² (isotropic)
+                const float I = (2.0f / 5.0f) * mass * radius * radius;
+                Ixx = Iyy = Izz = I;
+            } else {
+                // Box: I_axis = (m/12)(side_b² + side_c²)
+                Ixx = (mass * (scale.y * scale.y + scale.z * scale.z)) / 12.0f;
+                Iyy = (mass * (scale.x * scale.x + scale.z * scale.z)) / 12.0f;
+                Izz = (mass * (scale.x * scale.x + scale.y * scale.y)) / 12.0f;
+            }
 
             inertiaLocal = glm::mat3(0.0f);
             inertiaLocal[0][0] = Ixx;

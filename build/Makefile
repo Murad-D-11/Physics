@@ -390,6 +390,30 @@ src/renderer/glad.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/glad.c.s
 .PHONY : src/renderer/glad.c.s
 
+src/renderer/sphere.obj: src/renderer/sphere.cpp.obj
+.PHONY : src/renderer/sphere.obj
+
+# target to build an object file
+src/renderer/sphere.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj
+.PHONY : src/renderer/sphere.cpp.obj
+
+src/renderer/sphere.i: src/renderer/sphere.cpp.i
+.PHONY : src/renderer/sphere.i
+
+# target to preprocess a source file
+src/renderer/sphere.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/sphere.cpp.i
+.PHONY : src/renderer/sphere.cpp.i
+
+src/renderer/sphere.s: src/renderer/sphere.cpp.s
+.PHONY : src/renderer/sphere.s
+
+# target to generate assembly for a file
+src/renderer/sphere.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/sphere.cpp.s
+.PHONY : src/renderer/sphere.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -430,6 +454,9 @@ help:
 	@echo ... src/renderer/glad.obj
 	@echo ... src/renderer/glad.i
 	@echo ... src/renderer/glad.s
+	@echo ... src/renderer/sphere.obj
+	@echo ... src/renderer/sphere.i
+	@echo ... src/renderer/sphere.s
 .PHONY : help
 
 

@@ -389,3 +389,98 @@ DistanceResult Collision::distanceOBB(const OBB& a, const OBB& b) {
     result.normal = bestNormal;
     return result;
 }
+
+// ============================================================================
+// Sphere-Sphere collision
+// ============================================================================
+
+CollisionInfo Collision::testSphereSphere(const glm::vec3& posA, float radiusA,
+                                          const glm::vec3& posB, float radiusB) {
+    CollisionInfo info;
+    const glm::vec3 d = posB - posA;
+    const float dist2 = glm::dot(d, d);
+    const float sumR = radiusA + radiusB;
+
+    if (dist2 > (sumR + SPECULATIVE_MARGIN) * (sumR + SPECULATIVE_MARGIN)) {
+        return info; // too far apart
+    }
+
+    const float dist = std::sqrt(dist2);
+    if (dist < 1e-8f) {
+        // Centres coincide — pick an arbitrary normal
+        info.collided = true;
+        info.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+        info.penetration = sumR;
+        info.point = posA;
+        info.featureId = 0xAA000000u;
+        return info;
+    }
+
+    info.collided = true;
+    info.normal = d / dist; // A -> B
+    info.penetration = sumR - dist; // >0 overlap, <0 gap within margin
+    // Contact point: on the surface of A along the normal direction
+    info.point = posA + info.normal * radiusA;
+    info.featureId = 0xAA000000u;
+    return info;
+}
+
+// ============================================================================
+// Sphere-OBB collision
+// ============================================================================
+
+CollisionInfo Collision::testSphereOBB(const glm::vec3& spherePos, float sphereRadius,
+                                       const OBB& box) {
+    CollisionInfo info;
+
+    // Transform sphere centre into box's local coordinate system
+    const glm::vec3 localPos = glm::transpose(box.axes) * (spherePos - box.center);
+
+    // Clamp to find the closest point on the box (in local space)
+    const glm::vec3 clamped(
+        std::clamp(localPos.x, -box.halfExtents.x, box.halfExtents.x),
+        std::clamp(localPos.y, -box.halfExtents.y, box.halfExtents.y),
+        std::clamp(localPos.z, -box.halfExtents.z, box.halfExtents.z)
+    );
+
+    // Vector from closest point to sphere centre (in local space)
+    const glm::vec3 diff = localPos - clamped;
+    const float dist2 = glm::dot(diff, diff);
+
+    if (dist2 > (sphereRadius + SPECULATIVE_MARGIN) * (sphereRadius + SPECULATIVE_MARGIN)) {
+        return info; // too far
+    }
+
+    // Transform closest point back to world space
+    const glm::vec3 closestWorld = box.center + box.axes * clamped;
+
+    glm::vec3 normal;
+    float penetration;
+
+    if (dist2 < 1e-8f) {
+        // Sphere centre is inside the box — find the shallowest axis to push out
+        float minPen = std::numeric_limits<float>::max();
+        int bestAxis = 0;
+        float bestSign = 1.0f;
+        for (int i = 0; i < 3; ++i) {
+            float penPos = box.halfExtents[i] - localPos[i];
+            float penNeg = box.halfExtents[i] + localPos[i];
+            if (penPos < minPen) { minPen = penPos; bestAxis = i; bestSign = 1.0f; }
+            if (penNeg < minPen) { minPen = penNeg; bestAxis = i; bestSign = -1.0f; }
+        }
+        normal = box.axes[bestAxis] * bestSign;
+        penetration = sphereRadius + minPen;
+    } else {
+        const float dist = std::sqrt(dist2);
+        // Normal in world space: from box surface toward sphere centre
+        normal = (spherePos - closestWorld) / dist;
+        penetration = sphereRadius - dist; // >0 overlap, <0 gap
+    }
+
+    info.collided = true;
+    info.normal = -normal; // Convention: A->B, sphere is A, box is B => point toward box
+    info.penetration = penetration;
+    info.point = closestWorld;
+    info.featureId = 0xBB000000u;
+    return info;
+}

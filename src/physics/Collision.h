@@ -60,6 +60,26 @@ class Collision {
 
         // Position correction (kept for reference but replaced by Baumgarte in the solver)
         static void resolvePenetration(RigidBody& a, RigidBody& b, const CollisionInfo& info); // pushes body A and B so they no longer overlap
+
+        // ====================================================================
+        // Sphere collision detection
+        // ====================================================================
+
+        /**
+         * Sphere-Sphere: exact geometric test.
+         * Returns a single CollisionInfo (collided=false if no contact within
+         * speculative margin). Normal points from A toward B.
+         */
+        static CollisionInfo testSphereSphere(const glm::vec3& posA, float radiusA,
+                                              const glm::vec3& posB, float radiusB);
+
+        /**
+         * Sphere-OBB: exact geometric test. Finds the closest point on the OBB
+         * to the sphere centre, then tests distance vs radius.
+         * Normal points from sphere (A) toward box (B).
+         */
+        static CollisionInfo testSphereOBB(const glm::vec3& spherePos, float sphereRadius,
+                                           const OBB& box);
     private:
         /**
          * Sutherland-Hodgman: clips polygon input against a single plane

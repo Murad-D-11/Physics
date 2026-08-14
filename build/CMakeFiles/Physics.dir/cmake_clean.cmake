@@ -17,6 +17,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj.d"
   "CMakeFiles/Physics.dir/src/renderer/glad.c.obj"
   "CMakeFiles/Physics.dir/src/renderer/glad.c.obj.d"
+  "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj"
+  "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj.d"
   "Physics.exe"
   "Physics.exe.manifest"
   "Physics.pdb"

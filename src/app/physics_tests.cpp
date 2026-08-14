@@ -1922,6 +1922,196 @@ static void performanceScaling(Suite& S) {
     S.isTrue("12 500-body scene remains finite", true);
 }
 
+// ===========================================================================
+// 13. SPHERE PHYSICS VALIDATION
+//     Tests sphere-floor, sphere-sphere, sphere-box interactions, rolling,
+//     momentum conservation, inertia correctness, and settling behaviour.
+// ===========================================================================
+static RigidBody makeSphere(const glm::vec3& pos, float radius, float mass, float e, float fr) {
+    RigidBody b;
+    b.shape = ShapeType::Sphere;
+    b.radius = radius;
+    b.scale = glm::vec3(radius * 2.0f);
+    b.position = pos;
+    b.orientation = glm::quat(1, 0, 0, 0);
+    b.velocity = glm::vec3(0.0f);
+    b.angularVelocity = glm::vec3(0.0f);
+    b.mass = mass;
+    b.inverseMass = (mass > 0.0f) ? (1.0f / mass) : 0.0f;
+    b.restitution = e;
+    b.friction = fr;
+    b.updateInertiaTensor();
+    return b;
+}
+
+static void sphereValidation(Suite& S) {
+    S.section("13. SPHERE PHYSICS VALIDATION");
+
+    // ---- SP1: Sphere inertia tensor = (2/5) m r² ---------------------------
+    {
+        const float m = 2.0f, r = 0.7f;
+        RigidBody s = makeSphere({0, 5, 0}, r, m, 0.5f, 0.5f);
+        const float Iexp = (2.0f / 5.0f) * m * r * r;
+        S.near("SP1 sphere inertia Ixx = 2/5 mr²", s.inertiaLocal[0][0], Iexp, 1e-6);
+        S.near("SP1 sphere inertia Iyy = Ixx (isotropic)", s.inertiaLocal[1][1], Iexp, 1e-6);
+        S.near("SP1 sphere inertia Izz = Ixx (isotropic)", s.inertiaLocal[2][2], Iexp, 1e-6);
+    }
+
+    // ---- SP2: Sphere free fall + bounce (sphere-floor) ----------------------
+    {
+        std::printf("  -- SP2: Sphere free fall + bounce --\n");
+        PhysicsSolver s; s.sleepingEnabled = false;
+        std::vector<RigidBody> bs{ makeSphere({0, 3, 0}, 0.5f, 1.0f, 0.3f, 0.5f) };
+        // floor e=0.3, sphere e=0.3 -> effective e = min(0.3,0.3) = 0.3
+        float approach = 0, rebound = 0; bool impacted = false; float prevVy = 0;
+        for (int i = 0; i < 300; ++i) {
+            s.step(bs, DT);
+            const float vy = bs[0].velocity.y;
+            if (!impacted && prevVy < -1.0f && vy > prevVy + 0.3f) { approach = -prevVy; impacted = true; }
+            if (impacted) rebound = std::max(rebound, vy);
+            prevVy = vy;
+        }
+        const double eEff = (approach > 0.01f) ? rebound / approach : 0.0;
+        std::printf("        impact=%.3f  rebound=%.3f  e_eff=%.3f (expected 0.3)\n", approach, rebound, eEff);
+        S.near("SP2 sphere restitution = min(e_a,e_b)", eEff, 0.3, 0.06, 0.20);
+        S.isTrue("SP2 sphere bounced", rebound > 0.1f);
+    }
+
+    // ---- SP3: Sphere rolling (friction couples v and ω) ---------------------
+    {
+        std::printf("  -- SP3: Sphere rolling --\n");
+        PhysicsSolver s; s.sleepingEnabled = false; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs{ makeSphere({0, 0.5f, 0}, 0.5f, 1.0f, 0.0f, 0.6f) };
+        bs[0].velocity = glm::vec3(3.0f, 0, 0);
+        // No initial spin -> contact point slides -> friction spins sphere up
+        run(s, bs, 60); // 1 s
+        const float vx = bs[0].velocity.x;
+        const float wz = bs[0].angularVelocity.z;
+        // Pure rolling of a sphere: v = -ω*r, so wz = -vx/r = -vx/0.5
+        const float cpSlip = vx + wz * 0.5f; // contact-point tangential velocity
+        std::printf("        after 1s: v=%.3f  w=%.3f  cp_slip=%.4f\n", vx, wz, cpSlip);
+        // Friction should produce spin (wz < 0 for +x motion)
+        S.isTrue("SP3 friction generates spin", wz < -0.1f);
+        // Contact-point slip should be reduced (heading toward pure rolling)
+        S.atMost("SP3 contact slip reduced", std::fabs(cpSlip), 1.5f, "m/s");
+    }
+
+    // ---- SP4: Sphere-sphere momentum conservation ---------------------------
+    {
+        std::printf("  -- SP4: Sphere-sphere collision (momentum) --\n");
+        PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+        std::vector<RigidBody> bs{
+            makeSphere({-2, 5, 0}, 0.5f, 1.0f, 0.8f, 0.0f),
+            makeSphere({ 2, 5, 0}, 0.5f, 2.0f, 0.8f, 0.0f)
+        };
+        bs[0].velocity = glm::vec3(3.0f, 0, 0);
+        bs[1].velocity = glm::vec3(-1.0f, 0, 0);
+        const glm::vec3 p0 = linearMomentum(bs);
+        const float ke0 = kineticLinear(bs);
+        run(s, bs, 200);
+        const glm::vec3 p1 = linearMomentum(bs);
+        const float ke1 = kineticLinear(bs);
+        std::printf("        P: (%.4f,%.4f,%.4f) -> (%.4f,%.4f,%.4f)\n",
+                    p0.x, p0.y, p0.z, p1.x, p1.y, p1.z);
+        std::printf("        KE: %.4f -> %.4f (e=0.8 -> some loss expected)\n", ke0, ke1);
+        S.near("SP4 momentum Px conserved", p1.x, p0.x, 0.01);
+        S.near("SP4 momentum Py conserved", p1.y, p0.y, 0.01);
+        S.isTrue("SP4 KE decreased (inelastic)", ke1 <= ke0 + 0.01f);
+    }
+
+    // ---- SP5: Sphere-box collision ------------------------------------------
+    {
+        std::printf("  -- SP5: Sphere-box collision --\n");
+        PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+        std::vector<RigidBody> bs{
+            makeSphere({-3, 5, 0}, 0.5f, 1.0f, 0.5f, 0.0f),
+            makeBox({0, 5, 0}, glm::vec3(1), 1.0f, 0.5f, 0.0f)
+        };
+        bs[0].velocity = glm::vec3(4.0f, 0, 0);
+        const glm::vec3 p0 = linearMomentum(bs);
+        run(s, bs, 200);
+        const glm::vec3 p1 = linearMomentum(bs);
+        std::printf("        P: %.4f -> %.4f\n", p0.x, p1.x);
+        S.near("SP5 sphere-box momentum Px conserved", p1.x, p0.x, 0.02);
+        S.isTrue("SP5 sphere bounced back", bs[0].velocity.x < 2.0f);
+        S.isTrue("SP5 box moved forward", bs[1].velocity.x > 0.5f);
+    }
+
+    // ---- SP6: Sphere settles and sleeps on floor ----------------------------
+    {
+        std::printf("  -- SP6: Sphere settling --\n");
+        PhysicsSolver s; s.captureDiagnostics = true;
+        std::vector<RigidBody> bs{ makeSphere({0, 2, 0}, 0.5f, 1.0f, 0.2f, 0.5f) };
+        run(s, bs, 600); // 10 s
+        std::printf("        final: y=%.4f  |v|=%.2e  |w|=%.2e  asleep=%d\n",
+                    bs[0].position.y, glm::length(bs[0].velocity), glm::length(bs[0].angularVelocity), (int)bs[0].asleep);
+        S.near("SP6 sphere rests at y=radius", bs[0].position.y, 0.5, 0.02);
+        S.isTrue("SP6 sphere sleeps", bs[0].asleep);
+        S.atMost("SP6 no residual velocity", glm::length(bs[0].velocity), 1e-3, "m/s");
+    }
+
+    // ---- SP7: Sphere sliding on low-friction surface ------------------------
+    {
+        std::printf("  -- SP7: Sphere sliding (low friction) --\n");
+        PhysicsSolver s; s.sleepingEnabled = false;
+        std::vector<RigidBody> bs{ makeSphere({0, 0.3f, 0}, 0.3f, 1.0f, 0.0f, 0.05f) };
+        bs[0].velocity = glm::vec3(4.0f, 0, 0);
+        const float v0 = bs[0].velocity.x;
+        run(s, bs, 60); // 1 s
+        const float v1 = bs[0].velocity.x;
+        // With mu=0.05, deceleration = mu*g = 0.49 m/s²; after 1s: v ≈ 4 - 0.49 = 3.51
+        std::printf("        v: %.3f -> %.3f (expected ~%.3f)\n", v0, v1, v0 - 0.05f * G);
+        S.isTrue("SP7 sphere still moving (low friction)", v1 > 2.0f);
+        S.isTrue("SP7 sphere decelerated", v1 < v0);
+    }
+
+    // ---- SP8: Multiple spheres settle into pile -----------------------------
+    {
+        std::printf("  -- SP8: Sphere pile settling --\n");
+        PhysicsSolver s;
+        std::vector<RigidBody> bs;
+        for (int i = 0; i < 8; ++i)
+            bs.push_back(makeSphere({(i % 3) * 0.4f - 0.4f, 0.5f + i * 0.5f, (i / 3) * 0.4f}, 0.3f, 1.0f, 0.1f, 0.8f));
+        run(s, bs, 3600); // 60 s
+        const int aw = awakeCount(bs);
+        bool allFinite = true;
+        float maxV = 0;
+        for (auto& b : bs) {
+            if (!std::isfinite(b.position.y)) allFinite = false;
+            maxV = std::max(maxV, glm::length(b.velocity));
+        }
+        std::printf("        awake=%d/8  allFinite=%s  maxV=%.4f\n", aw, allFinite ? "yes" : "NO", maxV);
+        S.isTrue("SP8 all spheres finite", allFinite);
+        // Spheres on a flat floor with a single contact point can roll
+        // indefinitely (no rotational dissipation mechanism for a perfect sphere).
+        // We verify they are stable (finite, not exploding) — not necessarily static.
+        S.atMost("SP8 no explosive motion", maxV, 3.0, "m/s");
+    }
+
+    // ---- SP9: Sphere rolling down a slope (sphere on tilted box) -----------
+    {
+        std::printf("  -- SP9: Sphere on tilted cube (slope) --\n");
+        PhysicsSolver s; s.sleepingEnabled = false; s.gravityEnabled = true;
+        // Create a large tilted "ramp" box (static)
+        RigidBody ramp = makeBox({0, 1.0f, 0}, glm::vec3(4.0f, 0.2f, 2.0f), 1.0f, 0.1f, 0.6f,
+                                 glm::angleAxis(glm::radians(-15.0f), glm::vec3(0, 0, 1)));
+        ramp.inverseMass = 0.0f;
+        ramp.inverseInertiaLocal = glm::mat3(0.0f);
+        ramp.inverseInertiaWorld = glm::mat3(0.0f);
+        std::vector<RigidBody> bs;
+        bs.push_back(ramp);
+        // Place sphere on high end of ramp
+        bs.push_back(makeSphere({-1.5f, 2.0f, 0}, 0.3f, 1.0f, 0.1f, 0.5f));
+        run(s, bs, 120); // 2 s
+        // Sphere should have rolled/slid down (moved in +x direction, gained speed)
+        std::printf("        sphere pos=(%.2f,%.2f,%.2f)  v=(%.2f,%.2f,%.2f)\n",
+                    bs[1].position.x, bs[1].position.y, bs[1].position.z,
+                    bs[1].velocity.x, bs[1].velocity.y, bs[1].velocity.z);
+        S.isTrue("SP9 sphere moved down slope (+x)", bs[1].position.x > -1.0f);
+        S.isTrue("SP9 sphere has velocity", glm::length(bs[1].velocity) > 0.5f);
+    }
+}
+
 int main() {
     std::printf("RIGID-BODY PHYSICS VALIDATION SUITE  (fixed dt = 1/60 s, semi-implicit Euler)\n");
     Suite S;
@@ -1937,6 +2127,7 @@ int main() {
     rotationalContactAudit(S);
     adversarialRobustness(S);
     performanceScaling(S);
+    sphereValidation(S);
     S.summary();
     return S.fail == 0 ? 0 : 1;
 }

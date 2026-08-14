@@ -106,6 +106,24 @@ std::vector<CollisionInfo> PhysicsSolver::generateFloorContacts(const RigidBody&
 
     if (body.inverseMass == 0.0f) return contacts;
 
+    const float floorTopY = floorBody.position.y + floorBody.scale.y * 0.5f;
+
+    // --- Sphere-floor: single contact point at bottom of sphere ---
+    if (body.shape == ShapeType::Sphere) {
+        const float bottomY = body.position.y - body.radius;
+        if (bottomY >= floorTopY + SPECULATIVE_MARGIN) return contacts;
+
+        CollisionInfo info;
+        info.collided = true;
+        info.point = glm::vec3(body.position.x, bottomY, body.position.z);
+        info.penetration = floorTopY - bottomY; // >0 overlap, <0 gap within margin
+        info.normal = glm::vec3(0.0f, -1.0f, 0.0f);
+        info.featureId = 0x00FF00FFu; // unique stable ID for sphere-floor contact
+        contacts.push_back(info);
+        return contacts;
+    }
+
+    // --- Box-floor: rotation-aware multi-point (existing logic) ---
     const glm::vec3 halfSize = body.scale * 0.5f;
     const glm::vec3 localCorners[8] {
         {-halfSize.x, -halfSize.y, -halfSize.z}, { halfSize.x, -halfSize.y, -halfSize.z},
@@ -123,8 +141,6 @@ std::vector<CollisionInfo> PhysicsSolver::generateFloorContacts(const RigidBody&
             lowestY = worldCorners[i].y;
         }
     }
-
-    const float floorTopY = floorBody.position.y + floorBody.scale.y * 0.5f;
 
     if (lowestY >= floorTopY + SPECULATIVE_MARGIN) return contacts; // beyond margin: no contact
 
@@ -447,24 +463,35 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     std::vector<OBB> obbs(n);
     std::vector<glm::vec3> aabbMin(n), aabbMax(n);
     for (std::size_t i = 0; i < n; ++i) {
-        obbs[i] = OBB::fromRigidBody(bodies[i]);
-        const glm::vec3 ext = glm::abs(obbs[i].axes[0]) * obbs[i].halfExtents.x
-                            + glm::abs(obbs[i].axes[1]) * obbs[i].halfExtents.y
-                            + glm::abs(obbs[i].axes[2]) * obbs[i].halfExtents.z;
-        aabbMin[i] = obbs[i].center - ext;
-        aabbMax[i] = obbs[i].center + ext;
+        if (bodies[i].shape == ShapeType::Sphere) {
+            // Sphere AABB: center ± radius
+            const glm::vec3 r(bodies[i].radius);
+            aabbMin[i] = bodies[i].position - r;
+            aabbMax[i] = bodies[i].position + r;
+            // OBB not used for spheres but fill it to avoid uninitialized reads
+            obbs[i].center = bodies[i].position;
+            obbs[i].halfExtents = r;
+            obbs[i].axes = glm::mat3(1.0f);
+        } else {
+            obbs[i] = OBB::fromRigidBody(bodies[i]);
+            const glm::vec3 ext = glm::abs(obbs[i].axes[0]) * obbs[i].halfExtents.x
+                                + glm::abs(obbs[i].axes[1]) * obbs[i].halfExtents.y
+                                + glm::abs(obbs[i].axes[2]) * obbs[i].halfExtents.z;
+            aabbMin[i] = obbs[i].center - ext;
+            aabbMax[i] = obbs[i].center + ext;
+        }
     }
 
     std::vector<std::pair<int, int>> candidatePairs;
     buildBroadphasePairs(bodies, aabbMin, aabbMax, candidatePairs);
     std::sort(candidatePairs.begin(), candidatePairs.end()); // deterministic order for stable stacks
 
-    // Single narrowphase pass: one SAT per pair. Build island edges + wake from
-    // the SAT result (no separate distanceOBB pass), then generate manifolds for
-    // pairs that aren't both sleeping.
-    struct Pending { int i; int j; SATResult sat; };
-    std::vector<Pending> pending;
-    pending.reserve(candidatePairs.size());
+    // Single narrowphase pass — dispatch based on shape types. Build island
+    // edges + wake from collision results, then gather contacts for non-sleeping
+    // pairs.
+    struct PendingContact { int i; int j; CollisionInfo info; };
+    std::vector<PendingContact> pendingContacts;
+    pendingContacts.reserve(candidatePairs.size() * 2);
     std::unordered_set<int> islandsToWake;
 
     for (const auto& pr : candidatePairs) {
@@ -475,33 +502,65 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         if (aabbMin[i].y > aabbMax[j].y || aabbMax[i].y < aabbMin[j].y) continue;
         if (aabbMin[i].z > aabbMax[j].z || aabbMax[i].z < aabbMin[j].z) continue;
 
-        const SATResult sat = Collision::testOBB(obbs[i], obbs[j]);
-        if (!sat.colliding) continue;
+        // Determine shape pair and run appropriate narrowphase
+        const ShapeType shapeI = bodies[i].shape;
+        const ShapeType shapeJ = bodies[j].shape;
+        bool colliding = false;
+        std::vector<CollisionInfo> pairContacts;
+
+        if (shapeI == ShapeType::Box && shapeJ == ShapeType::Box) {
+            // Box-Box: OBB-SAT
+            const SATResult sat = Collision::testOBB(obbs[i], obbs[j]);
+            if (sat.colliding) {
+                colliding = true;
+                pairContacts = Collision::generateManifold(obbs[i], obbs[j], sat);
+            }
+        } else if (shapeI == ShapeType::Sphere && shapeJ == ShapeType::Sphere) {
+            // Sphere-Sphere
+            CollisionInfo ci = Collision::testSphereSphere(
+                bodies[i].position, bodies[i].radius,
+                bodies[j].position, bodies[j].radius);
+            if (ci.collided) { colliding = true; pairContacts.push_back(ci); }
+        } else {
+            // Sphere-Box (ensure sphere is "A", box is "B" for consistent normal)
+            const int si = (shapeI == ShapeType::Sphere) ? i : j;
+            const int bi = (shapeI == ShapeType::Sphere) ? j : i;
+            CollisionInfo ci = Collision::testSphereOBB(
+                bodies[si].position, bodies[si].radius, obbs[bi]);
+            if (ci.collided) {
+                colliding = true;
+                // If we swapped order, flip the normal (it points A->B in our convention)
+                if (si != i) ci.normal = -ci.normal;
+                pairContacts.push_back(ci);
+            }
+        }
+
+        if (!colliding) continue;
 
         const bool dynI = bodies[i].inverseMass > 0.0f;
         const bool dynJ = bodies[j].inverseMass > 0.0f;
         if (dynI && dynJ) {
-            islandEdges.emplace_back(i, j); // contact-graph edge
+            islandEdges.emplace_back(i, j);
             const bool asleepI = bodies[i].asleep;
             const bool asleepJ = bodies[j].asleep;
             if (asleepI && !asleepJ) islandsToWake.insert(bodies[i].islandId);
             else if (asleepJ && !asleepI) islandsToWake.insert(bodies[j].islandId);
         }
 
-        pending.push_back({ i, j, sat });
+        for (const auto& ci : pairContacts) {
+            pendingContacts.push_back({ i, j, ci });
+        }
     }
 
     for (int id : islandsToWake) wakeIsland(bodies, id);
 
-    for (const auto& pm : pending) {
-        if (bodies[pm.i].asleep && bodies[pm.j].asleep) continue; // both sleeping: no solve
-        for (const CollisionInfo& info : Collision::generateManifold(obbs[pm.i], obbs[pm.j], pm.sat)) {
-            contacts.push_back({&bodies[pm.i], &bodies[pm.j], info,
-                                glm::vec3(0.0f), glm::vec3(0.0f),
-                                0.0f, 0.0f, 0.0f,
-                                glm::vec3(0.0f), glm::vec3(0.0f),
-                                0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-        }
+    for (const auto& pc : pendingContacts) {
+        if (bodies[pc.i].asleep && bodies[pc.j].asleep) continue; // both sleeping: no solve
+        contacts.push_back({&bodies[pc.i], &bodies[pc.j], pc.info,
+                            glm::vec3(0.0f), glm::vec3(0.0f),
+                            0.0f, 0.0f, 0.0f,
+                            glm::vec3(0.0f), glm::vec3(0.0f),
+                            0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
     }
 
     // Body-floor contacts (awake bodies only)
@@ -615,11 +674,9 @@ OBB PhysicsSolver::predictOBB(const RigidBody& b, float t) {
 
 bool PhysicsSolver::isCCDCandidate(const RigidBody& b, float dt) const {
     if (b.inverseMass == 0.0f || b.asleep) return false;
-    // Tunneling is translational: only a fast-moving CENTER can skip through
-    // thin geometry. Gate on LINEAR speed only -- rotation does not translate
-    // the center, so tumbling dominoes no longer trigger the CCD substep loop.
-    // Rotation is still accounted for inside the TOI sweep once a body qualifies.
-    const float minExtent = std::min(std::min(b.scale.x, b.scale.y), b.scale.z);
+    const float minExtent = (b.shape == ShapeType::Sphere)
+        ? b.radius * 2.0f
+        : std::min(std::min(b.scale.x, b.scale.y), b.scale.z);
     const float disp = glm::length(b.velocity) * dt;
     return disp > CCD_MOTION_FACTOR * minExtent;
 }

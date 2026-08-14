@@ -12,6 +12,7 @@
 #include "../renderer/render.h"
 #include "../renderer/camera.h"
 #include "../renderer/cube.h"
+#include "../renderer/sphere.h"
 #include "../renderer/ground.h"
 #include "../physics/rigidbody.h"
 #include "../physics/physicssolver.h"
@@ -501,6 +502,92 @@ std::vector<RigidBody> spawnInertiaDemo() {
 }
 
 // ===========================================================================
+// Sphere helper
+// ===========================================================================
+
+void setSphereMassProperties(RigidBody& body, float mass, float radius) {
+    body.shape = ShapeType::Sphere;
+    body.radius = radius;
+    body.mass = mass;
+    body.inverseMass = (mass > 0.0f) ? (1.0f / mass) : 0.0f;
+    body.scale = glm::vec3(radius * 2.0f); // visual scale matches collision radius
+    body.updateInertiaTensor();
+}
+
+// ===========================================================================
+// Sphere Demo Scene
+// ===========================================================================
+
+std::vector<RigidBody> spawnSphereDemo() {
+    std::vector<RigidBody> bodies;
+
+    // (a) Sphere falling from height — tests sphere-floor contact
+    RigidBody s1;
+    s1.position = glm::vec3(0.0f, 3.0f, 0.0f);
+    s1.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(s1, 1.0f, 0.5f);
+    s1.restitution = 0.6f;
+    s1.friction = 0.4f;
+    bodies.push_back(s1);
+
+    // (b) Sphere rolling along the floor — tests friction + angular coupling
+    RigidBody s2;
+    s2.position = glm::vec3(-4.0f, 0.5f, 0.0f);
+    s2.velocity = glm::vec3(3.0f, 0.0f, 0.0f);
+    setSphereMassProperties(s2, 1.0f, 0.5f);
+    s2.restitution = 0.1f;
+    s2.friction = 0.6f;
+    bodies.push_back(s2);
+
+    // (c) Two spheres colliding head-on — tests sphere-sphere
+    RigidBody s3;
+    s3.position = glm::vec3(3.0f, 0.5f, 2.0f);
+    s3.velocity = glm::vec3(2.0f, 0.0f, 0.0f);
+    setSphereMassProperties(s3, 1.0f, 0.4f);
+    s3.restitution = 0.8f;
+    s3.friction = 0.3f;
+    bodies.push_back(s3);
+
+    RigidBody s4;
+    s4.position = glm::vec3(6.0f, 0.4f, 2.0f);
+    s4.velocity = glm::vec3(-2.0f, 0.0f, 0.0f);
+    setSphereMassProperties(s4, 1.0f, 0.4f);
+    s4.restitution = 0.8f;
+    s4.friction = 0.3f;
+    bodies.push_back(s4);
+
+    // (d) Sphere hitting a stationary cube — tests sphere-box
+    RigidBody cube;
+    cube.position = glm::vec3(0.0f, 0.5f, -3.0f);
+    cube.velocity = glm::vec3(0.0f);
+    setCubeMassProperties(cube, 2.0f);
+    cube.restitution = 0.3f;
+    cube.friction = 0.5f;
+    bodies.push_back(cube);
+
+    RigidBody s5;
+    s5.position = glm::vec3(-3.0f, 0.5f, -3.0f);
+    s5.velocity = glm::vec3(4.0f, 0.0f, 0.0f);
+    setSphereMassProperties(s5, 1.0f, 0.5f);
+    s5.restitution = 0.5f;
+    s5.friction = 0.4f;
+    bodies.push_back(s5);
+
+    // (e) Multiple spheres dropped in a cluster — tests pile settling
+    for (int i = 0; i < 5; ++i) {
+        RigidBody s;
+        s.position = glm::vec3(-1.0f + i * 0.6f, 2.0f + i * 0.8f, 4.0f);
+        s.velocity = glm::vec3(0.0f);
+        setSphereMassProperties(s, 0.8f, 0.3f);
+        s.restitution = 0.2f;
+        s.friction = 0.5f;
+        bodies.push_back(s);
+    }
+
+    return bodies;
+}
+
+// ===========================================================================
 // Main
 // ===========================================================================
 
@@ -542,6 +629,7 @@ int main() {
 
     Render renderer;
     Cube cube(1.0f);
+    Sphere sphereMesh; // unit-radius sphere mesh for rendering
     Ground ground(20.0f);
 
     Camera camera(11.0f, -55.0f, 18.0f);
@@ -554,8 +642,8 @@ int main() {
     // Press P to start/pause the simulation.
     // -----------------------------------------------------------------
     // std::vector<RigidBody> bodies = spawnStableTower();
-    std::vector<RigidBody> bodies = spawnExplosion();
-    // std::vector<RigidBody> bodies = spawnWreckingBall();
+    std::vector<RigidBody> bodies = spawnSphereDemo();
+    // std::vector<RigidBody> bodies = spawnExplosion();
     // std::vector<RigidBody> bodies = spawnBilliards();
     // std::vector<RigidBody> bodies = spawnInertiaDemo();
     // std::vector<RigidBody> bodies = spawnElasticVsInelastic();
@@ -614,7 +702,11 @@ int main() {
 
         // Draw all physics bodies
         for (const auto& body : bodies) {
-            renderer.drawBody(cube, camera, aspectRatio, body.position, body.orientation, body.scale, body.isColliding);
+            if (body.shape == ShapeType::Sphere) {
+                renderer.drawSphere(sphereMesh, camera, aspectRatio, body.position, body.orientation, body.radius, body.isColliding);
+            } else {
+                renderer.drawBody(cube, camera, aspectRatio, body.position, body.orientation, body.scale, body.isColliding);
+            }
         }
 
         // Pause indicator

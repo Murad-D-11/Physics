@@ -5,6 +5,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <string>
 #include "cube.h"
+#include "sphere.h"
 #include "ground.h"
 #include "camera.h"
 
@@ -21,6 +22,7 @@ public:
 
     void beginFrame() const;
     void drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, glm::vec3 scale, bool isColliding) const;
+    void drawSphere(const Sphere& sphere, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, float radius, bool isColliding) const;
     void drawGround(const Ground& ground, const Camera& camera, float aspectRatio) const;
     void drawPauseIcon() const;
 

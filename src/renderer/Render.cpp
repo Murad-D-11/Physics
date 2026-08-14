@@ -230,6 +230,24 @@ void Render::drawBody(const Cube& cube, const Camera& camera, float aspectRatio,
     cube.draw();
 }
 
+void Render::drawSphere(const Sphere& sphere, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, float radius, bool isColliding) const {
+    glUseProgram(shaderProgram);
+
+    const glm::mat4 translation = glm::translate(glm::mat4(1.0f), position);
+    const glm::mat4 rotation = glm::mat4_cast(orientation);
+    const glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(radius)); // uniform scale
+    const glm::mat4 model = translation * rotation * scaling;
+    const glm::mat4 view = camera.getViewMatrix();
+    const glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
+
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniform1i(glGetUniformLocation(shaderProgram, "colliding"), isColliding ? 1 : 0);
+
+    sphere.draw();
+}
+
 void Render::drawGround(const Ground& ground, const Camera& camera, float aspectRatio) const {
     glUseProgram(groundShaderProgram);
 
