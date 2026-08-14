@@ -24,6 +24,16 @@ PhysicsSolver::PhysicsSolver() {
 
     floorBody.restitution = 0.3f;
     floorBody.friction = 0.6f;
+
+    // Static body used as the B-side for all plane contacts.
+    planeBody.inverseMass = 0.0f;
+    planeBody.inverseInertiaLocal = glm::mat3(0.0f);
+    planeBody.inverseInertiaWorld = glm::mat3(0.0f);
+    planeBody.velocity = glm::vec3(0.0f);
+    planeBody.angularVelocity = glm::vec3(0.0f);
+    planeBody.position = glm::vec3(0.0f);
+    planeBody.restitution = 0.3f; // overridden per-plane at contact time
+    planeBody.friction = 0.6f;    // overridden per-plane at contact time
 }
 
 PhysicsSolver::~PhysicsSolver() {}
@@ -154,6 +164,92 @@ std::vector<CollisionInfo> PhysicsSolver::generateFloorContacts(const RigidBody&
             info.normal = glm::vec3(0.0f, -1.0f, 0.0f);
             info.featureId = static_cast<uint32_t>(i);
             contacts.push_back(info);
+        }
+    }
+
+    return contacts;
+}
+
+// ============================================================================
+// Plane Contact Generation (arbitrary normal — slopes, walls, ramps)
+// ============================================================================
+
+std::vector<CollisionInfo> PhysicsSolver::generatePlaneContacts(const RigidBody& body, const StaticPlane& plane) const {
+    std::vector<CollisionInfo> contacts;
+    if (body.inverseMass == 0.0f) return contacts;
+
+    const glm::vec3& n = plane.normal;
+
+    // --- Finite plane bounds check ---
+    // If halfExtent is non-zero, reject bodies whose projection onto the plane
+    // falls outside the bounded rectangle.
+    if (plane.halfExtent.x > 0.0f || plane.halfExtent.y > 0.0f) {
+        // Compute tangent axes if not provided
+        glm::vec3 t1 = plane.tangent1;
+        glm::vec3 t2 = plane.tangent2;
+        if (glm::dot(t1, t1) < 0.5f) {
+            // Auto-generate tangent basis from normal
+            glm::vec3 ref = (std::abs(n.x) < 0.9f) ? glm::vec3(1, 0, 0) : glm::vec3(0, 1, 0);
+            t1 = glm::normalize(glm::cross(n, ref));
+            t2 = glm::cross(n, t1);
+        }
+        // Project body centre onto the plane's local 2D coordinates
+        const glm::vec3 rel = body.position - plane.point;
+        const float u = glm::dot(rel, t1);
+        const float v = glm::dot(rel, t2);
+        // Allow a margin of the body's radius/half-extent so edge contacts still work
+        const float margin = (body.shape == ShapeType::Sphere) ? body.radius : glm::length(body.scale) * 0.5f;
+        if (std::abs(u) > plane.halfExtent.x + margin || std::abs(v) > plane.halfExtent.y + margin) {
+            return contacts; // body is outside the finite plane
+        }
+    }
+
+    if (body.shape == ShapeType::Sphere) {
+        // Sphere-plane: single contact at the point on the sphere closest to the plane.
+        const float dist = glm::dot(body.position - plane.point, n);
+        const float pen = body.radius - dist; // >0 overlap, <0 gap
+        if (pen < -SPECULATIVE_MARGIN) return contacts;
+
+        CollisionInfo info;
+        info.collided = true;
+        info.point = body.position - n * dist; // closest point on plane
+        info.penetration = pen;
+        info.normal = -n; // convention: points from body A toward body B (plane)
+        info.featureId = 0xCC000000u;
+        contacts.push_back(info);
+    } else {
+        // Box-plane: test all 8 corners against the plane.
+        const glm::vec3 halfSize = body.scale * 0.5f;
+        const glm::vec3 localCorners[8] {
+            {-halfSize.x, -halfSize.y, -halfSize.z}, { halfSize.x, -halfSize.y, -halfSize.z},
+            { halfSize.x, -halfSize.y,  halfSize.z}, {-halfSize.x, -halfSize.y,  halfSize.z},
+            {-halfSize.x,  halfSize.y, -halfSize.z}, { halfSize.x,  halfSize.y, -halfSize.z},
+            { halfSize.x,  halfSize.y,  halfSize.z}, {-halfSize.x,  halfSize.y,  halfSize.z}
+        };
+
+        // Find the minimum signed distance (deepest corner)
+        float minDist = std::numeric_limits<float>::max();
+        glm::vec3 worldCorners[8];
+        for (int i = 0; i < 8; ++i) {
+            worldCorners[i] = body.position + body.orientation * localCorners[i];
+            const float d = glm::dot(worldCorners[i] - plane.point, n);
+            if (d < minDist) minDist = d;
+        }
+
+        if (minDist >= SPECULATIVE_MARGIN) return contacts; // all corners far from plane
+
+        // Retain corners within FACE_CONTACT_EPSILON of the deepest (up to 4)
+        for (int i = 0; i < 8 && contacts.size() < 4; ++i) {
+            const float d = glm::dot(worldCorners[i] - plane.point, n);
+            if (d <= minDist + FACE_CONTACT_EPSILON) {
+                CollisionInfo info;
+                info.collided = true;
+                info.point = worldCorners[i];
+                info.penetration = -d; // >0 overlap (corner behind plane)
+                info.normal = -n;      // points from body toward plane
+                info.featureId = 0xCC000000u | static_cast<uint32_t>(i);
+                contacts.push_back(info);
+            }
         }
     }
 
@@ -575,10 +671,29 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         }
     }
 
+    // Body-plane contacts (arbitrary slopes/walls)
+    for (const auto& plane : planes) {
+        // Set planeBody material to match this plane's properties
+        planeBody.restitution = plane.restitution;
+        planeBody.friction = plane.friction;
+        planeBody.position = plane.point;
+
+        for (auto& body : bodies) {
+            if (body.asleep) continue;
+            for (const CollisionInfo& pc : generatePlaneContacts(body, plane)) {
+                contacts.push_back({&body, &planeBody, pc,
+                                    glm::vec3(0.0f), glm::vec3(0.0f),
+                                    0.0f, 0.0f, 0.0f,
+                                    glm::vec3(0.0f), glm::vec3(0.0f),
+                                    0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+            }
+        }
+    }
+
     lastContactCount = static_cast<int>(contacts.size());
 
     for (const auto& c : contacts) {
-        if (c.b == &floorBody) continue;
+        if (c.b == &floorBody || c.b == &planeBody) continue;
 
         const glm::vec3 rA = c.info.point - c.a->position;
         const glm::vec3 rB = c.info.point - c.b->position;
@@ -646,7 +761,7 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
             d.normalImpulse = c.accumulatedNormalImpulse;
             d.frictionImpulse = std::sqrt(c.accumulatedTangentImpulse1 * c.accumulatedTangentImpulse1
                                         + c.accumulatedTangentImpulse2 * c.accumulatedTangentImpulse2);
-            d.floorContact = (c.b == &floorBody);
+            d.floorContact = (c.b == &floorBody || c.b == &planeBody);
             lastSolvedContacts.push_back(d);
         }
     }

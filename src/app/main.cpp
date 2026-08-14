@@ -587,6 +587,90 @@ std::vector<RigidBody> spawnSphereDemo() {
     return bodies;
 }
 
+std::vector<RigidBody> spawnSlopeDemo(PhysicsSolver& solver) {
+    std::vector<RigidBody> bodies;
+
+    // --- Physical slope: 20-degree incline ---
+    const float slopeAngle = 20.0f;
+    const float rad = glm::radians(slopeAngle);
+    PhysicsSolver::StaticPlane slope;
+    slope.point = glm::vec3(0.0f, 2.0f, 0.0f); // plane passes through this point
+    slope.normal = glm::vec3(-std::sin(rad), std::cos(rad), 0.0f); // tilted normal
+    slope.friction = 0.4f;
+    slope.restitution = 0.2f;
+    // Finite bounds matching the visual ramp (8m long × 3m wide)
+    slope.halfExtent = glm::vec2(4.0f, 1.5f);
+    // Tangent axes: t1 = down-slope direction, t2 = across-slope (Z axis)
+    slope.tangent1 = glm::normalize(glm::vec3(std::cos(rad), std::sin(rad), 0.0f));
+    slope.tangent2 = glm::vec3(0.0f, 0.0f, 1.0f);
+    solver.planes.push_back(slope);
+
+    // Visual ramp (a long thin static box tilted to match the slope)
+    RigidBody ramp;
+    ramp.scale = glm::vec3(8.0f, 0.2f, 3.0f); // long, thin, wide
+    ramp.position = glm::vec3(0.0f, 2.0f, 0.0f);
+    ramp.orientation = glm::angleAxis(-rad, glm::vec3(0, 0, 1));
+    ramp.velocity = glm::vec3(0.0f);
+    ramp.angularVelocity = glm::vec3(0.0f);
+    ramp.inverseMass = 0.0f;
+    ramp.inverseInertiaLocal = glm::mat3(0.0f);
+    ramp.inverseInertiaWorld = glm::mat3(0.0f);
+    ramp.restitution = 0.2f;
+    ramp.friction = 0.4f;
+    bodies.push_back(ramp);
+
+    // (a) Sphere at the top of the slope — should roll/slide down
+    RigidBody s1;
+    s1.position = slope.point + slope.normal * 0.4f + glm::vec3(-2.5f, 1.0f, 0.0f);
+    s1.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(s1, 1.0f, 0.4f);
+    s1.restitution = 0.2f;
+    s1.friction = 0.5f;
+    bodies.push_back(s1);
+
+    // (b) Another sphere, different size
+    RigidBody s2;
+    s2.position = slope.point + slope.normal * 0.3f + glm::vec3(-2.0f, 0.8f, 0.8f);
+    s2.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(s2, 0.5f, 0.25f);
+    s2.restitution = 0.3f;
+    s2.friction = 0.6f;
+    bodies.push_back(s2);
+
+    // (c) Cube sliding down the slope
+    RigidBody cube1;
+    cube1.scale = glm::vec3(0.6f);
+    cube1.position = slope.point + slope.normal * 0.35f + glm::vec3(-1.5f, 0.6f, -0.5f);
+    cube1.velocity = glm::vec3(0.0f);
+    cube1.orientation = glm::angleAxis(-rad, glm::vec3(0, 0, 1)); // aligned with slope
+    setCubeMassProperties(cube1, 1.0f);
+    cube1.restitution = 0.1f;
+    cube1.friction = 0.3f; // low friction -> slides
+    bodies.push_back(cube1);
+
+    // (d) Cube with high friction — should stay put on the slope
+    RigidBody cube2;
+    cube2.scale = glm::vec3(0.5f);
+    cube2.position = slope.point + slope.normal * 0.3f + glm::vec3(-0.5f, 0.3f, 0.5f);
+    cube2.velocity = glm::vec3(0.0f);
+    cube2.orientation = glm::angleAxis(-rad, glm::vec3(0, 0, 1));
+    setCubeMassProperties(cube2, 1.0f);
+    cube2.restitution = 0.1f;
+    cube2.friction = 0.9f; // high friction -> should hold (tan20°=0.36 < 0.9)
+    bodies.push_back(cube2);
+
+    // (e) Sphere dropped from above onto the slope — bounces then rolls
+    RigidBody s3;
+    s3.position = glm::vec3(0.0f, 5.0f, 0.0f);
+    s3.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(s3, 1.5f, 0.5f);
+    s3.restitution = 0.5f;
+    s3.friction = 0.4f;
+    bodies.push_back(s3);
+
+    return bodies;
+}
+
 // ===========================================================================
 // Main
 // ===========================================================================
@@ -642,7 +726,8 @@ int main() {
     // Press P to start/pause the simulation.
     // -----------------------------------------------------------------
     // std::vector<RigidBody> bodies = spawnStableTower();
-    std::vector<RigidBody> bodies = spawnSphereDemo();
+    // std::vector<RigidBody> bodies = spawnSphereDemo();
+    std::vector<RigidBody> bodies = spawnSlopeDemo(physicsSolver);
     // std::vector<RigidBody> bodies = spawnExplosion();
     // std::vector<RigidBody> bodies = spawnBilliards();
     // std::vector<RigidBody> bodies = spawnInertiaDemo();

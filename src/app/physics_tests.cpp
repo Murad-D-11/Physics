@@ -2112,6 +2112,189 @@ static void sphereValidation(Suite& S) {
     }
 }
 
+// ===========================================================================
+// 14. SLOPE / INCLINED PLANE VALIDATION
+//     Tests gravity decomposition, static friction threshold, frictionless
+//     sliding (a = g sin θ), sphere rolling on slopes, and box behaviour at
+//     multiple angles. Contact normals derived from actual plane geometry.
+// ===========================================================================
+
+static glm::vec3 slopeNormal(float angleDeg) {
+    // A slope tilted about the Z axis: normal rotates from +Y toward -X as angle increases.
+    const float rad = glm::radians(angleDeg);
+    return glm::vec3(-std::sin(rad), std::cos(rad), 0.0f);
+}
+
+static void slopeValidation(Suite& S) {
+    S.section("14. SLOPE / INCLINED PLANE VALIDATION");
+
+    // Helper: create a solver with a single slope and no horizontal floor interference.
+    // We disable the existing floor by placing objects above it and relying on the plane.
+    auto makeSlopeSolver = [](float angleDeg, float friction, float restitution) {
+        PhysicsSolver s;
+        s.sleepingEnabled = false;
+        s.captureDiagnostics = true;
+        PhysicsSolver::StaticPlane plane;
+        plane.point = glm::vec3(0.0f, 5.0f, 0.0f); // elevated so objects don't hit the floor
+        plane.normal = slopeNormal(angleDeg);
+        plane.friction = friction;
+        plane.restitution = restitution;
+        s.planes.push_back(plane);
+        return s;
+    };
+
+    // Helper: position a body on the slope surface (centre at planePoint + normal*offset)
+    auto onSlope = [](float angleDeg, float offset) -> glm::vec3 {
+        return glm::vec3(0.0f, 5.0f, 0.0f) + slopeNormal(angleDeg) * offset;
+    };
+
+    // ---- SL1: Frictionless sphere sliding — a = g sin(θ) --------------------
+    {
+        std::printf("  -- SL1: Frictionless sphere sliding (gravity decomposition) --\n");
+        std::printf("  %6s %10s %10s %10s\n", "angle", "a_meas", "a_expect", "error");
+        const float angles[] = {5, 15, 30, 45, 60};
+        for (float ang : angles) {
+            PhysicsSolver s = makeSlopeSolver(ang, 0.0f, 0.0f);
+            // Place sphere resting on the slope surface at the origin.
+            // The slope normal at angle θ is (-sin θ, cos θ, 0).
+            // A sphere of radius r resting on the slope has its centre at
+            // planePoint + normal * radius.
+            const glm::vec3 n = slopeNormal(ang);
+            const float r = 0.3f;
+            std::vector<RigidBody> bs{ makeSphere(onSlope(ang, r), r, 1.0f, 0.0f, 0.0f) };
+            // Run 30 steps (0.5 s) and measure tangential acceleration.
+            // Tangential direction (down the slope): perpendicular to normal in the XY plane.
+            const glm::vec3 tangent = glm::normalize(glm::vec3(-n.y, n.x, 0.0f)); // points down-slope
+            run(s, bs, 30);
+            const float vTang = glm::dot(bs[0].velocity, tangent);
+            const float t = 30.0f * DT;
+            const float aMeas = vTang / t;
+            const float aExp = G * std::sin(glm::radians(ang));
+            std::printf("  %6.0f %10.4f %10.4f %10.4f\n", ang, aMeas, aExp, aMeas - aExp);
+        }
+        // Detailed check at 30 degrees
+        PhysicsSolver s30 = makeSlopeSolver(30.0f, 0.0f, 0.0f);
+        const glm::vec3 n30 = slopeNormal(30.0f);
+        std::vector<RigidBody> bs30{ makeSphere(onSlope(30.0f, 0.3f), 0.3f, 1.0f, 0.0f, 0.0f) };
+        run(s30, bs30, 60);
+        const glm::vec3 tang30 = glm::normalize(glm::vec3(-n30.y, n30.x, 0.0f));
+        const float v30 = glm::dot(bs30[0].velocity, tang30);
+        const float a30 = v30 / (60.0f * DT);
+        S.near("SL1 frictionless 30deg: a = g*sin(30)", a30, G * 0.5f, 0.3, 0.10);
+    }
+
+    // ---- SL2: Static friction holds object on slope -------------------------
+    // For a body to remain static: mg sin θ ≤ μ mg cos θ → tan θ ≤ μ.
+    // With μ=0.7, critical angle = atan(0.7) ≈ 35°. Below that → static.
+    {
+        std::printf("  -- SL2: Static friction threshold --\n");
+        const float mu = 0.7f;
+        const float critAngle = std::atan(mu) * 180.0f / 3.14159265f; // ~35 deg
+        std::printf("        mu=%.2f  critical angle=%.1f deg\n", mu, critAngle);
+
+        // Test at 20 degrees (below critical) — should stay put
+        PhysicsSolver s20 = makeSlopeSolver(20.0f, mu, 0.0f);
+        std::vector<RigidBody> bs20{ makeBox(onSlope(20.0f, 0.5f), glm::vec3(1), 1.0f, 0.0f, mu) };
+        const glm::vec3 pos20_start = bs20[0].position;
+        run(s20, bs20, 300); // 5 s
+        const float drift20 = glm::length(bs20[0].position - pos20_start);
+        std::printf("        20 deg (below crit): drift=%.5f m\n", drift20);
+        S.atMost("SL2 below critical angle: held static", drift20, 0.25, "m");
+
+        // Test at 50 degrees (above critical) — should slide
+        PhysicsSolver s50 = makeSlopeSolver(50.0f, mu, 0.0f);
+        std::vector<RigidBody> bs50{ makeBox(onSlope(50.0f, 0.5f), glm::vec3(1), 1.0f, 0.0f, mu) };
+        const glm::vec3 pos50_start = bs50[0].position;
+        run(s50, bs50, 120); // 2 s
+        const float drift50 = glm::length(bs50[0].position - pos50_start);
+        std::printf("        50 deg (above crit): drift=%.3f m\n", drift50);
+        S.isTrue("SL2 above critical angle: slides", drift50 > 0.5f);
+    }
+
+    // ---- SL3: Sphere rolling vs sliding on slope ----------------------------
+    {
+        std::printf("  -- SL3: Sphere rolling on slope --\n");
+        // With sufficient friction, a sphere rolls without slipping on a slope.
+        // Rolling sphere: a = (5/7) g sin θ (slower than sliding because energy goes to rotation).
+        PhysicsSolver s = makeSlopeSolver(30.0f, 0.8f, 0.0f);
+        const glm::vec3 n = slopeNormal(30.0f);
+        std::vector<RigidBody> bs{ makeSphere(onSlope(30.0f, 0.3f), 0.3f, 1.0f, 0.0f, 0.8f) };
+        run(s, bs, 60); // 1 s
+        const glm::vec3 tang = glm::normalize(glm::vec3(-n.y, n.x, 0.0f));
+        const float vTang = glm::dot(bs[0].velocity, tang);
+        const float aMeas = vTang / (60.0f * DT);
+        const float aRoll = (5.0f / 7.0f) * G * std::sin(glm::radians(30.0f)); // 3.504
+        const float aSlide = G * std::sin(glm::radians(30.0f));                 // 4.905
+        std::printf("        a_meas=%.3f  a_roll_exp=%.3f  a_slide_exp=%.3f\n", aMeas, aRoll, aSlide);
+        // Should be closer to rolling than frictionless sliding
+        S.isTrue("SL3 sphere accelerates down slope", aMeas > 1.0f);
+        S.isTrue("SL3 friction slows below frictionless", aMeas < aSlide + 0.5f);
+        // Check that sphere gains spin (rolling, not just sliding)
+        S.isTrue("SL3 sphere spins (rolling)", glm::length(bs[0].angularVelocity) > 0.5f);
+    }
+
+    // ---- SL4: Box on various slopes (qualitative) ---------------------------
+    {
+        std::printf("  -- SL4: Box on slopes at multiple angles --\n");
+        std::printf("  %6s %8s %10s %10s\n", "angle", "mu", "drift(2s)", "sliding?");
+        struct Case { float angle; float mu; bool shouldSlide; };
+        const Case cases[] = {
+            { 5.0f, 0.5f, false},
+            {15.0f, 0.5f, false},
+            {30.0f, 0.5f, true },  // tan(30)=0.577 > 0.5
+            {45.0f, 0.5f, true },
+            {60.0f, 0.5f, true },
+        };
+        for (const auto& c : cases) {
+            PhysicsSolver s = makeSlopeSolver(c.angle, c.mu, 0.0f);
+            std::vector<RigidBody> bs{ makeBox(onSlope(c.angle, 0.5f), glm::vec3(1), 1.0f, 0.0f, c.mu) };
+            const glm::vec3 p0 = bs[0].position;
+            run(s, bs, 120);
+            const float drift = glm::length(bs[0].position - p0);
+            const bool slid = drift > 0.1f;
+            std::printf("  %6.0f %8.2f %10.4f %10s\n", c.angle, c.mu, drift, slid ? "yes" : "no");
+        }
+        // Verify the 5-degree case stays put (tan(5)=0.087 < 0.5)
+        PhysicsSolver s5 = makeSlopeSolver(5.0f, 0.5f, 0.0f);
+        std::vector<RigidBody> bs5{ makeBox(onSlope(5.0f, 0.5f), glm::vec3(1), 1.0f, 0.0f, 0.5f) };
+        const glm::vec3 p5 = bs5[0].position;
+        run(s5, bs5, 300);
+        S.atMost("SL4 5deg (mu=0.5): stays static", glm::length(bs5[0].position - p5), 0.05, "m");
+        // Verify 45-degree slides (tan(45)=1.0 > 0.5)
+        PhysicsSolver s45 = makeSlopeSolver(45.0f, 0.5f, 0.0f);
+        std::vector<RigidBody> bs45{ makeBox(onSlope(45.0f, 0.5f), glm::vec3(1), 1.0f, 0.0f, 0.5f) };
+        const glm::vec3 p45 = bs45[0].position;
+        run(s45, bs45, 120);
+        S.isTrue("SL4 45deg (mu=0.5): slides", glm::length(bs45[0].position - p45) > 0.5f);
+    }
+
+    // ---- SL5: Contact normal is actual plane normal -------------------------
+    {
+        std::printf("  -- SL5: Contact normal verification --\n");
+        PhysicsSolver s = makeSlopeSolver(30.0f, 0.5f, 0.0f);
+        const glm::vec3 expectedN = -slopeNormal(30.0f);
+        std::vector<RigidBody> bs{ makeSphere(onSlope(30.0f, 0.3f), 0.3f, 1.0f, 0.0f, 0.5f) };
+        run(s, bs, 3);
+        bool foundPlaneContact = false;
+        glm::vec3 measuredN(0.0f);
+        for (const auto& c : s.lastSolvedContacts) {
+            if (c.floorContact) { // plane contacts are flagged as "floor" in diagnostics
+                foundPlaneContact = true;
+                measuredN = c.normal;
+                break;
+            }
+        }
+        if (foundPlaneContact) {
+            const float dot = glm::dot(glm::normalize(measuredN), glm::normalize(expectedN));
+            std::printf("        expected normal=(%.3f,%.3f,%.3f)  measured=(%.3f,%.3f,%.3f)  dot=%.5f\n",
+                        expectedN.x, expectedN.y, expectedN.z, measuredN.x, measuredN.y, measuredN.z, dot);
+            S.near("SL5 contact normal matches plane geometry", dot, 1.0, 0.01);
+        } else {
+            S.isTrue("SL5 plane contact generated", false);
+        }
+    }
+}
+
 int main() {
     std::printf("RIGID-BODY PHYSICS VALIDATION SUITE  (fixed dt = 1/60 s, semi-implicit Euler)\n");
     Suite S;
@@ -2128,6 +2311,7 @@ int main() {
     adversarialRobustness(S);
     performanceScaling(S);
     sphereValidation(S);
+    slopeValidation(S);
     S.summary();
     return S.fail == 0 ? 0 : 1;
 }

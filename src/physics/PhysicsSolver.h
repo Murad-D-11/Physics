@@ -20,6 +20,28 @@ class PhysicsSolver {
 
         int lastContactCount = 0;
 
+        // ====================================================================
+        // Static planes (slopes, walls, ramps). Each has an arbitrary normal.
+        // Contact generation derives the normal from actual plane geometry,
+        // NOT from hard-coded (0,1,0) assumptions.
+        // ====================================================================
+        struct StaticPlane {
+            glm::vec3 point    = glm::vec3(0.0f); // any point on the plane (centre of the surface)
+            glm::vec3 normal   = glm::vec3(0.0f, 1.0f, 0.0f); // outward normal (unit)
+            float friction     = 0.6f;
+            float restitution  = 0.3f;
+
+            // Finite extent: if halfExtent > 0, the plane is bounded to a rectangle
+            // of size (2*halfExtent.x) × (2*halfExtent.y) centred at `point`, measured
+            // along the plane's two tangent axes. Set halfExtent = (0,0) for infinite.
+            glm::vec2 halfExtent = glm::vec2(0.0f); // (0,0) = infinite plane
+
+            // Tangent axes spanning the plane surface (auto-computed if zero).
+            glm::vec3 tangent1 = glm::vec3(0.0f);
+            glm::vec3 tangent2 = glm::vec3(0.0f);
+        };
+        std::vector<StaticPlane> planes; // user-facing: add slopes here
+
         // --- Opt-in solver diagnostics (used by the headless contact tests) ---
         // When captureDiagnostics is true, detectAndResolve records the solved
         // contact set (post velocity+position solve) so tests can audit normals,
@@ -110,6 +132,7 @@ class PhysicsSolver {
 
         // --- Discrete solver internals ---
         std::vector<CollisionInfo> generateFloorContacts(const RigidBody& body) const;
+        std::vector<CollisionInfo> generatePlaneContacts(const RigidBody& body, const StaticPlane& plane) const;
         void precomputeContact(Contact& c);
         void warmStart(std::vector<Contact>& contacts);
         void solveVelocities(std::vector<Contact>& contacts, bool reverse);
@@ -137,6 +160,7 @@ class PhysicsSolver {
 
         // --- State ---
         RigidBody floorBody;
+        RigidBody planeBody; // static body used as B-side for all plane contacts
         std::unordered_map<ContactKey, CachedImpulse, ContactKeyHash> contactCache;
         std::vector<std::pair<int, int>> islandEdges;
         float sceneMinThickness = 1.0f; // smallest collider extent in the scene (set each step)
