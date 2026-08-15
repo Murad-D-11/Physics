@@ -23,6 +23,7 @@ public:
     void beginFrame() const;
     void drawBody(const Cube& cube, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, glm::vec3 scale, bool isColliding) const;
     void drawSphere(const Sphere& sphere, const Camera& camera, float aspectRatio, glm::vec3 position, glm::quat orientation, float radius, bool isColliding) const;
+    void drawLine(const Camera& camera, float aspectRatio, glm::vec3 from, glm::vec3 to, glm::vec3 color) const;
     void drawGround(const Ground& ground, const Camera& camera, float aspectRatio) const;
     void drawPauseIcon() const;
 
@@ -34,6 +35,7 @@ private:
     GLuint groundShaderProgram = 0;
     GLuint pauseShaderProgram = 0;
     GLuint pauseVAO = 0, pauseVBO = 0;
+    GLuint lineVAO = 0, lineVBO = 0;
 
     static const char* vertexShaderSource;
     static const char* fragmentShaderSource;

@@ -113,20 +113,20 @@ CMakeFiles/Physics.dir/src/renderer/Cube.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/renderer/Cube.cpp.s"
 	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Cube.cpp" -o CMakeFiles\Physics.dir\src\renderer\Cube.cpp.s
 
-CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj: CMakeFiles/Physics.dir/flags.make
-CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
-CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/sphere.cpp
-CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj -MF CMakeFiles\Physics.dir\src\renderer\sphere.cpp.obj.d -o CMakeFiles\Physics.dir\src\renderer\sphere.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\sphere.cpp"
+CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Sphere.cpp
+CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj -MF CMakeFiles\Physics.dir\src\renderer\Sphere.cpp.obj.d -o CMakeFiles\Physics.dir\src\renderer\Sphere.cpp.obj -c "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Sphere.cpp"
 
-CMakeFiles/Physics.dir/src/renderer/sphere.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/renderer/sphere.cpp.i"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\sphere.cpp" > CMakeFiles\Physics.dir\src\renderer\sphere.cpp.i
+CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.i"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Sphere.cpp" > CMakeFiles\Physics.dir\src\renderer\Sphere.cpp.i
 
-CMakeFiles/Physics.dir/src/renderer/sphere.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/renderer/sphere.cpp.s"
-	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\sphere.cpp" -o CMakeFiles\Physics.dir\src\renderer\sphere.cpp.s
+CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.s"
+	C:\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Users\Sobachya Morda\Desktop\Desktop Folder\Coding Projects\Workspaces\Physics\src\renderer\Sphere.cpp" -o CMakeFiles\Physics.dir\src\renderer\Sphere.cpp.s
 
 CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: CMakeFiles/Physics.dir/flags.make
 CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
@@ -223,7 +223,7 @@ Physics_OBJECTS = \
 "CMakeFiles/Physics.dir/src/app/main.cpp.obj" \
 "CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj" \
 "CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj" \
-"CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj" \
+"CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj" \
 "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj" \
 "CMakeFiles/Physics.dir/src/renderer/glad.c.obj" \
 "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj" \
@@ -237,7 +237,7 @@ Physics_EXTERNAL_OBJECTS =
 Physics.exe: CMakeFiles/Physics.dir/src/app/main.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj
-Physics.exe: CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/renderer/glad.c.obj
 Physics.exe: CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj

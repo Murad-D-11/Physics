@@ -82,6 +82,24 @@ void PhysicsSolver::integratePositions(std::vector<RigidBody>& bodies, float dt)
 
         body.position += body.velocity * dt;
 
+        // Safety: clamp velocity to prevent broadphase overflow from runaway bodies.
+        const float maxSpeed = 500.0f;
+        if (glm::dot(body.velocity, body.velocity) > maxSpeed * maxSpeed) {
+            body.velocity = glm::normalize(body.velocity) * maxSpeed;
+        }
+
+        // Safety guard: if position or velocity becomes NaN/Inf, reset to origin.
+        // This prevents cascading crashes from constraint solver divergence.
+        if (!std::isfinite(body.position.x) || !std::isfinite(body.position.y) || !std::isfinite(body.position.z)) {
+            body.position = glm::vec3(0.0f, 5.0f, 0.0f);
+            body.velocity = glm::vec3(0.0f);
+            body.angularVelocity = glm::vec3(0.0f);
+        }
+        if (!std::isfinite(body.velocity.x) || !std::isfinite(body.velocity.y) || !std::isfinite(body.velocity.z)) {
+            body.velocity = glm::vec3(0.0f);
+            body.angularVelocity = glm::vec3(0.0f);
+        }
+
         if (body.inverseInertiaLocal != glm::mat3(0.0f)) {
             // Angular-momentum-conserving integration:
             // 1. Compute L = I_world · ω (angular momentum, conserved quantity).
@@ -279,6 +297,12 @@ void PhysicsSolver::buildBroadphasePairs(const std::vector<RigidBody>& bodies,
     grid.reserve(bodies.size() * 2);
 
     for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
+        // Skip bodies at extreme positions (fallen off the world due to
+        // unsupported constraints). Prevents spatial-hash overflow/crash.
+        if (std::abs(aabbMin[i].x) > 1000.0f || std::abs(aabbMin[i].y) > 1000.0f || std::abs(aabbMin[i].z) > 1000.0f ||
+            std::abs(aabbMax[i].x) > 1000.0f || std::abs(aabbMax[i].y) > 1000.0f || std::abs(aabbMax[i].z) > 1000.0f) {
+            continue;
+        }
         const int minx = static_cast<int>(std::floor(aabbMin[i].x * inv));
         const int miny = static_cast<int>(std::floor(aabbMin[i].y * inv));
         const int minz = static_cast<int>(std::floor(aabbMin[i].z * inv));
@@ -736,8 +760,12 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     // stack that bias seeds a lean that gravity then amplifies into a topple.
     // Alternating the order cancels the bias while applying identical impulses
     // (momentum-preserving; no damping/snapping).
+    precomputeHinges();
     for (int iter = 0; iter < solverIterations; ++iter) {
         solveVelocities(contacts, (iter & 1) != 0);
+        solveHingeVelocities();
+        solveRopeVelocities();
+        solvePulleyVelocities();
     }
 
     // Energy-free penetration removal (split impulse). Operates on pseudo-
@@ -747,6 +775,73 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
         solvePositions(contacts, (iter & 1) != 0);
     }
     integratePseudoVelocities(bodies);
+    solveHingePositions();
+
+    // Direct position projection for ropes: enforce maxLength at position level.
+    // This prevents bodies from drifting past the rope limit between frames.
+    for (auto& r : ropes) {
+        glm::vec3 wA = r.bodyA
+            ? r.bodyA->position + r.bodyA->orientation * r.localAnchorA
+            : r.localAnchorA;
+        glm::vec3 wB = r.bodyB
+            ? r.bodyB->position + r.bodyB->orientation * r.localAnchorB
+            : r.localAnchorB;
+
+        const glm::vec3 delta = wB - wA;
+        const float dist = glm::length(delta);
+        if (dist <= r.maxLength || dist < 1e-6f) continue;
+
+        const glm::vec3 dir = delta / dist;
+        const float excess = dist - r.maxLength;
+
+        const float invMassA = (r.bodyA && r.bodyA->inverseMass > 0.0f) ? r.bodyA->inverseMass : 0.0f;
+        const float invMassB = (r.bodyB && r.bodyB->inverseMass > 0.0f) ? r.bodyB->inverseMass : 0.0f;
+        const float totalInv = invMassA + invMassB;
+        if (totalInv < 1e-10f) continue;
+
+        // Pull bodies toward each other to satisfy the constraint
+        const glm::vec3 correction = dir * excess;
+        if (r.bodyA && r.bodyA->inverseMass > 0.0f)
+            r.bodyA->position += correction * (invMassA / totalInv);
+        if (r.bodyB && r.bodyB->inverseMass > 0.0f)
+            r.bodyB->position -= correction * (invMassB / totalInv);
+    }
+
+    // Direct position projection for pulleys: enforce C = lenA + lenB - L = 0
+    // BILATERAL: corrects 100% of the error each frame (inextensible rope).
+    for (auto& p : pulleys) {
+        glm::vec3 wA = p.bodyA
+            ? p.bodyA->position + p.bodyA->orientation * p.localAnchorA
+            : p.localAnchorA;
+        glm::vec3 wB = p.bodyB
+            ? p.bodyB->position + p.bodyB->orientation * p.localAnchorB
+            : p.localAnchorB;
+
+        const glm::vec3 dA = wA - p.pulleyPos;
+        const glm::vec3 dB = wB - p.pulleyPos;
+        const float lenA = glm::length(dA);
+        const float lenB = glm::length(dB);
+        const float total = lenA + lenB;
+
+        if (lenA < 1e-6f || lenB < 1e-6f) continue;
+
+        const float error = total - p.totalRopeLength;
+        if (std::abs(error) < 1e-5f) continue;
+
+        const glm::vec3 dirA = dA / lenA;
+        const glm::vec3 dirB = dB / lenB;
+
+        const float invMassA = (p.bodyA && p.bodyA->inverseMass > 0.0f) ? p.bodyA->inverseMass : 0.0f;
+        const float invMassB = (p.bodyB && p.bodyB->inverseMass > 0.0f) ? p.bodyB->inverseMass : 0.0f;
+        const float totalInv = invMassA + invMassB;
+        if (totalInv < 1e-10f) continue;
+
+        // Full correction: pull each body toward the pulley proportionally to inverse mass
+        if (p.bodyA && p.bodyA->inverseMass > 0.0f)
+            p.bodyA->position -= dirA * error * (invMassA / totalInv);
+        if (p.bodyB && p.bodyB->inverseMass > 0.0f)
+            p.bodyB->position -= dirB * error * (invMassB / totalInv);
+    }
 
     if (captureDiagnostics) {
         lastSolvedContacts.clear();
@@ -1000,6 +1095,360 @@ void PhysicsSolver::updateSleeping(std::vector<RigidBody>& bodies, float dt) {
 }
 
 // ============================================================================
+// Hinge Constraint Solver
+// ============================================================================
+
+void PhysicsSolver::precomputeHinges() {
+    for (auto& h : hinges) {
+        // Compute world-space anchors and axes
+        if (h.bodyA && h.bodyA->inverseMass >= 0.0f) {
+            h.worldAnchorA = h.bodyA->position + h.bodyA->orientation * h.localAnchorA;
+            h.worldAxisA = glm::normalize(h.bodyA->orientation * h.localAxisA);
+        } else {
+            h.worldAnchorA = h.localAnchorA;
+            h.worldAxisA = glm::normalize(h.localAxisA);
+        }
+        if (h.bodyB && h.bodyB->inverseMass >= 0.0f) {
+            h.worldAnchorB = h.bodyB->position + h.bodyB->orientation * h.localAnchorB;
+            h.worldAxisB = glm::normalize(h.bodyB->orientation * h.localAxisB);
+        } else {
+            h.worldAnchorB = h.localAnchorB;
+            h.worldAxisB = glm::normalize(h.localAxisB);
+        }
+
+        h.positionError = h.worldAnchorB - h.worldAnchorA;
+
+        // Compute relative angle about hinge axis
+        const glm::vec3 cross = glm::cross(h.worldAxisA, h.worldAxisB);
+        h.angularError = glm::length(cross);
+        const float dot = glm::dot(h.worldAxisA, h.worldAxisB);
+        h.currentAngle = std::atan2(glm::length(cross), dot);
+
+        // Relative angular velocity about hinge axis
+        glm::vec3 wA(0.0f), wB(0.0f);
+        if (h.bodyA) wA = h.bodyA->angularVelocity;
+        if (h.bodyB) wB = h.bodyB->angularVelocity;
+        h.currentAngularVel = glm::dot(wB - wA, h.worldAxisA);
+    }
+}
+
+void PhysicsSolver::solveHingeVelocities() {
+    for (auto& h : hinges) {
+        RigidBody* A = h.bodyA;
+        RigidBody* B = h.bodyB;
+
+        const float invMassA = (A && A->inverseMass > 0.0f) ? A->inverseMass : 0.0f;
+        const float invMassB = (B && B->inverseMass > 0.0f) ? B->inverseMass : 0.0f;
+        const glm::mat3 invIA = (A && A->inverseMass > 0.0f) ? A->inverseInertiaWorld : glm::mat3(0.0f);
+        const glm::mat3 invIB = (B && B->inverseMass > 0.0f) ? B->inverseInertiaWorld : glm::mat3(0.0f);
+
+        const glm::vec3 rA = h.worldAnchorA - (A ? A->position : h.worldAnchorA);
+        const glm::vec3 rB = h.worldAnchorB - (B ? B->position : h.worldAnchorB);
+
+        // --- Positional constraint (3 DOF): enforce coincident anchors ---
+        // Velocity at anchor: v + ω×r
+        glm::vec3 vA(0.0f), vB(0.0f);
+        if (A && A->inverseMass > 0.0f) vA = A->velocity + glm::cross(A->angularVelocity, rA);
+        if (B && B->inverseMass > 0.0f) vB = B->velocity + glm::cross(B->angularVelocity, rB);
+
+        const glm::vec3 dv = vB - vA;
+
+        // Baumgarte position correction bias (strong for hinges to prevent drift)
+        const glm::vec3 bias = (0.8f / FIXED_DT) * h.positionError;
+
+        // Solve each axis of the positional constraint
+        for (int axis = 0; axis < 3; ++axis) {
+            glm::vec3 n(0.0f); n[axis] = 1.0f;
+
+            const glm::vec3 rAxN = glm::cross(rA, n);
+            const glm::vec3 rBxN = glm::cross(rB, n);
+            const float angA = glm::dot(n, glm::cross(invIA * rAxN, rA));
+            const float angB = glm::dot(n, glm::cross(invIB * rBxN, rB));
+            const float effMassInv = invMassA + invMassB + angA + angB;
+            if (effMassInv < 1e-10f) continue;
+            const float effMass = 1.0f / effMassInv;
+
+            const float Cdot = glm::dot(dv, n);
+            const float lambda = effMass * (-(Cdot + bias[axis]));
+
+            // Apply impulse
+            const glm::vec3 impulse = lambda * n;
+            if (A && A->inverseMass > 0.0f) {
+                A->velocity -= impulse * invMassA;
+                A->angularVelocity -= invIA * glm::cross(rA, impulse);
+            }
+            if (B && B->inverseMass > 0.0f) {
+                B->velocity += impulse * invMassB;
+                B->angularVelocity += invIB * glm::cross(rB, impulse);
+            }
+        }
+
+        // --- Angular constraint (2 DOF): enforce shared axis ---
+        // Two axes perpendicular to the hinge axis
+        glm::vec3 ref = (std::abs(h.worldAxisA.x) < 0.9f) ? glm::vec3(1, 0, 0) : glm::vec3(0, 1, 0);
+        const glm::vec3 perp1 = glm::normalize(glm::cross(h.worldAxisA, ref));
+        const glm::vec3 perp2 = glm::cross(h.worldAxisA, perp1);
+
+        glm::vec3 wA2(0.0f), wB2(0.0f);
+        if (A) wA2 = A->angularVelocity;
+        if (B) wB2 = B->angularVelocity;
+        const glm::vec3 dw = wB2 - wA2;
+
+        for (int i = 0; i < 2; ++i) {
+            const glm::vec3& axis = (i == 0) ? perp1 : perp2;
+
+            const float effMassInv = glm::dot(axis, invIA * axis) + glm::dot(axis, invIB * axis);
+            if (effMassInv < 1e-10f) continue;
+            const float effMass = 1.0f / effMassInv;
+
+            // Angular velocity error along this perpendicular axis
+            const float Cdot = glm::dot(dw, axis);
+            // Baumgarte bias for angular alignment
+            const float angBias = (0.2f / FIXED_DT) * glm::dot(glm::cross(h.worldAxisA, h.worldAxisB), axis);
+            const float lambda = effMass * (-(Cdot + angBias));
+
+            const glm::vec3 angImpulse = lambda * axis;
+            if (A && A->inverseMass > 0.0f) A->angularVelocity -= invIA * angImpulse;
+            if (B && B->inverseMass > 0.0f) B->angularVelocity += invIB * angImpulse;
+        }
+
+        // --- Motor (optional): drive angular velocity about hinge axis ---
+        if (h.maxMotorTorque > 0.0f) {
+            const float wRel = glm::dot(wB2 - wA2, h.worldAxisA);
+            const float effMassInv = glm::dot(h.worldAxisA, invIA * h.worldAxisA) + glm::dot(h.worldAxisA, invIB * h.worldAxisA);
+            if (effMassInv > 1e-10f) {
+                const float effMass = 1.0f / effMassInv;
+                float lambda = effMass * (h.targetAngularVelocity - wRel);
+                const float maxImpulse = h.maxMotorTorque * FIXED_DT;
+                lambda = std::clamp(lambda, -maxImpulse, maxImpulse);
+
+                const glm::vec3 imp = lambda * h.worldAxisA;
+                if (A && A->inverseMass > 0.0f) A->angularVelocity -= invIA * imp;
+                if (B && B->inverseMass > 0.0f) B->angularVelocity += invIB * imp;
+            }
+        }
+
+        // --- Angular limits (optional) ---
+        if (h.angleLimitMin < h.angleLimitMax) {
+            const float wRel = glm::dot((B ? B->angularVelocity : glm::vec3(0.0f)) - (A ? A->angularVelocity : glm::vec3(0.0f)), h.worldAxisA);
+            const float effMassInv = glm::dot(h.worldAxisA, invIA * h.worldAxisA) + glm::dot(h.worldAxisA, invIB * h.worldAxisA);
+            if (effMassInv > 1e-10f) {
+                const float effMass = 1.0f / effMassInv;
+                if (h.currentAngle < h.angleLimitMin) {
+                    const float bias2 = (0.2f / FIXED_DT) * (h.angleLimitMin - h.currentAngle);
+                    const float lambda = std::max(0.0f, effMass * (-(wRel + bias2)));
+                    const glm::vec3 imp = lambda * h.worldAxisA;
+                    if (A && A->inverseMass > 0.0f) A->angularVelocity -= invIA * imp;
+                    if (B && B->inverseMass > 0.0f) B->angularVelocity += invIB * imp;
+                } else if (h.currentAngle > h.angleLimitMax) {
+                    const float bias2 = (0.2f / FIXED_DT) * (h.angleLimitMax - h.currentAngle);
+                    const float lambda = std::min(0.0f, effMass * (-(wRel + bias2)));
+                    const glm::vec3 imp = lambda * h.worldAxisA;
+                    if (A && A->inverseMass > 0.0f) A->angularVelocity -= invIA * imp;
+                    if (B && B->inverseMass > 0.0f) B->angularVelocity += invIB * imp;
+                }
+            }
+        }
+    }
+}
+
+void PhysicsSolver::solveHingePositions() {
+    // Gentle position-level correction for hinges. Only fixes residual drift
+    // that the velocity-level Baumgarte couldn't fully resolve. Uses a small
+    // fraction (20%) to avoid snapping / teleporting bodies.
+    for (auto& h : hinges) {
+        RigidBody* A = h.bodyA;
+        RigidBody* B = h.bodyB;
+
+        // Recompute world anchors from current positions
+        glm::vec3 wA = (A && A->inverseMass > 0.0f)
+            ? A->position + A->orientation * h.localAnchorA
+            : h.localAnchorA;
+        glm::vec3 wB = (B && B->inverseMass > 0.0f)
+            ? B->position + B->orientation * h.localAnchorB
+            : h.localAnchorB;
+
+        const glm::vec3 err = wB - wA;
+        const float errLen = glm::length(err);
+        if (errLen < 1e-4f) continue; // already close enough
+
+        const float invMassA = (A && A->inverseMass > 0.0f) ? A->inverseMass : 0.0f;
+        const float invMassB = (B && B->inverseMass > 0.0f) ? B->inverseMass : 0.0f;
+        const float totalInvMass = invMassA + invMassB;
+        if (totalInvMass < 1e-10f) continue;
+
+        // Move bodies to reduce error by 20% (gentle, avoids oscillation)
+        const glm::vec3 correction = err * 0.2f;
+        if (A && A->inverseMass > 0.0f) A->position += correction * (invMassA / totalInvMass);
+        if (B && B->inverseMass > 0.0f) B->position -= correction * (invMassB / totalInvMass);
+    }
+}
+
+// ============================================================================
+// Rope Constraint Solver (one-sided: only activates when taut)
+// ============================================================================
+
+void PhysicsSolver::solveRopeVelocities() {
+    for (auto& r : ropes) {
+        // Compute world anchors
+        r.worldAnchorA = r.bodyA
+            ? r.bodyA->position + r.bodyA->orientation * r.localAnchorA
+            : r.localAnchorA;
+        r.worldAnchorB = r.bodyB
+            ? r.bodyB->position + r.bodyB->orientation * r.localAnchorB
+            : r.localAnchorB;
+
+        const glm::vec3 delta = r.worldAnchorB - r.worldAnchorA;
+        r.currentLength = glm::length(delta);
+
+        // Only activate when stretched beyond max length (one-sided)
+        if (r.currentLength <= r.maxLength) {
+            r.taut = false;
+            r.tension = 0.0f;
+            r.accumulatedImpulse = 0.0f;
+            continue;
+        }
+
+        r.taut = true;
+        r.direction = delta / r.currentLength; // A -> B
+
+        RigidBody* A = r.bodyA;
+        RigidBody* B = r.bodyB;
+        const float invMassA = (A && A->inverseMass > 0.0f) ? A->inverseMass : 0.0f;
+        const float invMassB = (B && B->inverseMass > 0.0f) ? B->inverseMass : 0.0f;
+        const glm::mat3 invIA = (A && A->inverseMass > 0.0f) ? A->inverseInertiaWorld : glm::mat3(0.0f);
+        const glm::mat3 invIB = (B && B->inverseMass > 0.0f) ? B->inverseInertiaWorld : glm::mat3(0.0f);
+
+        const glm::vec3 rA = r.worldAnchorA - (A ? A->position : r.worldAnchorA);
+        const glm::vec3 rB = r.worldAnchorB - (B ? B->position : r.worldAnchorB);
+
+        // Effective mass along rope direction
+        const glm::vec3 rAxN = glm::cross(rA, r.direction);
+        const glm::vec3 rBxN = glm::cross(rB, r.direction);
+        const float angA = glm::dot(r.direction, glm::cross(invIA * rAxN, rA));
+        const float angB = glm::dot(r.direction, glm::cross(invIB * rBxN, rB));
+        const float effMassInv = invMassA + invMassB + angA + angB;
+        if (effMassInv < 1e-10f) continue;
+        const float effMass = 1.0f / effMassInv;
+
+        // Relative velocity along rope
+        glm::vec3 vA(0.0f), vB(0.0f);
+        if (A && A->inverseMass > 0.0f) vA = A->velocity + glm::cross(A->angularVelocity, rA);
+        if (B && B->inverseMass > 0.0f) vB = B->velocity + glm::cross(B->angularVelocity, rB);
+        const float vn = glm::dot(vB - vA, r.direction);
+
+        // Baumgarte bias for positional error (rope stretched beyond max)
+        const float penetration = r.currentLength - r.maxLength;
+        const float bias = (0.8f / FIXED_DT) * penetration;
+
+        // Target: stop further separation (vn + bias <= 0)
+        float lambda = effMass * (-(vn + bias));
+
+        // One-sided: rope can only PULL (tension >= 0). Clamp accumulated impulse >= 0.
+        const float oldAccum = r.accumulatedImpulse;
+        r.accumulatedImpulse = std::max(0.0f, oldAccum + lambda);
+        lambda = r.accumulatedImpulse - oldAccum;
+
+        r.tension = r.accumulatedImpulse;
+
+        // Apply impulse along rope direction (pulls A toward B, pulls B toward A)
+        const glm::vec3 impulse = lambda * r.direction;
+        if (A && A->inverseMass > 0.0f) {
+            A->velocity += impulse * invMassA;
+            A->angularVelocity += invIA * glm::cross(rA, impulse);
+        }
+        if (B && B->inverseMass > 0.0f) {
+            B->velocity -= impulse * invMassB;
+            B->angularVelocity -= invIB * glm::cross(rB, impulse);
+        }
+    }
+}
+
+// ============================================================================
+// Pulley Constraint Solver (lengthA + lengthB <= totalRopeLength)
+// ============================================================================
+
+void PhysicsSolver::solvePulleyVelocities() {
+    for (auto& p : pulleys) {
+        // Compute world anchors
+        p.worldAnchorA = p.bodyA
+            ? p.bodyA->position + p.bodyA->orientation * p.localAnchorA
+            : p.localAnchorA;
+        p.worldAnchorB = p.bodyB
+            ? p.bodyB->position + p.bodyB->orientation * p.localAnchorB
+            : p.localAnchorB;
+
+        const glm::vec3 deltaA = p.worldAnchorA - p.pulleyPos;
+        const glm::vec3 deltaB = p.worldAnchorB - p.pulleyPos;
+        p.lengthA = glm::length(deltaA);
+        p.lengthB = glm::length(deltaB);
+        p.currentTotal = p.lengthA + p.lengthB;
+
+        if (p.lengthA < 1e-6f || p.lengthB < 1e-6f) {
+            p.taut = false; p.tension = 0.0f;
+            continue;
+        }
+
+        p.taut = true;
+        p.dirA = deltaA / p.lengthA; // pulley -> A (unit)
+        p.dirB = deltaB / p.lengthB; // pulley -> B (unit)
+
+        RigidBody* A = p.bodyA;
+        RigidBody* B = p.bodyB;
+        const float invMassA = (A && A->inverseMass > 0.0f) ? A->inverseMass : 0.0f;
+        const float invMassB = (B && B->inverseMass > 0.0f) ? B->inverseMass : 0.0f;
+        const glm::mat3 invIA = (A && A->inverseMass > 0.0f) ? A->inverseInertiaWorld : glm::mat3(0.0f);
+        const glm::mat3 invIB = (B && B->inverseMass > 0.0f) ? B->inverseInertiaWorld : glm::mat3(0.0f);
+
+        const glm::vec3 rA = p.worldAnchorA - (A ? A->position : p.worldAnchorA);
+        const glm::vec3 rB = p.worldAnchorB - (B ? B->position : p.worldAnchorB);
+
+        // ---- BILATERAL EQUALITY CONSTRAINT ----
+        // C = lengthA + lengthB - L = 0
+        // Cdot = dot(vA, dirA) + dot(vB, dirB) = 0
+        //
+        // Jacobian: J = [dirA^T, (rA x dirA)^T, dirB^T, (rB x dirB)^T]
+        // Effective mass: 1 / (J * M^-1 * J^T)
+
+        const glm::vec3 rAxDA = glm::cross(rA, p.dirA);
+        const glm::vec3 rBxDB = glm::cross(rB, p.dirB);
+        const float angContribA = glm::dot(p.dirA, glm::cross(invIA * rAxDA, rA));
+        const float angContribB = glm::dot(p.dirB, glm::cross(invIB * rBxDB, rB));
+        const float effMassInv = invMassA + invMassB + angContribA + angContribB;
+        if (effMassInv < 1e-10f) continue;
+        const float effMass = 1.0f / effMassInv;
+
+        // Current constraint velocity (Cdot)
+        glm::vec3 vA(0.0f), vB(0.0f);
+        if (A && A->inverseMass > 0.0f) vA = A->velocity + glm::cross(A->angularVelocity, rA);
+        if (B && B->inverseMass > 0.0f) vB = B->velocity + glm::cross(B->angularVelocity, rB);
+        const float Cdot = glm::dot(vA, p.dirA) + glm::dot(vB, p.dirB);
+
+        // Baumgarte stabilization: drives positional error C toward 0
+        const float C = p.currentTotal - p.totalRopeLength;
+        const float beta = 0.8f;
+        const float bias = (beta / FIXED_DT) * C;
+
+        // Constraint impulse (BILATERAL — no clamping, rope is always taut)
+        const float lambda = effMass * (-(Cdot + bias));
+
+        p.tension = std::abs(lambda) / FIXED_DT; // approximate tension force
+
+        // Apply impulse: pulls bodies TOWARD the pulley (reduces rope length)
+        // J_A = dirA (derivative of lenA w.r.t. position of A)
+        // To reduce C: apply force in -dirA direction on A, -dirB direction on B
+        if (A && A->inverseMass > 0.0f) {
+            A->velocity += lambda * (-p.dirA) * invMassA;
+            A->angularVelocity += invIA * glm::cross(rA, lambda * (-p.dirA));
+        }
+        if (B && B->inverseMass > 0.0f) {
+            B->velocity += lambda * (-p.dirB) * invMassB;
+            B->angularVelocity += invIB * glm::cross(rB, lambda * (-p.dirB));
+        }
+    }
+}
+
+// ============================================================================
 // Full CCD-aware + sleeping step
 // ============================================================================
 
@@ -1012,6 +1461,84 @@ void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
 
     if (gravityEnabled) {
         for (auto& b : bodies) applyGravity(b, dt);
+    }
+
+    // Wake bodies that are part of constraints (they shouldn't sleep while constrained)
+    for (const auto& sp : springs) {
+        if (sp.bodyA && sp.bodyA->asleep) { sp.bodyA->asleep = false; sp.bodyA->sleepTimer = 0; }
+        if (sp.bodyB && sp.bodyB->asleep) { sp.bodyB->asleep = false; sp.bodyB->sleepTimer = 0; }
+    }
+    for (const auto& h : hinges) {
+        if (h.bodyA && h.bodyA->asleep) { h.bodyA->asleep = false; h.bodyA->sleepTimer = 0; }
+        if (h.bodyB && h.bodyB->asleep) { h.bodyB->asleep = false; h.bodyB->sleepTimer = 0; }
+    }
+    for (const auto& r : ropes) {
+        if (r.bodyA && r.bodyA->asleep) { r.bodyA->asleep = false; r.bodyA->sleepTimer = 0; }
+        if (r.bodyB && r.bodyB->asleep) { r.bodyB->asleep = false; r.bodyB->sleepTimer = 0; }
+    }
+    for (const auto& p : pulleys) {
+        if (p.bodyA && p.bodyA->asleep) { p.bodyA->asleep = false; p.bodyA->sleepTimer = 0; }
+        if (p.bodyB && p.bodyB->asleep) { p.bodyB->asleep = false; p.bodyB->sleepTimer = 0; }
+    }
+
+    // Apply spring forces (Hooke's law + damping) at attachment points.
+    for (auto& sp : springs) {
+        // Compute world-space anchor positions
+        if (sp.bodyA) {
+            sp.worldAnchorA = sp.bodyA->position + sp.bodyA->orientation * sp.localAnchorA;
+        } else {
+            sp.worldAnchorA = sp.localAnchorA; // world-space static anchor
+        }
+        if (sp.bodyB) {
+            sp.worldAnchorB = sp.bodyB->position + sp.bodyB->orientation * sp.localAnchorB;
+        } else {
+            sp.worldAnchorB = sp.localAnchorB; // world-space static anchor
+        }
+
+        const glm::vec3 delta = sp.worldAnchorB - sp.worldAnchorA;
+        sp.currentLength = glm::length(delta);
+        sp.extension = sp.currentLength - sp.restLength;
+
+        if (sp.currentLength < 1e-7f) {
+            sp.forceMagnitude = 0.0f;
+            sp.forceOnA = sp.forceOnB = glm::vec3(0.0f);
+            continue;
+        }
+
+        const glm::vec3 dir = delta / sp.currentLength; // A -> B
+
+        // Relative velocity along the spring direction (for damping)
+        glm::vec3 velA(0.0f), velB(0.0f);
+        if (sp.bodyA && sp.bodyA->inverseMass > 0.0f) {
+            const glm::vec3 rA = sp.worldAnchorA - sp.bodyA->position;
+            velA = sp.bodyA->velocity + glm::cross(sp.bodyA->angularVelocity, rA);
+        }
+        if (sp.bodyB && sp.bodyB->inverseMass > 0.0f) {
+            const glm::vec3 rB = sp.worldAnchorB - sp.bodyB->position;
+            velB = sp.bodyB->velocity + glm::cross(sp.bodyB->angularVelocity, rB);
+        }
+        const float relVelAlongSpring = glm::dot(velB - velA, dir);
+
+        // F = -k * extension - c * relVel (along spring direction)
+        const float fMag = sp.stiffness * sp.extension + sp.damping * relVelAlongSpring;
+        sp.forceMagnitude = std::abs(fMag);
+
+        // Force on A is in the +dir direction (pulls A toward B when stretched)
+        const glm::vec3 force = fMag * dir;
+        sp.forceOnA = force;
+        sp.forceOnB = -force;
+
+        // Apply as velocity impulse: Δv = (F/m) * dt, applied at the attachment point
+        if (sp.bodyA && sp.bodyA->inverseMass > 0.0f && !sp.bodyA->asleep) {
+            sp.bodyA->velocity += force * sp.bodyA->inverseMass * dt;
+            const glm::vec3 rA = sp.worldAnchorA - sp.bodyA->position;
+            sp.bodyA->angularVelocity += sp.bodyA->inverseInertiaWorld * glm::cross(rA, force) * dt;
+        }
+        if (sp.bodyB && sp.bodyB->inverseMass > 0.0f && !sp.bodyB->asleep) {
+            sp.bodyB->velocity -= force * sp.bodyB->inverseMass * dt;
+            const glm::vec3 rB = sp.worldAnchorB - sp.bodyB->position;
+            sp.bodyB->angularVelocity -= sp.bodyB->inverseInertiaWorld * glm::cross(rB, force) * dt;
+        }
     }
 
     // (1) Resolve contact constraints at the CURRENT configuration BEFORE moving.

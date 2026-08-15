@@ -195,6 +195,7 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/De
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_relational.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/geometric.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/vector_relational.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/Constraint.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/CollisionInfo.h \
@@ -1393,6 +1394,7 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: C:/Users/Sobachya\ Mor
   C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
   C:/mingw64/x86_64-w64-mingw32/include/wchar.h \
   C:/mingw64/x86_64-w64-mingw32/include/wctype.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/Constraint.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/Collision.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/CollisionInfo.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/OBB.h \
@@ -2338,7 +2340,7 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj: C:/Users/Sobachya\ Morda/Des
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Cube.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Ground.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/sphere.h
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Sphere.h
 
 CMakeFiles/Physics.dir/src/renderer/glad.c.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/glad.c \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/KHR/khrplatform.h \
@@ -2612,7 +2614,7 @@ CMakeFiles/Physics.dir/src/renderer/glad.c.obj: C:/Users/Sobachya\ Morda/Desktop
   C:/mingw64/x86_64-w64-mingw32/include/wtypes.h \
   C:/mingw64/x86_64-w64-mingw32/include/wtypesbase.h
 
-CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/sphere.cpp \
+CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj: C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Sphere.cpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/KHR/khrplatform.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glad/glad.h \
   C:/mingw64/include/c++/13.2.0/backward/binders.h \
@@ -2704,10 +2706,8 @@ CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj: C:/Users/Sobachya\ Morda/Des
   C:/mingw64/x86_64-w64-mingw32/include/stdint.h \
   C:/mingw64/x86_64-w64-mingw32/include/stdlib.h \
   C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
-  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/sphere.h
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Sphere.h
 
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/sphere.cpp:
 
 C:/mingw64/x86_64-w64-mingw32/include/wtypesbase.h:
 
@@ -2915,14 +2915,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/glad.c:
 
-C:/mingw64/include/c++/13.2.0/bits/stl_construct.h:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat2x2.hpp:
-
-C:/mingw64/x86_64-w64-mingw32/include/ctype.h:
-
-C:/mingw64/x86_64-w64-mingw32/include/sec_api/sys/timeb_s.h:
-
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float4x3_precision.hpp:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h:
@@ -2930,6 +2922,8 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double3x4_precision.hpp:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/Constraint.h:
 
 C:/mingw64/x86_64-w64-mingw32/include/wchar.h:
 
@@ -2987,6 +2981,10 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_mat2x4.inl:
 
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat2x4.hpp:
+
+C:/mingw64/include/c++/13.2.0/ios:
+
 C:/mingw64/include/c++/13.2.0/bits/refwrap.h:
 
 C:/mingw64/include/c++/13.2.0/bits/unordered_map.h:
@@ -3021,11 +3019,19 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/trigonometric.hpp:
 
-C:/mingw64/x86_64-w64-mingw32/include/string.h:
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_common.inl:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat2x2.hpp:
+
+C:/mingw64/include/c++/13.2.0/bits/stl_construct.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/ctype.h:
+
+C:/mingw64/x86_64-w64-mingw32/include/sec_api/sys/timeb_s.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/packing.hpp:
 
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_common.inl:
+C:/mingw64/x86_64-w64-mingw32/include/string.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/integer.hpp:
 
@@ -3143,6 +3149,8 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_relational.inl:
 
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Sphere.cpp:
+
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double4x2_precision.hpp:
 
 C:/mingw64/include/c++/13.2.0/pstl/pstl_config.h:
@@ -3182,10 +3190,6 @@ C:/mingw64/include/c++/13.2.0/bits/sstream.tcc:
 C:/mingw64/x86_64-w64-mingw32/include/driverspecs.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_relational.hpp:
-
-C:/mingw64/include/c++/13.2.0/ios:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat2x4.hpp:
 
 C:/mingw64/x86_64-w64-mingw32/include/cderr.h:
 
@@ -3858,8 +3862,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/mingw64/x86_64-w64-mingw32/include/dlgs.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/Render.cpp:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/renderer/sphere.h:
 
 C:/mingw64/include/c++/13.2.0/cerrno:
 

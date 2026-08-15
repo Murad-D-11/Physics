@@ -587,6 +587,302 @@ std::vector<RigidBody> spawnSphereDemo() {
     return bodies;
 }
 
+std::vector<RigidBody> spawnConstraintDemo(PhysicsSolver& solver) {
+    std::vector<RigidBody> bodies;
+    bodies.reserve(16); // prevent reallocation during setup
+
+    // =====================================================================
+    // (A) PENDULUM: sphere on a hinge anchored to the ceiling
+    // =====================================================================
+    RigidBody pendulumBob;
+    pendulumBob.position = glm::vec3(-4.0f, 3.0f, 0.0f);
+    pendulumBob.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(pendulumBob, 2.0f, 0.4f);
+    pendulumBob.restitution = 0.3f;
+    pendulumBob.friction = 0.5f;
+    bodies.push_back(pendulumBob); // index 0
+
+    // =====================================================================
+    // (B) SPRING-MASS OSCILLATOR: cube on a vertical spring
+    // =====================================================================
+    RigidBody springMass;
+    springMass.scale = glm::vec3(0.6f);
+    springMass.position = glm::vec3(0.0f, 2.0f, 0.0f);
+    springMass.velocity = glm::vec3(0.0f);
+    setCubeMassProperties(springMass, 1.0f);
+    springMass.restitution = 0.2f;
+    springMass.friction = 0.5f;
+    bodies.push_back(springMass); // index 1
+
+    // =====================================================================
+    // (C) HINGED DOOR: cube hinged at its left edge
+    // =====================================================================
+    RigidBody door;
+    door.scale = glm::vec3(0.1f, 1.5f, 1.0f);
+    door.position = glm::vec3(3.5f, 2.0f, 0.0f);
+    door.velocity = glm::vec3(0.0f);
+    door.angularVelocity = glm::vec3(0.0f, 1.0f, 0.0f);
+    setCubeMassProperties(door, 3.0f);
+    door.restitution = 0.1f;
+    door.friction = 0.5f;
+    bodies.push_back(door); // index 2
+
+    // =====================================================================
+    // (D) SPRING BETWEEN TWO CUBES
+    // =====================================================================
+    RigidBody cubeA;
+    cubeA.scale = glm::vec3(0.5f);
+    cubeA.position = glm::vec3(-2.0f, 0.5f, 3.0f);
+    cubeA.velocity = glm::vec3(0.0f);
+    setCubeMassProperties(cubeA, 1.0f);
+    cubeA.restitution = 0.2f;
+    cubeA.friction = 0.4f;
+    bodies.push_back(cubeA); // index 3
+
+    RigidBody cubeB;
+    cubeB.scale = glm::vec3(0.5f);
+    cubeB.position = glm::vec3(0.0f, 0.5f, 3.0f);
+    cubeB.velocity = glm::vec3(2.0f, 0.0f, 0.0f);
+    setCubeMassProperties(cubeB, 1.0f);
+    cubeB.restitution = 0.2f;
+    cubeB.friction = 0.4f;
+    bodies.push_back(cubeB); // index 4
+
+    // =====================================================================
+    // (E) DOUBLE PENDULUM
+    // =====================================================================
+    RigidBody bob1;
+    bob1.position = glm::vec3(5.0f, 3.5f, 0.0f);
+    bob1.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(bob1, 1.0f, 0.3f);
+    bob1.restitution = 0.2f;
+    bob1.friction = 0.3f;
+    bodies.push_back(bob1); // index 5
+
+    RigidBody bob2;
+    bob2.position = glm::vec3(6.0f, 2.5f, 0.0f);
+    bob2.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(bob2, 1.0f, 0.3f);
+    bob2.restitution = 0.2f;
+    bob2.friction = 0.3f;
+    bodies.push_back(bob2); // index 6
+
+    // NOTE: Constraints store pointers into the bodies vector. Since we
+    // reserved enough capacity above, addresses are stable. The solver also
+    // receives bodies by reference and uses pointers from this same vector.
+    // Constraints are set up in main() AFTER bodies is fully built — see below.
+
+    return bodies;
+}
+
+// Called after spawnConstraintDemo returns, with stable body addresses.
+void setupConstraints(PhysicsSolver& solver, std::vector<RigidBody>& bodies) {
+    // (A) Pendulum hinge: pivot at (-3, 5, 0) in world.
+    // Body 0 (sphere) starts at (-4, 3, 0). For the hinge to create a pendulum,
+    // localAnchorB must be the point on the body that connects to the pivot.
+    // The rod from pivot to body center has vector: body.pos - pivot = (-4,3,0)-(-3,5,0) = (-1,-2,0).
+    // In body-local space (identity orientation), localAnchorB should be the
+    // NEGATIVE of this (from body center TO the pivot): (1, 2, 0).
+    {
+        HingeConstraint h;
+        h.bodyA = nullptr;
+        h.bodyB = &bodies[0];
+        h.localAnchorA = glm::vec3(-3.0f, 5.0f, 0.0f); // world pivot
+        h.localAnchorB = glm::vec3(1.0f, 2.0f, 0.0f);  // from body center to pivot (local)
+        h.localAxisA = glm::vec3(0.0f, 0.0f, 1.0f);
+        h.localAxisB = glm::vec3(0.0f, 0.0f, 1.0f);
+        solver.hinges.push_back(h);
+    }
+
+    // (B) Vertical spring (body 1 -> world ceiling)
+    {
+        SpringConstraint sp;
+        sp.bodyA = nullptr;
+        sp.bodyB = &bodies[1];
+        sp.localAnchorA = glm::vec3(0.0f, 5.0f, 0.0f);
+        sp.localAnchorB = glm::vec3(0.0f, 0.3f, 0.0f);
+        sp.restLength = 1.5f;
+        sp.stiffness = 40.0f;
+        sp.damping = 1.0f;
+        solver.springs.push_back(sp);
+    }
+
+    // (C) Door hinge: pivot at left edge of door, vertical axis.
+    // Door (body 2) is at (3.5, 2, 0), left edge at local (-0.05, 0, -0.5).
+    // The world pivot is at (3.0, 2, -0.5). From door center to pivot:
+    // (3.0-3.5, 2-2, -0.5-0) = (-0.5, 0, -0.5) in world = local (since orient=identity).
+    {
+        HingeConstraint h;
+        h.bodyA = nullptr;
+        h.bodyB = &bodies[2];
+        h.localAnchorA = glm::vec3(3.0f, 2.0f, -0.5f);
+        h.localAnchorB = glm::vec3(-0.5f, 0.0f, -0.5f); // from center to pivot
+        h.localAxisA = glm::vec3(0.0f, 1.0f, 0.0f);
+        h.localAxisB = glm::vec3(0.0f, 1.0f, 0.0f);
+        solver.hinges.push_back(h);
+    }
+
+    // (D) Spring between two cubes (body 3 <-> body 4)
+    {
+        SpringConstraint sp;
+        sp.bodyA = &bodies[3];
+        sp.bodyB = &bodies[4];
+        sp.localAnchorA = glm::vec3(0.25f, 0.0f, 0.0f);
+        sp.localAnchorB = glm::vec3(-0.25f, 0.0f, 0.0f);
+        sp.restLength = 1.0f;
+        sp.stiffness = 30.0f;
+        sp.damping = 2.0f;
+        solver.springs.push_back(sp);
+    }
+
+    // (E) Double pendulum: body 5 hinged to world, body 6 hinged to body 5.
+    // Body 5 at (5, 3.5, 0), pivot at (5, 5, 0) → localAnchorB = (0, 1.5, 0)
+    // Body 6 at (6, 2.5, 0), attached to body 5 center → localAnchorA = (0,0,0) on body5,
+    //   and localAnchorB = (offset from body6 center to where body5 center is).
+    //   body5.pos - body6.pos = (5-6, 3.5-2.5, 0) = (-1, 1, 0) → localAnchorB = (-1,1,0)
+    {
+        HingeConstraint h1;
+        h1.bodyA = nullptr;
+        h1.bodyB = &bodies[5];
+        h1.localAnchorA = glm::vec3(5.0f, 5.0f, 0.0f);
+        h1.localAnchorB = glm::vec3(0.0f, 1.5f, 0.0f);
+        h1.localAxisA = glm::vec3(0.0f, 0.0f, 1.0f);
+        h1.localAxisB = glm::vec3(0.0f, 0.0f, 1.0f);
+        solver.hinges.push_back(h1);
+
+        HingeConstraint h2;
+        h2.bodyA = &bodies[5];
+        h2.bodyB = &bodies[6];
+        h2.localAnchorA = glm::vec3(0.0f, 0.0f, 0.0f); // bottom of bob1
+        h2.localAnchorB = glm::vec3(-1.0f, 1.0f, 0.0f); // from bob2 center to bob1 center
+        h2.localAxisA = glm::vec3(0.0f, 0.0f, 1.0f);
+        h2.localAxisB = glm::vec3(0.0f, 0.0f, 1.0f);
+        solver.hinges.push_back(h2);
+    }
+}
+
+// ===========================================================================
+// Rope & Pulley Demo Scene
+// ===========================================================================
+
+std::vector<RigidBody> spawnRopePulleyDemo(PhysicsSolver& solver) {
+    std::vector<RigidBody> bodies;
+    bodies.reserve(16);
+
+    // =====================================================================
+    // ATWOOD MACHINE (Day 30)
+    //
+    // Two masses connected by an inextensible rope over a fixed pulley.
+    // Constraint: dist(pulley,A) + dist(pulley,B) = L (constant)
+    //
+    //        [PULLEY] at (0, 8, 0)
+    //         |     |
+    //     [2kg]   [1kg]
+    //   x=-0.8    x=0.8   (both start at y=5, 3m below pulley)
+    //
+    // Expected: heavy (2kg) descends, light (1kg) ascends
+    // Acceleration: a = (2-1)/(2+1) * g = g/3 ≈ 3.27 m/s²
+    // =====================================================================
+
+    const glm::vec3 pulleyPos(0.0f, 8.0f, 0.0f);
+
+    // Heavy mass A (left, 2kg)
+    RigidBody heavy;
+    heavy.position = glm::vec3(-0.8f, 5.0f, 0.0f);
+    heavy.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(heavy, 2.0f, 0.35f);
+    heavy.restitution = 0.1f;
+    heavy.friction = 0.3f;
+    bodies.push_back(heavy); // index 0
+
+    // Light mass B (right, 1kg)
+    RigidBody light;
+    light.position = glm::vec3(0.8f, 5.0f, 0.0f);
+    light.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(light, 1.0f, 0.3f);
+    light.restitution = 0.1f;
+    light.friction = 0.3f;
+    bodies.push_back(light); // index 1
+
+    // Pulley constraint: total rope length = dist(pulley,A) + dist(pulley,B)
+    // dist(pulley, A) = sqrt(0.8² + 3²) = sqrt(9.64) ≈ 3.105
+    // dist(pulley, B) = sqrt(0.8² + 3²) = sqrt(9.64) ≈ 3.105
+    // Total L ≈ 6.21
+    PulleyConstraint atwood;
+    atwood.bodyA = &bodies[0];
+    atwood.bodyB = &bodies[1];
+    atwood.localAnchorA = glm::vec3(0.0f);
+    atwood.localAnchorB = glm::vec3(0.0f);
+    atwood.pulleyPos = pulleyPos;
+    atwood.totalRopeLength = std::sqrt(0.8f * 0.8f + 3.0f * 3.0f) * 2.0f;
+    solver.pulleys.push_back(atwood);
+
+    // =====================================================================
+    // ROPE PENDULUM: A sphere swinging on a stiff "rope" from a fixed point.
+    // =====================================================================
+
+    RigidBody pendulumBob;
+    pendulumBob.position = glm::vec3(-5.0f, 5.0f, 0.0f); // displaced to swing
+    pendulumBob.velocity = glm::vec3(0.0f);
+    setSphereMassProperties(pendulumBob, 1.5f, 0.4f);
+    pendulumBob.restitution = 0.3f;
+    pendulumBob.friction = 0.5f;
+    bodies.push_back(pendulumBob); // index 2
+
+    // Rope as a stiff spring (pendulum)
+    SpringConstraint ropePend;
+    ropePend.bodyA = nullptr;
+    ropePend.bodyB = &bodies[2];
+    ropePend.localAnchorA = glm::vec3(-4.0f, 8.0f, 0.0f); // ceiling anchor
+    ropePend.localAnchorB = glm::vec3(0.0f);
+    ropePend.restLength = 3.0f;
+    ropePend.stiffness = 400.0f;  // stiff (rope-like)
+    ropePend.damping = 3.0f;      // small damping
+    solver.springs.push_back(ropePend);
+
+    // =====================================================================
+    // CHAIN: Four small spheres connected by stiff springs (like a rope chain)
+    // =====================================================================
+
+    const glm::vec3 chainTop(5.0f, 8.0f, 0.0f);
+    for (int i = 0; i < 4; ++i) {
+        RigidBody link;
+        link.position = glm::vec3(5.0f, 7.0f - i * 0.8f, 0.0f);
+        link.velocity = glm::vec3(0.3f, 0.0f, 0.0f); // slight sideways motion
+        setSphereMassProperties(link, 0.4f, 0.15f);
+        link.restitution = 0.1f;
+        link.friction = 0.4f;
+        bodies.push_back(link); // indices 3, 4, 5, 6
+    }
+
+    // Chain segments as stiff springs
+    // Ceiling -> first link
+    SpringConstraint chain0;
+    chain0.bodyA = nullptr;
+    chain0.bodyB = &bodies[3];
+    chain0.localAnchorA = chainTop;
+    chain0.localAnchorB = glm::vec3(0.0f);
+    chain0.restLength = 0.8f;
+    chain0.stiffness = 300.0f;
+    chain0.damping = 5.0f;
+    solver.springs.push_back(chain0);
+
+    // Link-to-link
+    for (int i = 0; i < 3; ++i) {
+        SpringConstraint seg;
+        seg.bodyA = &bodies[3 + i];
+        seg.bodyB = &bodies[4 + i];
+        seg.localAnchorA = glm::vec3(0.0f);
+        seg.localAnchorB = glm::vec3(0.0f);
+        seg.restLength = 0.8f;
+        seg.stiffness = 300.0f;
+        seg.damping = 5.0f;
+        solver.springs.push_back(seg);
+    }
+
+    return bodies;
+}
+
 std::vector<RigidBody> spawnSlopeDemo(PhysicsSolver& solver) {
     std::vector<RigidBody> bodies;
 
@@ -727,7 +1023,10 @@ int main() {
     // -----------------------------------------------------------------
     // std::vector<RigidBody> bodies = spawnStableTower();
     // std::vector<RigidBody> bodies = spawnSphereDemo();
-    std::vector<RigidBody> bodies = spawnSlopeDemo(physicsSolver);
+    std::vector<RigidBody> bodies = spawnRopePulleyDemo(physicsSolver);
+    // std::vector<RigidBody> bodies = spawnConstraintDemo(physicsSolver);
+    // setupConstraints(physicsSolver, bodies);
+    // std::vector<RigidBody> bodies = spawnSlopeDemo(physicsSolver);
     // std::vector<RigidBody> bodies = spawnExplosion();
     // std::vector<RigidBody> bodies = spawnBilliards();
     // std::vector<RigidBody> bodies = spawnInertiaDemo();
@@ -792,6 +1091,51 @@ int main() {
             } else {
                 renderer.drawBody(cube, camera, aspectRatio, body.position, body.orientation, body.scale, body.isColliding);
             }
+        }
+
+        // Draw constraint lines (springs = yellow, hinges/ropes = white)
+        for (const auto& sp : physicsSolver.springs) {
+            glm::vec3 wA = sp.localAnchorA; // world anchor if bodyA is null
+            glm::vec3 wB = sp.localAnchorB;
+            if (sp.bodyA) wA = sp.bodyA->position + sp.bodyA->orientation * sp.localAnchorA;
+            if (sp.bodyB) wB = sp.bodyB->position + sp.bodyB->orientation * sp.localAnchorB;
+            renderer.drawLine(camera, aspectRatio, wA, wB, glm::vec3(1.0f, 0.9f, 0.1f));
+        }
+        for (const auto& h : physicsSolver.hinges) {
+            glm::vec3 wA = h.localAnchorA;
+            glm::vec3 wB = h.localAnchorB;
+            if (h.bodyA) wA = h.bodyA->position + h.bodyA->orientation * h.localAnchorA;
+            if (h.bodyB) wB = h.bodyB->position + h.bodyB->orientation * h.localAnchorB;
+            renderer.drawLine(camera, aspectRatio, wA, wB, glm::vec3(0.9f, 0.9f, 0.9f));
+        }
+        for (const auto& r : physicsSolver.ropes) {
+            glm::vec3 wA = r.bodyA ? r.bodyA->position + r.bodyA->orientation * r.localAnchorA : r.localAnchorA;
+            glm::vec3 wB = r.bodyB ? r.bodyB->position + r.bodyB->orientation * r.localAnchorB : r.localAnchorB;
+            // Green when taut, dark green when slack
+            glm::vec3 col = r.taut ? glm::vec3(0.2f, 1.0f, 0.3f) : glm::vec3(0.1f, 0.5f, 0.15f);
+            renderer.drawLine(camera, aspectRatio, wA, wB, col);
+        }
+        for (const auto& p : physicsSolver.pulleys) {
+            glm::vec3 wA = p.bodyA ? p.bodyA->position + p.bodyA->orientation * p.localAnchorA : p.localAnchorA;
+            glm::vec3 wB = p.bodyB ? p.bodyB->position + p.bodyB->orientation * p.localAnchorB : p.localAnchorB;
+            // Draw rope segments: pulley->A and pulley->B (cyan)
+            renderer.drawLine(camera, aspectRatio, p.pulleyPos, wA, glm::vec3(0.2f, 0.8f, 1.0f));
+            renderer.drawLine(camera, aspectRatio, p.pulleyPos, wB, glm::vec3(0.2f, 0.8f, 1.0f));
+            // Draw pulley wheel as a circle of line segments (white)
+            const float wheelR = 0.3f;
+            const int segs = 16;
+            for (int seg = 0; seg < segs; ++seg) {
+                const float a1 = 2.0f * 3.14159f * seg / segs;
+                const float a2 = 2.0f * 3.14159f * (seg + 1) / segs;
+                glm::vec3 p1 = p.pulleyPos + glm::vec3(wheelR * std::cos(a1), wheelR * std::sin(a1), 0.0f);
+                glm::vec3 p2 = p.pulleyPos + glm::vec3(wheelR * std::cos(a2), wheelR * std::sin(a2), 0.0f);
+                renderer.drawLine(camera, aspectRatio, p1, p2, glm::vec3(1.0f, 1.0f, 1.0f));
+            }
+            // Draw axle cross
+            renderer.drawLine(camera, aspectRatio,
+                p.pulleyPos + glm::vec3(-0.15f, 0, 0), p.pulleyPos + glm::vec3(0.15f, 0, 0), glm::vec3(0.7f, 0.7f, 0.7f));
+            renderer.drawLine(camera, aspectRatio,
+                p.pulleyPos + glm::vec3(0, -0.15f, 0), p.pulleyPos + glm::vec3(0, 0.15f, 0), glm::vec3(0.7f, 0.7f, 0.7f));
         }
 
         // Pause indicator

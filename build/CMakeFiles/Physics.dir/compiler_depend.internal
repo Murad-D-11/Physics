@@ -196,6 +196,7 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/include/glm/ext/quaternion_relational.inl
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/include/glm/geometric.hpp
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/include/glm/vector_relational.hpp
+ C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/Constraint.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/PhysicsSolver.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/RigidBody.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/CollisionInfo.h
@@ -1397,6 +1398,7 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj
  C:/mingw64/x86_64-w64-mingw32/include/vadefs.h
  C:/mingw64/x86_64-w64-mingw32/include/wchar.h
  C:/mingw64/x86_64-w64-mingw32/include/wctype.h
+ C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/Constraint.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/Collision.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/CollisionInfo.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/OBB.h
@@ -2346,7 +2348,7 @@ CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Cube.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Ground.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Render.h
- C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/sphere.h
+ C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Sphere.h
 
 CMakeFiles/Physics.dir/src/renderer/glad.c.obj
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/glad.c
@@ -2622,7 +2624,7 @@ CMakeFiles/Physics.dir/src/renderer/glad.c.obj
  C:/mingw64/x86_64-w64-mingw32/include/wtypesbase.h
 
 CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj
- C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/sphere.cpp
+ C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Sphere.cpp
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/include/KHR/khrplatform.h
  C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/include/glad/glad.h
  C:/mingw64/include/c++/13.2.0/backward/binders.h
@@ -2714,5 +2716,5 @@ CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj
  C:/mingw64/x86_64-w64-mingw32/include/stdint.h
  C:/mingw64/x86_64-w64-mingw32/include/stdlib.h
  C:/mingw64/x86_64-w64-mingw32/include/vadefs.h
- C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/sphere.h
+ C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Sphere.h
 

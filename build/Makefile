@@ -366,6 +366,30 @@ src/renderer/Render.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Render.cpp.s
 .PHONY : src/renderer/Render.cpp.s
 
+src/renderer/Sphere.obj: src/renderer/Sphere.cpp.obj
+.PHONY : src/renderer/Sphere.obj
+
+# target to build an object file
+src/renderer/Sphere.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj
+.PHONY : src/renderer/Sphere.cpp.obj
+
+src/renderer/Sphere.i: src/renderer/Sphere.cpp.i
+.PHONY : src/renderer/Sphere.i
+
+# target to preprocess a source file
+src/renderer/Sphere.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.i
+.PHONY : src/renderer/Sphere.cpp.i
+
+src/renderer/Sphere.s: src/renderer/Sphere.cpp.s
+.PHONY : src/renderer/Sphere.s
+
+# target to generate assembly for a file
+src/renderer/Sphere.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.s
+.PHONY : src/renderer/Sphere.cpp.s
+
 src/renderer/glad.obj: src/renderer/glad.c.obj
 .PHONY : src/renderer/glad.obj
 
@@ -389,30 +413,6 @@ src/renderer/glad.s: src/renderer/glad.c.s
 src/renderer/glad.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/glad.c.s
 .PHONY : src/renderer/glad.c.s
-
-src/renderer/sphere.obj: src/renderer/sphere.cpp.obj
-.PHONY : src/renderer/sphere.obj
-
-# target to build an object file
-src/renderer/sphere.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj
-.PHONY : src/renderer/sphere.cpp.obj
-
-src/renderer/sphere.i: src/renderer/sphere.cpp.i
-.PHONY : src/renderer/sphere.i
-
-# target to preprocess a source file
-src/renderer/sphere.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/sphere.cpp.i
-.PHONY : src/renderer/sphere.cpp.i
-
-src/renderer/sphere.s: src/renderer/sphere.cpp.s
-.PHONY : src/renderer/sphere.s
-
-# target to generate assembly for a file
-src/renderer/sphere.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/renderer/sphere.cpp.s
-.PHONY : src/renderer/sphere.cpp.s
 
 # Help Target
 help:
@@ -451,12 +451,12 @@ help:
 	@echo ... src/renderer/Render.obj
 	@echo ... src/renderer/Render.i
 	@echo ... src/renderer/Render.s
+	@echo ... src/renderer/Sphere.obj
+	@echo ... src/renderer/Sphere.i
+	@echo ... src/renderer/Sphere.s
 	@echo ... src/renderer/glad.obj
 	@echo ... src/renderer/glad.i
 	@echo ... src/renderer/glad.s
-	@echo ... src/renderer/sphere.obj
-	@echo ... src/renderer/sphere.i
-	@echo ... src/renderer/sphere.s
 .PHONY : help
 
 

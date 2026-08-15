@@ -158,6 +158,18 @@ Render::Render() {
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 
+    // Line rendering: dynamic VBO for 2 vertices (pos+color = 6 floats each)
+    glGenVertexArrays(1, &lineVAO);
+    glGenBuffers(1, &lineVBO);
+    glBindVertexArray(lineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
+
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -167,6 +179,8 @@ Render::~Render() {
     glDeleteProgram(pauseShaderProgram);
     glDeleteVertexArrays(1, &pauseVAO);
     glDeleteBuffers(1, &pauseVBO);
+    glDeleteVertexArrays(1, &lineVAO);
+    glDeleteBuffers(1, &lineVBO);
 }
 
 GLuint Render::compileShader(const std::string& source, GLenum shaderType) const {
@@ -246,6 +260,32 @@ void Render::drawSphere(const Sphere& sphere, const Camera& camera, float aspect
     glUniform1i(glGetUniformLocation(shaderProgram, "colliding"), isColliding ? 1 : 0);
 
     sphere.draw();
+}
+
+void Render::drawLine(const Camera& camera, float aspectRatio, glm::vec3 from, glm::vec3 to, glm::vec3 color) const {
+    glUseProgram(shaderProgram);
+
+    const glm::mat4 model = glm::mat4(1.0f); // identity — vertices are in world space
+    const glm::mat4 view = camera.getViewMatrix();
+    const glm::mat4 projection = camera.getProjectionMatrix(aspectRatio);
+
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniform1i(glGetUniformLocation(shaderProgram, "colliding"), 0);
+
+    // Upload 2 vertices: position (3) + color (3) each
+    float verts[12] = {
+        from.x, from.y, from.z, color.x, color.y, color.z,
+        to.x,   to.y,   to.z,   color.x, color.y, color.z
+    };
+
+    glBindVertexArray(lineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
+    glLineWidth(2.0f);
+    glDrawArrays(GL_LINES, 0, 2);
+    glBindVertexArray(0);
 }
 
 void Render::drawGround(const Ground& ground, const Camera& camera, float aspectRatio) const {

@@ -180,6 +180,7 @@ CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj: C:/Users/Sobachya\ Mo
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/quaternion_relational.inl \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/geometric.hpp \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/vector_relational.hpp \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/Constraint.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/RigidBody.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/CollisionInfo.h \
@@ -1324,6 +1325,7 @@ CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj: C:/Users/Sobachya
   C:/mingw64/x86_64-w64-mingw32/include/vadefs.h \
   C:/mingw64/x86_64-w64-mingw32/include/wchar.h \
   C:/mingw64/x86_64-w64-mingw32/include/wctype.h \
+  C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/Constraint.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/Collision.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/CollisionInfo.h \
   C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/OBB.h \
@@ -1567,8 +1569,6 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/vector_relational.hpp:
 
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat2x4.hpp:
-
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/simd/platform.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/detail/type_vec4.hpp:
@@ -1602,6 +1602,10 @@ C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Phy
 C:/mingw64/include/c++/13.2.0/bits/stl_tempbuf.h:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float3x2.hpp:
+
+C:/mingw64/include/c++/13.2.0/ext/alloc_traits.h:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float2x4_precision.hpp:
 
 C:/mingw64/include/c++/13.2.0/bits/basic_ios.tcc:
 
@@ -1935,6 +1939,12 @@ C:/mingw64/x86_64-w64-mingw32/include/wchar.h:
 
 C:/mingw64/include/c++/13.2.0/bits/std_abs.h:
 
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/mat2x4.hpp:
+
+C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/Constraint.h:
+
+C:/mingw64/include/c++/13.2.0/bits/enable_special_members.h:
+
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_double3x4_precision.hpp:
 
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/src/physics/PhysicsSolver.h:
@@ -1996,8 +2006,6 @@ C:/mingw64/include/c++/13.2.0/bits/concept_check.h:
 C:/mingw64/include/c++/13.2.0/unordered_map:
 
 C:/mingw64/include/c++/13.2.0/bits/cpp_type_traits.h:
-
-C:/mingw64/include/c++/13.2.0/bits/enable_special_members.h:
 
 C:/mingw64/include/c++/13.2.0/bits/hash_bytes.h:
 
@@ -2084,7 +2092,3 @@ C:/mingw64/include/c++/13.2.0/cstdlib:
 C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float4x4_precision.hpp:
 
 C:/mingw64/include/c++/13.2.0/debug/assertions.h:
-
-C:/Users/Sobachya\ Morda/Desktop/Desktop\ Folder/Coding\ Projects/Workspaces/Physics/include/glm/ext/matrix_float2x4_precision.hpp:
-
-C:/mingw64/include/c++/13.2.0/ext/alloc_traits.h:

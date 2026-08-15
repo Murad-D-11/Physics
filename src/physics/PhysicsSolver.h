@@ -8,6 +8,7 @@
 #include "obb.h"
 #include "rigidbody.h"
 #include "collisioninfo.h"
+#include "Constraint.h"
 
 class PhysicsSolver {
     public:
@@ -41,6 +42,14 @@ class PhysicsSolver {
             glm::vec3 tangent2 = glm::vec3(0.0f);
         };
         std::vector<StaticPlane> planes; // user-facing: add slopes here
+
+        // ====================================================================
+        // Constraints (springs, hinges). Add to these vectors before stepping.
+        // ====================================================================
+        std::vector<SpringConstraint> springs;
+        std::vector<HingeConstraint>  hinges;
+        std::vector<RopeConstraint>   ropes;
+        std::vector<PulleyConstraint> pulleys;
 
         // --- Opt-in solver diagnostics (used by the headless contact tests) ---
         // When captureDiagnostics is true, detectAndResolve records the solved
@@ -138,6 +147,11 @@ class PhysicsSolver {
         void solveVelocities(std::vector<Contact>& contacts, bool reverse);
         void solvePositions(std::vector<Contact>& contacts, bool reverse);
         void integratePseudoVelocities(std::vector<RigidBody>& bodies);
+        void precomputeHinges();
+        void solveHingeVelocities();
+        void solveHingePositions();
+        void solveRopeVelocities();
+        void solvePulleyVelocities();
         void matchAndLoadCache(std::vector<Contact>& contacts);
         void storeCache(const std::vector<Contact>& contacts);
         void buildBroadphasePairs(const std::vector<RigidBody>& bodies,
