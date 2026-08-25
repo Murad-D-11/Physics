@@ -1,3 +1,5 @@
+Demonstration & progress videos are available on my Instagram: https://www.instagram.com/conciliatory.murad/
+
 PHYSICS
 A rigid-body physics engine built from scratch in C++
 =======================================================
