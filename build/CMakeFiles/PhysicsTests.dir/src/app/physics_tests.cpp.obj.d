@@ -340,4 +340,5 @@ CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj: \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_relops.h \
  C:/Coding\ Projects/GitHub/Physics/src/physics/obb.h \
  C:/Coding\ Projects/GitHub/Physics/src/physics/collisioninfo.h \
- C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h
+ C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h \
+ C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h

@@ -865,17 +865,24 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
 
     if (contacts.empty()) {
         contactCache.clear();
-        // No contacts, but a pulley is still an inextensible rope that must be
-        // enforced at the velocity level every step -- otherwise a free-hanging
-        // Atwood machine just free-falls and the rope looks infinitely stretchy.
-        // (Ropes/hinges keep their original behaviour: they are only solved in
-        // the main iteration loop below, which requires contacts. We deliberately
-        // do NOT change that here.)
-        if (!pulleys.empty()) {
+        // No contacts, but hinges / ropes / pulleys are velocity-level
+        // constraints that must STILL be solved every step. Otherwise a
+        // free-hanging mechanism (a pendulum on a hinge, an Atwood machine on a
+        // pulley) simply free-falls with the constraint silently skipped -- the
+        // constraint solvers used to live only in the contact path below, so a
+        // contact-free scene bypassed them entirely. Run the full constraint
+        // iteration here too (identical to the loop below, minus contacts).
+        if (!hinges.empty() || !ropes.empty() || !pulleys.empty()) {
+            precomputeHinges();
             preparePulleys();
             warmStartPulleys();
             for (int iter = 0; iter < solverIterations; ++iter) {
+                solveHingeVelocities();
+                solveRopeVelocities();
                 solvePulleyVelocities();
+            }
+            for (int iter = 0; iter < positionIterations; ++iter) {
+                solveHingePositions();
             }
         }
         return;
@@ -1248,6 +1255,11 @@ void PhysicsSolver::precomputeHinges() {
         if (h.bodyA) wA = h.bodyA->angularVelocity;
         if (h.bodyB) wB = h.bodyB->angularVelocity;
         h.currentAngularVel = glm::dot(wB - wA, h.worldAxisA);
+
+        // Reset the per-step accumulated impulse (used for telemetry/load and
+        // as the running total of this step's constraint impulse).
+        h.accumulatedLinearImpulse = glm::vec3(0.0f);
+        h.accumulatedAngularImpulse = glm::vec2(0.0f);
     }
 }
 
@@ -1265,41 +1277,54 @@ void PhysicsSolver::solveHingeVelocities() {
         const glm::vec3 rB = h.worldAnchorB - (B ? B->position : h.worldAnchorB);
 
         // --- Positional constraint (3 DOF): enforce coincident anchors ---
-        // Velocity at anchor: v + ω×r
+        // COUPLED 3x3 point-to-point (ball-socket) solve. Solving the three
+        // Cartesian axes independently (as a decoupled scalar solve) lets the
+        // off-diagonal lever-arm coupling from a long moment arm fight between
+        // axes; re-injecting a full Baumgarte bias on each axis every iteration
+        // then pumps energy and diverges. The correct formulation builds the
+        // constraint effective-mass matrix
+        //     K = (invMassA+invMassB) I - skew(rA) invIA skew(rA)
+        //                                - skew(rB) invIB skew(rB)
+        // and solves K * lambda = -(Cdot + bias) once, coupling all three axes.
+        auto skew = [](const glm::vec3& v) {
+            return glm::mat3( 0.0f,  v.z, -v.y,
+                             -v.z,  0.0f,  v.x,
+                              v.y, -v.x,  0.0f); // column-major: this is [v]x
+        };
+        const glm::mat3 sA = skew(rA);
+        const glm::mat3 sB = skew(rB);
+        glm::mat3 K = (invMassA + invMassB) * glm::mat3(1.0f)
+                    - sA * invIA * sA
+                    - sB * invIB * sB;
+
+        // Velocity at the anchors: v + w x r.
         glm::vec3 vA(0.0f), vB(0.0f);
         if (A && A->inverseMass > 0.0f) vA = A->velocity + glm::cross(A->angularVelocity, rA);
         if (B && B->inverseMass > 0.0f) vB = B->velocity + glm::cross(B->angularVelocity, rB);
+        const glm::vec3 Cdot = vB - vA;
 
-        const glm::vec3 dv = vB - vA;
+        // Bias-free velocity constraint: drive the relative anchor velocity to
+        // zero, injecting NO energy. All positional drift is corrected
+        // geometrically in solveHingePositions() (split-impulse style). Folding
+        // a Baumgarte bias in here instead makes the constraint pump energy,
+        // because the shared Gauss-Seidel loop (contacts/pulleys) keeps
+        // re-disturbing the anchor velocity so the bias is re-applied every
+        // iteration -> divergence. Separating the two is the stable design.
 
-        // Baumgarte position correction bias (strong for hinges to prevent drift)
-        const glm::vec3 bias = (0.8f / FIXED_DT) * h.positionError;
-
-        // Solve each axis of the positional constraint
-        for (int axis = 0; axis < 3; ++axis) {
-            glm::vec3 n(0.0f); n[axis] = 1.0f;
-
-            const glm::vec3 rAxN = glm::cross(rA, n);
-            const glm::vec3 rBxN = glm::cross(rB, n);
-            const float angA = glm::dot(n, glm::cross(invIA * rAxN, rA));
-            const float angB = glm::dot(n, glm::cross(invIB * rBxN, rB));
-            const float effMassInv = invMassA + invMassB + angA + angB;
-            if (effMassInv < 1e-10f) continue;
-            const float effMass = 1.0f / effMassInv;
-
-            const float Cdot = glm::dot(dv, n);
-            const float lambda = effMass * (-(Cdot + bias[axis]));
-
-            // Apply impulse
-            const glm::vec3 impulse = lambda * n;
+        // Solve K * lambda = -Cdot. K is SPD for a well-posed hinge.
+        const float detK = glm::determinant(K);
+        if (std::abs(detK) > 1e-12f) {
+            const glm::vec3 lambda = glm::inverse(K) * (-Cdot);
+            // lambda is the impulse applied at anchor B (and -lambda at A).
             if (A && A->inverseMass > 0.0f) {
-                A->velocity -= impulse * invMassA;
-                A->angularVelocity -= invIA * glm::cross(rA, impulse);
+                A->velocity        -= lambda * invMassA;
+                A->angularVelocity -= invIA * glm::cross(rA, lambda);
             }
             if (B && B->inverseMass > 0.0f) {
-                B->velocity += impulse * invMassB;
-                B->angularVelocity += invIB * glm::cross(rB, impulse);
+                B->velocity        += lambda * invMassB;
+                B->angularVelocity += invIB * glm::cross(rB, lambda);
             }
+            h.accumulatedLinearImpulse += lambda;
         }
 
         // --- Angular constraint (2 DOF): enforce shared axis ---
@@ -1372,34 +1397,71 @@ void PhysicsSolver::solveHingeVelocities() {
 }
 
 void PhysicsSolver::solveHingePositions() {
-    // Gentle position-level correction for hinges. Only fixes residual drift
-    // that the velocity-level Baumgarte couldn't fully resolve. Uses a small
-    // fraction (20%) to avoid snapping / teleporting bodies.
-    for (auto& h : hinges) {
-        RigidBody* A = h.bodyA;
-        RigidBody* B = h.bodyB;
+    // Position-level (geometric) correction for the hinge point constraint,
+    // solved as a coupled projection that moves AND rotates the bodies. An
+    // off-centre anchor on a long arm cannot be fixed by translation alone, so
+    // the orientation term is essential. This is energy-free (edits geometry,
+    // not velocity), mirroring the contact split-impulse. A few Gauss-Seidel
+    // passes drive the anchor error to ~0 each step.
+    const int   kPosIters = 10;
+    const float beta      = 1.0f; // fully close the anchor error each step
+                                  // (Gauss-Seidel; iterated so the coupled
+                                  //  translation+rotation converges to the
+                                  //  pivot -- this is what makes a pendulum
+                                  //  actually swing rather than hover)
 
-        // Recompute world anchors from current positions
-        glm::vec3 wA = (A && A->inverseMass > 0.0f)
-            ? A->position + A->orientation * h.localAnchorA
-            : h.localAnchorA;
-        glm::vec3 wB = (B && B->inverseMass > 0.0f)
-            ? B->position + B->orientation * h.localAnchorB
-            : h.localAnchorB;
+    auto skew = [](const glm::vec3& v) {
+        return glm::mat3( 0.0f,  v.z, -v.y,
+                         -v.z,  0.0f,  v.x,
+                          v.y, -v.x,  0.0f);
+    };
 
-        const glm::vec3 err = wB - wA;
-        const float errLen = glm::length(err);
-        if (errLen < 1e-4f) continue; // already close enough
+    for (int iter = 0; iter < kPosIters; ++iter) {
+        for (auto& h : hinges) {
+            RigidBody* A = h.bodyA;
+            RigidBody* B = h.bodyB;
 
-        const float invMassA = (A && A->inverseMass > 0.0f) ? A->inverseMass : 0.0f;
-        const float invMassB = (B && B->inverseMass > 0.0f) ? B->inverseMass : 0.0f;
-        const float totalInvMass = invMassA + invMassB;
-        if (totalInvMass < 1e-10f) continue;
+            const float invMassA = (A && A->inverseMass > 0.0f) ? A->inverseMass : 0.0f;
+            const float invMassB = (B && B->inverseMass > 0.0f) ? B->inverseMass : 0.0f;
+            const glm::mat3 invIA = (A && A->inverseMass > 0.0f) ? A->inverseInertiaWorld : glm::mat3(0.0f);
+            const glm::mat3 invIB = (B && B->inverseMass > 0.0f) ? B->inverseInertiaWorld : glm::mat3(0.0f);
+            if (invMassA + invMassB < 1e-10f) continue;
 
-        // Move bodies to reduce error by 20% (gentle, avoids oscillation)
-        const glm::vec3 correction = err * 0.2f;
-        if (A && A->inverseMass > 0.0f) A->position += correction * (invMassA / totalInvMass);
-        if (B && B->inverseMass > 0.0f) B->position -= correction * (invMassB / totalInvMass);
+            const glm::vec3 wA = (A && A->inverseMass > 0.0f)
+                ? A->position + A->orientation * h.localAnchorA : h.localAnchorA;
+            const glm::vec3 wB = (B && B->inverseMass > 0.0f)
+                ? B->position + B->orientation * h.localAnchorB : h.localAnchorB;
+            const glm::vec3 err = wB - wA;      // want this -> 0
+            if (glm::length(err) < 1e-6f) continue;
+
+            const glm::vec3 rA = wA - (A ? A->position : wA);
+            const glm::vec3 rB = wB - (B ? B->position : wB);
+            const glm::mat3 sA = skew(rA);
+            const glm::mat3 sB = skew(rB);
+            const glm::mat3 K = (invMassA + invMassB) * glm::mat3(1.0f)
+                              - sA * invIA * sA
+                              - sB * invIB * sB;
+            if (std::abs(glm::determinant(K)) < 1e-12f) continue;
+
+            // Positional impulse P applied at B (+P) and A (-P) that closes a
+            // fraction of the error. Same K as the velocity solve.
+            const glm::vec3 P = glm::inverse(K) * (-beta * err);
+
+            auto applyRot = [](RigidBody* body, const glm::vec3& dTheta) {
+                const glm::quat dq(0.0f, dTheta.x, dTheta.y, dTheta.z);
+                body->orientation = glm::normalize(body->orientation + 0.5f * dq * body->orientation);
+                const glm::mat3 R = glm::mat3_cast(body->orientation);
+                body->inverseInertiaWorld = R * body->inverseInertiaLocal * glm::transpose(R);
+            };
+            if (A && A->inverseMass > 0.0f) {
+                A->position -= P * invMassA;
+                applyRot(A, -(invIA * glm::cross(rA, P)));
+            }
+            if (B && B->inverseMass > 0.0f) {
+                B->position += P * invMassB;
+                applyRot(B, invIB * glm::cross(rB, P));
+            }
+        }
     }
 }
 
@@ -1629,12 +1691,167 @@ void PhysicsSolver::solvePulleyVelocities() {
 // Full CCD-aware + sleeping step
 // ============================================================================
 
+// ============================================================================
+// Telemetry capture
+// ============================================================================
+//
+// Builds a complete, value-typed snapshot of the just-finished step. Reads only
+// already-computed state (body fields, constraint runtime state, and the solved
+// contact set), so it never affects the simulation and can be extended without
+// touching the solver loop. See Telemetry.h for the data contract.
+void PhysicsSolver::captureTelemetryFrame(const std::vector<RigidBody>& bodies, float dt,
+                                          int justSlept, int justWoke) {
+    const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+    const float g = 9.81f;
+
+    TelemetryFrame& f = lastTelemetry;
+    f = TelemetryFrame{}; // clear previous frame
+
+    // --- Time ---
+    telemetrySimTime += static_cast<double>(dt);
+    f.frameIndex = telemetryFrameIndex++;
+    f.simTime    = telemetrySimTime;
+    f.dt         = dt;
+
+    // --- Solver configuration snapshot ---
+    f.solverIterations    = solverIterations;
+    f.positionIterations  = positionIterations;
+    f.gravityEnabled      = gravityEnabled;
+    f.aerodynamicsEnabled = aerodynamicsEnabled;
+    f.airDensity          = airDensity;
+    f.windVelocity        = windVelocity;
+    f.contactCount        = lastContactCount;
+
+    // --- Map body pointers to indices (for resolving contact endpoints) ---
+    // Small scenes; a linear scan per contact is cheaper than a hash map here,
+    // so we just capture the base pointer and compute index by pointer range.
+    const RigidBody* base = bodies.empty() ? nullptr : &bodies[0];
+    auto indexOf = [&](const void* p) -> int {
+        if (!base || !p) return -1;
+        const RigidBody* rb = static_cast<const RigidBody*>(p);
+        if (rb < base || rb >= base + bodies.size()) return -1; // floor/plane/static
+        return static_cast<int>(rb - base);
+    };
+
+    // --- Per-body state + system aggregates ---
+    f.bodies.reserve(bodies.size());
+    for (std::size_t i = 0; i < bodies.size(); ++i) {
+        const RigidBody& b = bodies[i];
+
+        BodyTelemetry bt;
+        bt.index           = static_cast<int>(i);
+        bt.shape           = static_cast<int>(b.shape);
+        bt.isStatic        = (b.inverseMass == 0.0f);
+        bt.asleep          = b.asleep;
+        bt.position        = b.position;
+        bt.velocity        = b.velocity;
+        bt.angularVelocity = b.angularVelocity;
+        bt.orientation     = b.orientation;
+        bt.mass            = b.mass;
+
+        if (b.inverseMass > 0.0f) {
+            const glm::mat3 R = glm::mat3_cast(b.orientation);
+            const glm::mat3 Iworld = R * b.inertiaLocal * glm::transpose(R);
+            bt.kineticLinear     = 0.5f * b.mass * glm::dot(b.velocity, b.velocity);
+            bt.kineticRotational = 0.5f * glm::dot(b.angularVelocity, Iworld * b.angularVelocity);
+            bt.potential         = b.mass * g * b.position.y;
+
+            f.kineticLinear     += bt.kineticLinear;
+            f.kineticRotational += bt.kineticRotational;
+            f.potential         += bt.potential;
+            f.linearMomentum    += b.mass * b.velocity;
+            // Angular momentum about the world origin: r x (m v) + I_world w.
+            f.angularMomentum   += glm::cross(b.position, b.mass * b.velocity)
+                                 + Iworld * b.angularVelocity;
+
+            if (b.asleep) ++f.sleepingCount; else ++f.awakeCount;
+        }
+
+        // Aerodynamic state (already zeroed on the body when aero is off).
+        bt.aeroForce            = b.aero.force;
+        bt.aeroTorque           = b.aero.torque;
+        bt.relativeAirVelocity  = b.aero.relativeAirVelocity;
+        bt.aeroPower            = b.aero.power;
+        f.aeroPower            += b.aero.power;
+
+        f.bodies.push_back(bt);
+    }
+
+    // Cumulative aerodynamic work (integral of power). For pure drag this is
+    // monotonically non-increasing; it is the energy the air has removed.
+    telemetryAeroWork += static_cast<double>(f.aeroPower) * static_cast<double>(dt);
+    f.aeroWorkCumulative = telemetryAeroWork;
+
+    // --- Contacts (from the diagnostic set captured this step) ---
+    f.contacts.reserve(lastSolvedContacts.size());
+    for (const auto& c : lastSolvedContacts) {
+        ContactTelemetry ct;
+        ct.point           = c.point;
+        ct.normal          = c.normal;
+        ct.penetration     = c.penetration;
+        ct.normalImpulse   = c.normalImpulse;
+        ct.frictionImpulse = c.frictionImpulse;
+        ct.floorContact    = c.floorContact;
+        ct.bodyA           = indexOf(c.a);
+        ct.bodyB           = indexOf(c.b);
+        f.contacts.push_back(ct);
+        f.maxPenetration = std::max(f.maxPenetration, c.penetration);
+    }
+
+    // --- Constraints (errors + loads + spring energy) ---
+    f.constraints.reserve(springs.size() + hinges.size() + ropes.size() + pulleys.size());
+    for (const auto& sp : springs) {
+        ConstraintTelemetry ct;
+        ct.type   = ConstraintTelemetry::Type::Spring;
+        ct.error  = std::abs(sp.extension);
+        ct.load   = sp.forceMagnitude;
+        ct.active = true;
+        f.constraints.push_back(ct);
+        f.springEnergy += 0.5f * sp.stiffness * sp.extension * sp.extension;
+    }
+    for (const auto& h : hinges) {
+        ConstraintTelemetry ct;
+        ct.type   = ConstraintTelemetry::Type::Hinge;
+        ct.error  = glm::length(h.positionError);
+        ct.load   = glm::length(h.accumulatedLinearImpulse);
+        ct.active = true;
+        f.constraints.push_back(ct);
+    }
+    for (const auto& r : ropes) {
+        ConstraintTelemetry ct;
+        ct.type   = ConstraintTelemetry::Type::Rope;
+        ct.error  = std::max(0.0f, r.currentLength - r.maxLength);
+        ct.load   = r.tension;
+        ct.active = r.taut;
+        f.constraints.push_back(ct);
+    }
+    for (const auto& p : pulleys) {
+        ConstraintTelemetry ct;
+        ct.type   = ConstraintTelemetry::Type::Pulley;
+        ct.error  = std::abs(p.currentTotal - p.totalRopeLength);
+        ct.load   = p.tension;
+        ct.active = p.taut;
+        f.constraints.push_back(ct);
+    }
+
+    // --- Derived totals + sleep transitions ---
+    f.mechanicalEnergy = f.kineticLinear + f.kineticRotational + f.potential + f.springEnergy;
+    f.justSlept = justSlept;
+    f.justWoke  = justWoke;
+
+    (void)gravity; // gravity vector kept for clarity of the PE reference frame
+}
+
 void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
     using clock = std::chrono::high_resolution_clock;
 
     double ccdMs = 0.0;    // time inside findEarliestTOI (the CCD search)
     double solveMs = 0.0;  // time inside detectAndResolve (broadphase + narrowphase + solve)
     int substeps = 0;
+
+    // Telemetry needs the solved contact set; enable contact capture for the
+    // duration of the step so lastSolvedContacts is populated to copy from.
+    if (captureTelemetry) captureDiagnostics = true;
 
     if (gravityEnabled) {
         for (auto& b : bodies) applyGravity(b, dt);
@@ -1779,7 +1996,24 @@ void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
         }
     }
 
+    // Snapshot sleep state so telemetry can report awake<->asleep transitions.
+    int justSlept = 0, justWoke = 0;
+    std::vector<char> wasAsleep;
+    if (captureTelemetry) {
+        wasAsleep.resize(bodies.size());
+        for (std::size_t i = 0; i < bodies.size(); ++i) wasAsleep[i] = bodies[i].asleep ? 1 : 0;
+    }
+
     if (sleepingEnabled) updateSleeping(bodies, dt);
+
+    if (captureTelemetry) {
+        for (std::size_t i = 0; i < bodies.size(); ++i) {
+            const bool now = bodies[i].asleep;
+            if (now && !wasAsleep[i]) ++justSlept;
+            else if (!now && wasAsleep[i]) ++justWoke;
+        }
+        captureTelemetryFrame(bodies, dt, justSlept, justWoke);
+    }
 
     // Diagnostic: print only on expensive frames so normal running stays quiet.
     const double totalMs = ccdMs + solveMs;

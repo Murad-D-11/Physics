@@ -9,6 +9,7 @@
 #include "rigidbody.h"
 #include "collisioninfo.h"
 #include "Constraint.h"
+#include "Telemetry.h"
 
 class PhysicsSolver {
     public:
@@ -75,6 +76,20 @@ class PhysicsSolver {
         };
         bool captureDiagnostics = false;
         std::vector<ContactDebug> lastSolvedContacts;
+
+        // ====================================================================
+        // Research telemetry (opt-in). When captureTelemetry is true, step()
+        // fills `lastTelemetry` with a complete value-typed snapshot of the
+        // frame (object states, contacts, impulses, forces, torques, constraint
+        // errors, energy, momentum, sleep transitions). Enabling it also turns
+        // on contact capture so the frame's contact list is populated.
+        //
+        // Zero cost when disabled. The snapshot lives entirely in owned value
+        // types, so Day 33's telemetry system can read solver.lastTelemetry (or
+        // copy it into a rolling history buffer) without touching the physics.
+        // ====================================================================
+        bool captureTelemetry = false;
+        TelemetryFrame lastTelemetry;
 
         // Sleeping is a performance optimization, not a stabilization mechanism.
         // Disable it to audit the raw long-term stability of the constraint
@@ -199,6 +214,16 @@ class PhysicsSolver {
         // --- Sleeping / islands ---
         void updateSleeping(std::vector<RigidBody>& bodies, float dt);
         void wakeIsland(std::vector<RigidBody>& bodies, int islandId);
+
+        // --- Telemetry ---
+        // Populates lastTelemetry from the current post-step state. justSlept /
+        // justWoke are the sleep transitions counted by the caller (step()),
+        // which has the pre-updateSleeping asleep flags available.
+        void captureTelemetryFrame(const std::vector<RigidBody>& bodies, float dt,
+                                   int justSlept, int justWoke);
+        std::uint64_t telemetryFrameIndex = 0;
+        double telemetrySimTime = 0.0;
+        double telemetryAeroWork = 0.0; // cumulative integral of aero power (J)
 
         // --- State ---
         RigidBody floorBody;

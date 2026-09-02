@@ -293,6 +293,7 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: \
  C:\Coding\ Projects\GitHub\Physics\src\physics\rigidbody.h \
  C:\Coding\ Projects\GitHub\Physics\src\physics\collisioninfo.h \
  C:\Coding\ Projects\GitHub\Physics\src\physics\Constraint.h \
+ C:\Coding\ Projects\GitHub\Physics\src\physics\Telemetry.h \
  C:\Coding\ Projects\GitHub\Physics\src\physics\collision.h \
  C:/msys64/ucrt64/include/c++/15.2.0/algorithm \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_algo.h \

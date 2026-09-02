@@ -177,6 +177,7 @@ CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj: C:/Coding\ Projects/G
   C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/PhysicsSolver.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/RigidBody.h \
+  C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/CollisionInfo.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/OBB.h \
   C:/msys64/ucrt64/include/_mingw.h \
@@ -1310,6 +1311,7 @@ CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj: C:/Coding\ Projec
   C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h \
   C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h \
+  C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/Collision.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/CollisionInfo.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/OBB.h \
@@ -1760,6 +1762,8 @@ C:/Coding\ Projects/GitHub/Physics/include/glm/simd/platform.h:
 C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h:
 
 C:/Coding\ Projects/GitHub/Physics/src/physics/RigidBody.h:
+
+C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h:
 
 C:/Coding\ Projects/GitHub/Physics/src/physics/OBB.h:
 
