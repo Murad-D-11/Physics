@@ -30,6 +30,38 @@ class RigidBody {
 
         bool isColliding = false;
 
+        // --- Aerodynamics ---------------------------------------------------
+        // Drag coefficient (dimensionless). Physically ~0.47 for a smooth
+        // sphere, ~1.05 for a cube face-on, ~0.8-1.2 for bluff bodies. This is
+        // a property of shape/surface, NOT a generic "air resistance" slider.
+        float dragCoefficient = 0.47f;
+
+        // Center of pressure offset from the centre of mass, in LOCAL space
+        // (metres). Zero = drag acts through the COM (no aero torque for a
+        // sphere; per-face pressure model for a box). A non-zero offset models
+        // an asymmetric drag surface (a tail / fletching / weather-vane): the
+        // aerodynamic force then acts off the COM and produces a restoring
+        // torque that turns the body to face the airflow. Physically motivated,
+        // not a fudge -- it is the standard rigid-body way to give a body a
+        // center of pressure distinct from its center of mass.
+        glm::vec3 aeroCenterOffset = glm::vec3(0.0f);
+
+        // AI-readable per-step aerodynamic diagnostics. Populated by
+        // PhysicsSolver::applyAerodynamics() each step (zeroed when aero is off
+        // or the body is static/asleep). Exposed for observation and
+        // parameter-learning experiments.
+        struct AeroDiagnostics {
+            float airDensity        = 0.0f;          // rho used this step (kg/m^3)
+            glm::vec3 windVelocity  = glm::vec3(0.0f); // ambient air velocity (m/s)
+            float dragCoefficient   = 0.0f;          // Cd used this step
+            float projectedArea     = 0.0f;          // A perpendicular to flow (m^2)
+            glm::vec3 relativeAirVelocity = glm::vec3(0.0f); // v_air - v_object (m/s)
+            float relativeSpeed     = 0.0f;          // |relativeAirVelocity|
+            glm::vec3 force         = glm::vec3(0.0f); // aerodynamic force this step (N)
+            glm::vec3 torque        = glm::vec3(0.0f); // aerodynamic torque about COM (N*m)
+            float power             = 0.0f;          // instantaneous aero power F.v (W, <=0 for pure drag)
+        } aero;
+
         // Sleeping / island state (managed by PhysicsSolver).
         bool asleep = false;
         float sleepTimer = 0.0f;

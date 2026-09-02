@@ -75,6 +75,138 @@ void PhysicsSolver::applyGravity(RigidBody& body, float dt) const {
     body.velocity += gravity * dt;
 }
 
+// ============================================================================
+// Aerodynamics
+// ============================================================================
+//
+// Silhouette (projected) area of a body onto the plane perpendicular to a unit
+// flow direction. For a box this is the exact analytic silhouette:
+//     A(d) = Sum_i  faceArea_i * |dot(d, worldAxis_i)|
+// where faceArea_i is the area of the face whose normal is worldAxis_i. Face-on
+// this returns a single face; corner-on it returns the (larger) diagonal
+// silhouette -- so orientation genuinely changes the drag. For a sphere the
+// silhouette is pi*r^2 regardless of orientation.
+float PhysicsSolver::projectedArea(const RigidBody& body, const glm::vec3& flowDir) {
+    if (body.shape == ShapeType::Sphere) {
+        return 3.14159265358979f * body.radius * body.radius;
+    }
+
+    // Box: half-extents = scale * 0.5; full side lengths = scale.
+    const glm::vec3 s = body.scale;
+    const glm::mat3 R = glm::mat3_cast(body.orientation);
+    const glm::vec3 ax = R[0];
+    const glm::vec3 ay = R[1];
+    const glm::vec3 az = R[2];
+
+    // Face areas: the face whose normal is ax spans (s.y * s.z), etc.
+    const float faceX = s.y * s.z;
+    const float faceY = s.x * s.z;
+    const float faceZ = s.x * s.y;
+
+    return faceX * std::abs(glm::dot(flowDir, ax))
+         + faceY * std::abs(glm::dot(flowDir, ay))
+         + faceZ * std::abs(glm::dot(flowDir, az));
+}
+
+// Apply physically based quadratic aerodynamic drag for a single step.
+//
+//   v_rel = windVelocity - v_body           (relative airflow at the body)
+//   F_d   = 1/2 * rho * Cd * A(flowDir) * |v_rel| * v_rel
+//
+// F_d points along +v_rel, i.e. it opposes the body's motion through the air.
+// The 1/2*rho*Cd*A*|v_rel|*v_rel form is exactly 1/2*rho*Cd*A*v^2 in magnitude.
+//
+// For a box the total drag is distributed across the (up to three) windward
+// faces, each applied at that face's centroid. Because the centroids sit off
+// the centre of mass, an off-axis box experiences a torque that arises purely
+// from the geometry -- no ad-hoc alignment term. A sphere's drag acts through
+// its centre (no aerodynamic torque), which is physically correct for a smooth
+// sphere in this model.
+//
+// Pure drag can only remove kinetic energy: the instantaneous aero power is
+// F_d . v_body = 1/2*rho*Cd*A*|v_rel|*(v_rel . v_body); with still air this is
+// -1/2*rho*Cd*A*|v|^3 <= 0. We never add compensating damping elsewhere.
+void PhysicsSolver::applyAerodynamics(RigidBody& body, float dt) const {
+    // Reset diagnostics up front so static/asleep bodies read as "no aero".
+    body.aero = RigidBody::AeroDiagnostics{};
+
+    if (body.inverseMass == 0.0f || body.asleep) return;
+    if (airDensity <= 0.0f) return;
+
+    const glm::vec3 vRel = windVelocity - body.velocity; // relative airflow (air - body)
+    const float relSpeed2 = glm::dot(vRel, vRel);
+
+    // Record environment even when there is no flow (AI-readable).
+    body.aero.airDensity           = airDensity;
+    body.aero.windVelocity         = windVelocity;
+    body.aero.dragCoefficient      = body.dragCoefficient;
+    body.aero.relativeAirVelocity  = vRel;
+    body.aero.relativeSpeed        = std::sqrt(relSpeed2);
+
+    if (relSpeed2 < 1e-10f || body.dragCoefficient <= 0.0f) return;
+
+    const float relSpeed = body.aero.relativeSpeed;
+    const glm::vec3 flowDir = vRel / relSpeed; // unit airflow direction (air->body relative)
+
+    const float area = projectedArea(body, flowDir);
+    body.aero.projectedArea = area;
+
+    glm::vec3 totalForce(0.0f);
+
+    if (body.shape == ShapeType::Sphere) {
+        // Sphere: isotropic silhouette; the drag magnitude is
+        //   |F| = 1/2 rho Cd A |v_rel|^2 , directed along +v_rel.
+        const float dragMag = 0.5f * airDensity * body.dragCoefficient * area * relSpeed2;
+        totalForce = dragMag * flowDir;
+    } else {
+        // Box: sum a per-face normal-pressure force over the WINDWARD faces
+        // (those the flow strikes). Each face i (outward normal n_i, area S_i)
+        // feels the momentum flux of the air component normal to it:
+        //   vn_i = v_rel . n_i ;  the windward face's outward normal opposes the
+        //   flow, and the pressure pushes that face inward (into the body).
+        //   F_i  = 1/2 rho Cd S_i vn_i^2 * (flow-into-face direction)
+        // Face-on this reduces to 1/2 rho Cd A v^2; oblique flow yields a force
+        // that is not purely along v_rel (a lift-like deflection component),
+        // which is the physically correct behaviour for a tilted box.
+        const glm::vec3 s = body.scale;
+        const glm::mat3 R = glm::mat3_cast(body.orientation);
+        const glm::vec3 axes[3] = { R[0], R[1], R[2] };
+        const float faceArea[3] = { s.y * s.z, s.x * s.z, s.x * s.y };
+        const float q = 0.5f * airDensity * body.dragCoefficient; // dynamic-pressure factor
+
+        for (int i = 0; i < 3; ++i) {
+            const float vn = glm::dot(vRel, axes[i]); // signed normal airflow
+            if (std::abs(vn) < 1e-6f) continue;
+            // Outward normal of the windward face opposes the flow; the force
+            // pushes the face inward, i.e. along +sign(vn)*axis.
+            const glm::vec3 inward = (vn > 0.0f ? 1.0f : -1.0f) * axes[i];
+            totalForce += q * faceArea[i] * (vn * vn) * inward;
+        }
+    }
+
+    // Center of pressure in world space. When aeroCenterOffset is non-zero the
+    // aerodynamic force acts off the COM, producing a torque tau = r x F. This
+    // is how a body gets a center of pressure distinct from its center of mass
+    // (a tail / weather-vane), so an off-axis body is turned to face the flow.
+    const glm::mat3 Rw = glm::mat3_cast(body.orientation);
+    const glm::vec3 r = Rw * body.aeroCenterOffset; // COM -> center of pressure
+    const glm::vec3 totalTorque = glm::cross(r, totalForce);
+
+    // Integrate linear impulse: dv = (F/m) * dt.
+    body.velocity += totalForce * body.inverseMass * dt;
+
+    // Integrate angular impulse from the off-centre aerodynamic force.
+    if (glm::dot(totalTorque, totalTorque) > 0.0f && body.inverseInertiaLocal != glm::mat3(0.0f)) {
+        body.angularVelocity += body.inverseInertiaWorld * totalTorque * dt;
+    }
+
+    body.aero.force  = totalForce;
+    body.aero.torque = totalTorque;
+    // Instantaneous mechanical power delivered by aero force (<= 0 for pure drag
+    // in still air). Positive only transiently when a wind accelerates a body.
+    body.aero.power  = glm::dot(totalForce, body.velocity);
+}
+
 void PhysicsSolver::integratePositions(std::vector<RigidBody>& bodies, float dt) {
     if (dt <= 0.0f) return;
     for (auto& body : bodies) {
@@ -1506,6 +1638,13 @@ void PhysicsSolver::step(std::vector<RigidBody>& bodies, float dt) {
 
     if (gravityEnabled) {
         for (auto& b : bodies) applyGravity(b, dt);
+    }
+
+    // Aerodynamic drag (physically based, opt-in). Applied as an external
+    // force in the same pre-contact phase as gravity, so terminal velocity
+    // emerges naturally when drag balances weight -- it is never imposed.
+    if (aerodynamicsEnabled) {
+        for (auto& b : bodies) applyAerodynamics(b, dt);
     }
 
     // Wake bodies that are part of constraints (they shouldn't sleep while constrained)

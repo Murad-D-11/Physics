@@ -19,6 +19,13 @@ class PhysicsSolver {
         void detectAndResolve(std::vector<RigidBody>& bodies);
         void step(std::vector<RigidBody>& bodies, float dt);
 
+        // Projected (silhouette) area of a body perpendicular to unit flow
+        // direction `flowDir` (world space). Sphere: pi r^2 (orientation-free).
+        // Box: orientation-dependent silhouette Sum(faceArea * |flowDir.axis|).
+        // Public + static: an AI-readable geometric query independent of solver
+        // state, useful for observations and offline analysis.
+        static float projectedArea(const RigidBody& body, const glm::vec3& flowDir);
+
         int lastContactCount = 0;
 
         // ====================================================================
@@ -78,6 +85,24 @@ class PhysicsSolver {
         // mechanics tests (momentum / angular-momentum conservation, torque
         // response, gyroscopic) so those results are not polluted by weight.
         bool gravityEnabled = true;
+
+        // ====================================================================
+        // Aerodynamic environment (physically based, opt-in).
+        //
+        // Disabled by default so existing behaviour/tests are unaffected. When
+        // enabled, applyAerodynamics() applies quadratic drag
+        //     F_d = 1/2 * rho * Cd * A(orientation) * |v_rel| * v_rel
+        // to every dynamic body, where v_rel = windVelocity - v_body is the
+        // relative airflow. For boxes the drag is split across the windward
+        // faces so an off-axis body experiences a naturally-arising torque; the
+        // model never injects energy (pure drag removes mechanical energy).
+        //
+        // These are real physical quantities (SI units) intended to become AI
+        // observations / learnable parameters.
+        // ====================================================================
+        bool  aerodynamicsEnabled = false;
+        float airDensity          = 1.225f;            // rho at sea level, 15C (kg/m^3)
+        glm::vec3 windVelocity    = glm::vec3(0.0f);   // ambient air velocity (m/s)
 
         // Runtime-adjustable iteration counts for convergence experiments.
         // Default to the compile-time constants; tests can override per-instance.
@@ -164,6 +189,7 @@ class PhysicsSolver {
         // --- CCD internals ---
         static OBB predictOBB(const RigidBody& b, float t);
         void applyGravity(RigidBody& body, float dt) const;
+        void applyAerodynamics(RigidBody& body, float dt) const;
         void integratePositions(std::vector<RigidBody>& bodies, float dt);
         bool isCCDCandidate(const RigidBody& b, float dt) const;
         TOIResult computePairTOI(const RigidBody& a, const RigidBody& b, float dt) const;

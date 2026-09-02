@@ -2746,6 +2746,315 @@ static void atwoodValidation(Suite& S) {
     S.near("ATW coupled speed |vyA| ~ |vyB|", std::abs(vyA), std::abs(vyB), 0.5, 0.30);
 }
 
+// ===========================================================================
+// 18. AERODYNAMICS VALIDATION
+//     Physically based quadratic drag: F_d = 1/2 rho Cd A v_rel^2, opposing
+//     relative airflow (v_rel = wind - v_body). Verifies terminal velocity
+//     emergence, orientation-dependent area, wind, torque, and energy loss.
+// ===========================================================================
+static float sphereArea(float r) { return 3.14159265358979f * r * r; }
+
+// Analytic terminal velocity for a body falling under gravity + quadratic drag:
+//   m g = 1/2 rho Cd A v_t^2  ->  v_t = sqrt(2 m g / (rho Cd A))
+static float terminalVelocity(float m, float rho, float Cd, float A) {
+    return std::sqrt(2.0f * m * G / (rho * Cd * A));
+}
+
+static void aerodynamicsValidation(Suite& S) {
+    S.section("18. AERODYNAMICS VALIDATION");
+
+    const float rho = 1.225f; // sea-level air density
+
+    // ---- AE1: projected area is orientation-dependent for a box -------------
+    {
+        std::printf("  -- AE1: orientation-dependent projected area (box) --\n");
+        RigidBody box = makeBox({0, 10, 0}, glm::vec3(1.0f), 1.0f, 0.0f, 0.0f);
+        // Face-on: flow along a principal axis -> area = one 1x1 face = 1.0
+        const float aFace = PhysicsSolver::projectedArea(box, glm::vec3(0, 1, 0));
+        // Corner-on: flow along the cube body diagonal -> larger silhouette.
+        const float aDiag = PhysicsSolver::projectedArea(box, glm::normalize(glm::vec3(1, 1, 1)));
+        std::printf("        face-on A=%.4f  corner-on A=%.4f (expect face=1.0, corner=sqrt(3))\n", aFace, aDiag);
+        S.near("AE1 box face-on area = 1.0 m^2", aFace, 1.0, 1e-4);
+        // Silhouette along the diagonal of a unit cube = sqrt(3) ~ 1.732.
+        S.near("AE1 box corner-on area = sqrt(3)", aDiag, std::sqrt(3.0), 1e-3);
+        S.isTrue("AE1 orientation changes area", aDiag > aFace + 0.5f);
+
+        // Sphere area is orientation-independent.
+        RigidBody sph = makeSphere({0, 10, 0}, 0.5f, 1.0f, 0.0f, 0.0f);
+        const float aS1 = PhysicsSolver::projectedArea(sph, glm::vec3(0, 1, 0));
+        const float aS2 = PhysicsSolver::projectedArea(sph, glm::normalize(glm::vec3(1, 2, -3)));
+        S.near("AE1 sphere area = pi r^2 (any dir)", aS1, sphereArea(0.5f), 1e-5);
+        S.near("AE1 sphere area orientation-invariant", aS2, aS1, 1e-5);
+    }
+
+    // ---- AE2: terminal velocity emerges (gravity ~ drag), not imposed -------
+    {
+        std::printf("  -- AE2: terminal velocity emergence (sphere) --\n");
+        PhysicsSolver s; s.sleepingEnabled = false; s.gravityEnabled = true;
+        s.aerodynamicsEnabled = true; s.airDensity = rho;
+
+        const float r = 0.5f, m = 1.0f, Cd = 0.47f;
+        RigidBody sph = makeSphere({0, 1000, 0}, r, m, 0.0f, 0.0f);
+        sph.dragCoefficient = Cd;
+        std::vector<RigidBody> bs{ sph };
+
+        const float A = sphereArea(r);
+        const float vtExp = terminalVelocity(m, rho, Cd, A);
+
+        // Integrate long enough to approach terminal velocity.
+        for (int i = 0; i < 3000; ++i) s.step(bs, DT);
+        const float vy = bs[0].velocity.y; // negative (downward)
+        std::printf("        v=%.4f m/s  |v|=%.4f  v_t(analytic)=%.4f\n", vy, std::fabs(vy), vtExp);
+        std::printf("        aero: rho=%.3f Cd=%.3f A=%.4f Fy=%.4f relV=%.3f\n",
+                    bs[0].aero.airDensity, bs[0].aero.dragCoefficient, bs[0].aero.projectedArea,
+                    bs[0].aero.force.y, bs[0].aero.relativeAirVelocity.y);
+
+        S.isTrue("AE2 falls downward", vy < -1.0f);
+        S.near("AE2 terminal velocity = sqrt(2mg/(rho Cd A))", std::fabs(vy), vtExp, 0.5, 0.03);
+
+        // At terminal velocity, net vertical acceleration ~ 0: drag ~ weight.
+        const float dragFy = bs[0].aero.force.y;   // upward (+) when falling
+        std::printf("        drag Fy=%.4f  weight=%.4f\n", dragFy, m * G);
+        S.near("AE2 drag balances weight at terminal", dragFy, m * G, 0.4, 0.03);
+    }
+
+    // ---- AE3: heavier body has higher terminal velocity ---------------------
+    {
+        std::printf("  -- AE3: mass affects terminal velocity --\n");
+        const float r = 0.5f, Cd = 0.47f, A = sphereArea(r);
+        auto termVel = [&](float m) {
+            PhysicsSolver s; s.sleepingEnabled = false; s.aerodynamicsEnabled = true; s.airDensity = rho;
+            RigidBody sph = makeSphere({0, 5000, 0}, r, m, 0.0f, 0.0f); sph.dragCoefficient = Cd;
+            std::vector<RigidBody> bs{ sph };
+            for (int i = 0; i < 6000; ++i) s.step(bs, DT);
+            return std::fabs(bs[0].velocity.y);
+        };
+        const float vLight = termVel(1.0f);
+        const float vHeavy = termVel(4.0f);
+        std::printf("        v_t(1kg)=%.3f  v_t(4kg)=%.3f  (heavier faster, ratio ~2)\n", vLight, vHeavy);
+        S.isTrue("AE3 heavier falls faster", vHeavy > vLight + 1.0f);
+        // v_t ~ sqrt(m): quadrupling mass doubles terminal velocity.
+        S.near("AE3 v_t ratio ~ sqrt(m2/m1) = 2", vHeavy / vLight, 2.0, 0.15, 0.08);
+    }
+
+    // ---- AE4: larger sphere has lower terminal velocity (more area) ---------
+    {
+        std::printf("  -- AE4: size affects terminal velocity --\n");
+        const float Cd = 0.47f, m = 2.0f;
+        auto termVel = [&](float r) {
+            PhysicsSolver s; s.sleepingEnabled = false; s.aerodynamicsEnabled = true; s.airDensity = rho;
+            RigidBody sph = makeSphere({0, 5000, 0}, r, m, 0.0f, 0.0f); sph.dragCoefficient = Cd;
+            std::vector<RigidBody> bs{ sph };
+            for (int i = 0; i < 6000; ++i) s.step(bs, DT);
+            return std::fabs(bs[0].velocity.y);
+        };
+        const float vSmall = termVel(0.25f);
+        const float vLarge = termVel(0.5f);
+        std::printf("        v_t(r=0.25)=%.3f  v_t(r=0.5)=%.3f  (larger slower)\n", vSmall, vLarge);
+        S.isTrue("AE4 larger sphere slower (more drag area)", vLarge < vSmall - 0.5f);
+        // A ~ r^2, v_t ~ 1/sqrt(A) ~ 1/r: doubling r halves v_t.
+        S.near("AE4 v_t ratio ~ r1/r2 = 0.5", vLarge / vSmall, 0.5, 0.1, 0.1);
+    }
+
+    // ---- AE5: sphere vs cube fall (same mass; cube Cd/area differ) ----------
+    {
+        std::printf("  -- AE5: sphere vs cube fall --\n");
+        const float m = 1.0f;
+        PhysicsSolver s; s.sleepingEnabled = false; s.aerodynamicsEnabled = true; s.airDensity = rho;
+        RigidBody sph = makeSphere({-5, 5000, 0}, 0.5f, m, 0.0f, 0.0f); sph.dragCoefficient = 0.47f;
+        RigidBody cube = makeBox({5, 5000, 0}, glm::vec3(1.0f), m, 0.0f, 0.0f); cube.dragCoefficient = 1.05f;
+        std::vector<RigidBody> bs{ sph, cube };
+        for (int i = 0; i < 6000; ++i) s.step(bs, DT);
+        const float vSph = std::fabs(bs[0].velocity.y);
+        const float vCube = std::fabs(bs[1].velocity.y);
+        // Sphere: A=pi*0.25=0.785, Cd=0.47 -> Cd*A=0.369
+        // Cube (face-on 1x1): A=1.0, Cd=1.05 -> Cd*A=1.05 -> higher drag -> slower
+        std::printf("        v_t sphere=%.3f  v_t cube=%.3f (cube slower: higher Cd*A)\n", vSph, vCube);
+        S.isTrue("AE5 cube slower than sphere (higher Cd*A)", vCube < vSph);
+        S.near("AE5 sphere v_t analytic", vSph, terminalVelocity(m, rho, 0.47f, sphereArea(0.5f)), 0.5, 0.05);
+        S.near("AE5 cube v_t analytic (face-on)", vCube, terminalVelocity(m, rho, 1.05f, 1.0f), 0.5, 0.06);
+    }
+
+    // ---- AE6: drag coefficient scales terminal velocity ---------------------
+    {
+        std::printf("  -- AE6: drag coefficient affects terminal velocity --\n");
+        const float r = 0.5f, m = 2.0f, A = sphereArea(r);
+        auto termVel = [&](float Cd) {
+            PhysicsSolver s; s.sleepingEnabled = false; s.aerodynamicsEnabled = true; s.airDensity = rho;
+            RigidBody sph = makeSphere({0, 5000, 0}, r, m, 0.0f, 0.0f); sph.dragCoefficient = Cd;
+            std::vector<RigidBody> bs{ sph };
+            for (int i = 0; i < 6000; ++i) s.step(bs, DT);
+            return std::fabs(bs[0].velocity.y);
+        };
+        const float vLowCd = termVel(0.5f);
+        const float vHighCd = termVel(2.0f);
+        std::printf("        v_t(Cd=0.5)=%.3f  v_t(Cd=2.0)=%.3f\n", vLowCd, vHighCd);
+        S.isTrue("AE6 higher Cd -> lower terminal velocity", vHighCd < vLowCd);
+        // v_t ~ 1/sqrt(Cd): Cd x4 -> v_t x0.5
+        S.near("AE6 v_t ratio ~ sqrt(Cd1/Cd2) = 0.5", vHighCd / vLowCd, 0.5, 0.1, 0.1);
+    }
+
+    // ---- AE7: relative airflow -- stationary vs moving wind -----------------
+    {
+        std::printf("  -- AE7: relative airflow (wind) --\n");
+        // No gravity: a body at rest in still air feels no drag; the same body
+        // in a wind is pushed toward the wind velocity (drag along +v_rel).
+        {
+            PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+            s.aerodynamicsEnabled = true; s.airDensity = rho;
+            RigidBody sph = makeSphere({0, 50, 0}, 0.5f, 1.0f, 0.0f, 0.0f); sph.dragCoefficient = 0.8f;
+            std::vector<RigidBody> bs{ sph };
+            s.step(bs, DT);
+            std::printf("        still air: |F|=%.6f (expect ~0)\n", glm::length(bs[0].aero.force));
+            S.near("AE7 no drag in still air at rest", glm::length(bs[0].aero.force), 0.0, 1e-6);
+        }
+        {
+            PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+            s.aerodynamicsEnabled = true; s.airDensity = rho;
+            s.windVelocity = glm::vec3(10.0f, 0, 0); // 10 m/s wind along +x
+            RigidBody sph = makeSphere({0, 50, 0}, 0.5f, 1.0f, 0.0f, 0.0f); sph.dragCoefficient = 0.8f;
+            std::vector<RigidBody> bs{ sph };
+            // First step: relative airflow = wind - 0 = +10x, drag pushes +x.
+            s.step(bs, DT);
+            const glm::vec3 relV0 = bs[0].aero.relativeAirVelocity;
+            std::printf("        wind: relV=(%.2f,%.2f,%.2f) Fx=%.4f vx=%.5f\n",
+                        relV0.x, relV0.y, relV0.z, bs[0].aero.force.x, bs[0].velocity.x);
+            S.near("AE7 relative airflow = wind - v_body", relV0.x, 10.0, 1e-4);
+            S.isTrue("AE7 wind pushes body downwind (+x)", bs[0].velocity.x > 0.0f);
+            S.isTrue("AE7 drag force along +x (downwind)", bs[0].aero.force.x > 0.0f);
+
+            // Long run: body advects toward wind speed, drag -> 0 as v_rel -> 0.
+            for (int i = 0; i < 5000; ++i) s.step(bs, DT);
+            std::printf("        after advection: vx=%.4f (approaches wind 10)  |relV|=%.5f\n",
+                        bs[0].velocity.x, bs[0].aero.relativeSpeed);
+            S.near("AE7 body advects toward wind speed", bs[0].velocity.x, 10.0, 0.5, 0.05);
+            S.atMost("AE7 relative speed -> 0 (equilibrium)", bs[0].aero.relativeSpeed, 0.5, "m/s");
+        }
+    }
+
+    // ---- AE8: horizontal motion through still air decelerates ---------------
+    {
+        std::printf("  -- AE8: horizontal drag decelerates a projectile --\n");
+        PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+        s.aerodynamicsEnabled = true; s.airDensity = rho;
+        RigidBody sph = makeSphere({0, 50, 0}, 0.5f, 1.0f, 0.0f, 0.0f); sph.dragCoefficient = 0.8f;
+        sph.velocity = glm::vec3(20.0f, 0, 0);
+        std::vector<RigidBody> bs{ sph };
+        const float v0 = bs[0].velocity.x;
+        s.step(bs, DT);
+        // Drag must oppose motion: force along -x while moving +x.
+        S.isTrue("AE8 drag opposes horizontal motion (-x)", bs[0].aero.force.x < 0.0f);
+        run(s, bs, 300);
+        std::printf("        vx: %.3f -> %.3f (decelerated by drag)\n", v0, bs[0].velocity.x);
+        S.isTrue("AE8 horizontal speed decreases", bs[0].velocity.x < v0 - 1.0f);
+        S.isTrue("AE8 does not reverse (drag can't push backward)", bs[0].velocity.x > 0.0f);
+    }
+
+    // ---- AE9: energy accounting -- drag removes mechanical energy -----------
+    {
+        std::printf("  -- AE9: energy budget (drag removes mechanical energy) --\n");
+        PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+        s.aerodynamicsEnabled = true; s.airDensity = rho;
+        RigidBody sph = makeSphere({0, 50, 0}, 0.5f, 2.0f, 0.0f, 0.0f); sph.dragCoefficient = 1.0f;
+        sph.velocity = glm::vec3(30.0f, 0, 0);
+        std::vector<RigidBody> bs{ sph };
+
+        // No gravity -> PE constant -> mechanical energy = KE. Track aero work.
+        float aeroWork = 0.0f; // integral of F.v dt (should be <= 0)
+        const float KE0 = kineticLinear(bs);
+        for (int i = 0; i < 600; ++i) {
+            s.step(bs, DT);
+            aeroWork += glm::dot(bs[0].aero.force, bs[0].velocity) * DT; // W = F.v dt
+        }
+        const float KE1 = kineticLinear(bs);
+        const float dKE = KE1 - KE0;
+        std::printf("        KE0=%.3f KE1=%.3f  dKE=%.4f  aeroWork=%.4f\n", KE0, KE1, dKE, aeroWork);
+        S.isTrue("AE9 kinetic energy decreased", KE1 < KE0);
+        S.isTrue("AE9 aerodynamic work is negative (removes energy)", aeroWork < 0.0f);
+        // Energy balance: dKE == aeroWork (drag is the ONLY force here). The
+        // small mismatch is the O(dt) discretisation of F.v, not spurious damping.
+        S.near("AE9 dKE == aerodynamic work (no phantom damping)", dKE, aeroWork, 0.5, 0.05);
+    }
+
+    // ---- AE10: aerodynamic torque from an off-COM center of pressure --------
+    // A uniform box in a uniform pressure field has its center of pressure at
+    // the COM -> no aligning torque (physically correct; boxes tumble, they do
+    // not self-align). A body with a center-of-pressure offset (a tail / fin /
+    // weather-vane) DOES feel a torque tau = r x F that turns it into the wind.
+    {
+        std::printf("  -- AE10: aero torque via center-of-pressure offset --\n");
+
+        // (a) Uniform box, no offset -> ~zero aero torque (force through COM).
+        {
+            PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+            s.aerodynamicsEnabled = true; s.airDensity = rho;
+            const glm::quat tilt = glm::angleAxis(glm::radians(30.0f), glm::vec3(0, 0, 1));
+            RigidBody box = makeBox({0, 50, 0}, glm::vec3(1.0f), 1.0f, 0.0f, 0.0f, tilt);
+            box.dragCoefficient = 1.05f;
+            std::vector<RigidBody> bs{ box };
+            bs[0].velocity = glm::vec3(0, -15.0f, 0);
+            s.step(bs, DT);
+            std::printf("        uniform box |tau|=%.6f (expect ~0, COM=CoP)\n", glm::length(bs[0].aero.torque));
+            S.atMost("AE10 uniform box: no aero torque (CoP at COM)", glm::length(bs[0].aero.torque), 1e-3, "N*m");
+        }
+
+        // (b) Same box with a center-of-pressure offset along local +x. A cross-
+        //     wind then produces a torque, and it must be r x F exactly.
+        {
+            PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+            s.aerodynamicsEnabled = true; s.airDensity = rho;
+            s.windVelocity = glm::vec3(0, -20.0f, 0); // wind blowing downward
+            RigidBody vane = makeBox({0, 50, 0}, glm::vec3(1.0f), 1.0f, 0.0f, 0.0f);
+            vane.dragCoefficient = 1.05f;
+            vane.aeroCenterOffset = glm::vec3(0.6f, 0.0f, 0.0f); // CoP 0.6 m off COM (+x)
+            std::vector<RigidBody> bs{ vane };
+            s.step(bs, DT);
+            const glm::vec3 tau = bs[0].aero.torque;
+            const glm::vec3 rExp = glm::vec3(0.6f, 0, 0);
+            const glm::vec3 tauExp = glm::cross(rExp, bs[0].aero.force);
+            std::printf("        vane force=(%.3f,%.3f,%.3f) tau=(%.4f,%.4f,%.4f)\n",
+                        bs[0].aero.force.x, bs[0].aero.force.y, bs[0].aero.force.z, tau.x, tau.y, tau.z);
+            S.isTrue("AE10 off-CoP body produces aero torque", glm::length(tau) > 1e-3f);
+            S.near("AE10 torque == r x F (z)", tau.z, tauExp.z, 1e-4);
+            S.isTrue("AE10 body starts rotating from aero torque", std::fabs(bs[0].angularVelocity.z) > 1e-4f);
+        }
+
+        // (c) Weather-vane: with the CoP behind the COM relative to the wind, an
+        //     initially mis-aligned body is turned toward the flow (angular
+        //     speed builds up, i.e. a restoring torque exists).
+        {
+            PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+            s.aerodynamicsEnabled = true; s.airDensity = rho;
+            s.windVelocity = glm::vec3(25.0f, 0, 0); // strong crosswind along +x
+            RigidBody vane = makeBox({0, 50, 0}, glm::vec3(1.0f, 0.2f, 0.2f), 1.0f, 0.0f, 0.0f);
+            vane.dragCoefficient = 1.0f;
+            vane.aeroCenterOffset = glm::vec3(-0.4f, 0.0f, 0.0f); // tail behind COM
+            // Tilt the vane 40 deg off the wind so there is an angle to correct.
+            vane.orientation = glm::angleAxis(glm::radians(40.0f), glm::vec3(0, 0, 1));
+            std::vector<RigidBody> bs{ vane };
+            const float tilt0 = tiltFromVertical(bs[0]);
+            float maxAbsW = 0.0f;
+            for (int i = 0; i < 5; ++i) { s.step(bs, DT); maxAbsW = std::max(maxAbsW, std::fabs(bs[0].angularVelocity.z)); }
+            std::printf("        vane tilt0=%.3f rad, |w_z| built to %.4f rad/s (restoring)\n", tilt0, maxAbsW);
+            S.isTrue("AE10 weather-vane develops restoring spin", maxAbsW > 1e-3f);
+        }
+    }
+
+    // ---- AE11: aero OFF by default -> zero effect (no phantom damping) -------
+    {
+        std::printf("  -- AE11: aero disabled by default leaves motion untouched --\n");
+        PhysicsSolver s; s.gravityEnabled = false; s.sleepingEnabled = false;
+        // aerodynamicsEnabled defaults false.
+        RigidBody sph = makeSphere({0, 50, 0}, 0.5f, 1.0f, 0.0f, 0.0f);
+        sph.velocity = glm::vec3(10.0f, 0, 0);
+        std::vector<RigidBody> bs{ sph };
+        run(s, bs, 300);
+        std::printf("        vx after 5s (aero off) = %.6f (expect 10.0)\n", bs[0].velocity.x);
+        S.near("AE11 no drag when aerodynamics disabled", bs[0].velocity.x, 10.0, 1e-4);
+        S.isTrue("AE11 diagnostics zeroed when disabled", glm::length(bs[0].aero.force) == 0.0f);
+    }
+}
+
 int main() {
     std::printf("RIGID-BODY PHYSICS VALIDATION SUITE  (fixed dt = 1/60 s, semi-implicit Euler)\n");
     Suite S;
@@ -2766,6 +3075,7 @@ int main() {
     constraintValidation(S);
     ropeAndPulleyValidation(S);
     atwoodValidation(S);
+    aerodynamicsValidation(S);
     S.summary();
     return S.fail == 0 ? 0 : 1;
 }
