@@ -1,86 +1,86 @@
 [
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\app\\main.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\app\\main.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/app/main.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\app\\main.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\main.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/app/main.cpp",
   "output": "CMakeFiles/Physics.dir/src/app/main.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Camera.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\renderer\\Camera.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Camera.cpp",
-  "output": "CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj"
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\camera.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\camera.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/camera.cpp",
+  "output": "CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Cube.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\renderer\\Cube.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Cube.cpp",
-  "output": "CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj"
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\cube.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\cube.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/cube.cpp",
+  "output": "CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Sphere.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\renderer\\Sphere.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Sphere.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Sphere.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\Sphere.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/Sphere.cpp",
   "output": "CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Render.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\renderer\\Render.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Render.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Render.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\Render.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/Render.cpp",
   "output": "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\gcc.exe  @CMakeFiles/Physics.dir/includes_C.rsp -O3 -DNDEBUG -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\glad.c.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\renderer\\glad.c\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/glad.c",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe  @CMakeFiles/Physics.dir/includes_C.rsp -O3 -DNDEBUG -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\glad.c.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\glad.c\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/glad.c",
   "output": "CMakeFiles/Physics.dir/src/renderer/glad.c.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/PhysicsSolver.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp",
   "output": "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\physics\\OBB.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/OBB.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\OBB.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp",
   "output": "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\physics\\Collision.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/Collision.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
   "output": "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Ground.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\renderer\\Ground.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Ground.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Ground.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\Ground.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/Ground.cpp",
   "output": "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\app\\physics_tests.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\app\\physics_tests.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/app/physics_tests.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\app\\physics_tests.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\physics_tests.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/app/physics_tests.cpp",
   "output": "CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/PhysicsSolver.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp",
   "output": "CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\physics\\OBB.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/OBB.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\OBB.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp",
   "output": "CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.obj"
 },
 {
-  "directory": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-  "command": "C:\\mingw64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Users\\Sobachya Morda\\Desktop\\Desktop Folder\\Coding Projects\\Workspaces\\Physics\\src\\physics\\Collision.cpp\"",
-  "file": "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/Collision.cpp",
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
   "output": "CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.obj"
 }
 ]

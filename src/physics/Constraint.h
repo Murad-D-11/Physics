@@ -128,6 +128,8 @@ struct PulleyConstraint {
     glm::vec3 localAnchorB = glm::vec3(0.0f);
     glm::vec3 pulleyPos    = glm::vec3(0.0f, 5.0f, 0.0f); // fixed pulley position (world)
     float totalRopeLength  = 4.0f;    // total rope length over the pulley
+    float pulleyRadius     = 0.25f;   // RENDER ONLY: wheel radius for tangent-point drawing.
+                                      // Does NOT affect the ideal-rope physics.
 
     // --- Runtime state (computed each step, AI-readable) ---
     float lengthA          = 0.0f;    // distance from pulley to anchor A
@@ -140,6 +142,6 @@ struct PulleyConstraint {
     glm::vec3 dirA         = glm::vec3(0.0f); // unit vec pulley->A
     glm::vec3 dirB         = glm::vec3(0.0f); // unit vec pulley->B
 
-    // Accumulated impulse for warm-starting
+    // Accumulated impulse for warm-starting (shared scalar tension impulse).
     float accumulatedImpulse = 0.0f;
 };

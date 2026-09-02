@@ -733,6 +733,19 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
 
     if (contacts.empty()) {
         contactCache.clear();
+        // No contacts, but a pulley is still an inextensible rope that must be
+        // enforced at the velocity level every step -- otherwise a free-hanging
+        // Atwood machine just free-falls and the rope looks infinitely stretchy.
+        // (Ropes/hinges keep their original behaviour: they are only solved in
+        // the main iteration loop below, which requires contacts. We deliberately
+        // do NOT change that here.)
+        if (!pulleys.empty()) {
+            preparePulleys();
+            warmStartPulleys();
+            for (int iter = 0; iter < solverIterations; ++iter) {
+                solvePulleyVelocities();
+            }
+        }
         return;
     }
 
@@ -761,6 +774,8 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     // Alternating the order cancels the bias while applying identical impulses
     // (momentum-preserving; no damping/snapping).
     precomputeHinges();
+    preparePulleys();
+    warmStartPulleys();
     for (int iter = 0; iter < solverIterations; ++iter) {
         solveVelocities(contacts, (iter & 1) != 0);
         solveHingeVelocities();
@@ -807,41 +822,13 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
             r.bodyB->position -= correction * (invMassB / totalInv);
     }
 
-    // Direct position projection for pulleys: enforce C = lenA + lenB - L = 0
-    // BILATERAL: corrects 100% of the error each frame (inextensible rope).
-    for (auto& p : pulleys) {
-        glm::vec3 wA = p.bodyA
-            ? p.bodyA->position + p.bodyA->orientation * p.localAnchorA
-            : p.localAnchorA;
-        glm::vec3 wB = p.bodyB
-            ? p.bodyB->position + p.bodyB->orientation * p.localAnchorB
-            : p.localAnchorB;
-
-        const glm::vec3 dA = wA - p.pulleyPos;
-        const glm::vec3 dB = wB - p.pulleyPos;
-        const float lenA = glm::length(dA);
-        const float lenB = glm::length(dB);
-        const float total = lenA + lenB;
-
-        if (lenA < 1e-6f || lenB < 1e-6f) continue;
-
-        const float error = total - p.totalRopeLength;
-        if (std::abs(error) < 1e-5f) continue;
-
-        const glm::vec3 dirA = dA / lenA;
-        const glm::vec3 dirB = dB / lenB;
-
-        const float invMassA = (p.bodyA && p.bodyA->inverseMass > 0.0f) ? p.bodyA->inverseMass : 0.0f;
-        const float invMassB = (p.bodyB && p.bodyB->inverseMass > 0.0f) ? p.bodyB->inverseMass : 0.0f;
-        const float totalInv = invMassA + invMassB;
-        if (totalInv < 1e-10f) continue;
-
-        // Full correction: pull each body toward the pulley proportionally to inverse mass
-        if (p.bodyA && p.bodyA->inverseMass > 0.0f)
-            p.bodyA->position -= dirA * error * (invMassA / totalInv);
-        if (p.bodyB && p.bodyB->inverseMass > 0.0f)
-            p.bodyB->position -= dirB * error * (invMassB / totalInv);
-    }
+    // NOTE: The pulley is an IDEAL inextensible rope enforced purely at the
+    // VELOCITY level (see solvePulleyVelocities + warmStartPulleys). We do NOT
+    // project positions here: directly moving bodies to satisfy lengthA+lengthB
+    // = L is exactly what caused teleport/jitter when a mass rested on the
+    // floor (it fought the contact's position solve). Any residual length error
+    // is tiny numerical drift, removed gently by the deadbanded Baumgarte bias
+    // inside the velocity solve.
 
     if (captureDiagnostics) {
         lastSolvedContacts.clear();
@@ -1365,12 +1352,14 @@ void PhysicsSolver::solveRopeVelocities() {
 }
 
 // ============================================================================
-// Pulley Constraint Solver (lengthA + lengthB <= totalRopeLength)
+// Pulley Constraint (ideal inextensible rope: lengthA + lengthB = totalRopeLength)
 // ============================================================================
 
-void PhysicsSolver::solvePulleyVelocities() {
+// preparePulleys(): compute geometry (world anchors + unit directions) ONCE per
+// step, before the iteration loop, so the constraint is solved against a fixed
+// Jacobian -- matching how contacts are precomputed.
+void PhysicsSolver::preparePulleys() {
     for (auto& p : pulleys) {
-        // Compute world anchors
         p.worldAnchorA = p.bodyA
             ? p.bodyA->position + p.bodyA->orientation * p.localAnchorA
             : p.localAnchorA;
@@ -1385,13 +1374,64 @@ void PhysicsSolver::solvePulleyVelocities() {
         p.currentTotal = p.lengthA + p.lengthB;
 
         if (p.lengthA < 1e-6f || p.lengthB < 1e-6f) {
-            p.taut = false; p.tension = 0.0f;
+            p.taut = false;
+            p.dirA = glm::vec3(0.0f);
+            p.dirB = glm::vec3(0.0f);
+            p.accumulatedImpulse = 0.0f;
             continue;
         }
 
         p.taut = true;
-        p.dirA = deltaA / p.lengthA; // pulley -> A (unit)
-        p.dirB = deltaB / p.lengthB; // pulley -> B (unit)
+        p.dirA = deltaA / p.lengthA; // pulley -> A (unit): direction lengthA grows
+        p.dirB = deltaB / p.lengthB; // pulley -> B (unit): direction lengthB grows
+    }
+}
+
+// warmStartPulleys(): re-apply last step's accumulated impulse so the solver
+// starts near the converged solution. This is what makes the rope feel
+// inextensible under gravity within a finite iteration budget.
+//
+// The shared scalar impulse `accumulatedImpulse` acts along the constraint
+// Jacobian: +dirA on A and +dirB on B (dirA/dirB point pulley -> body). A
+// negative accumulated impulse (the usual case, since gravity tries to grow
+// the total length) therefore pulls BOTH bodies toward the pulley -- i.e. rope
+// tension. Because the two directions are on opposite sides of the wheel, this
+// couples the bodies into equal-and-opposite motion.
+void PhysicsSolver::warmStartPulleys() {
+    for (auto& p : pulleys) {
+        if (!p.taut || p.accumulatedImpulse == 0.0f) continue;
+
+        RigidBody* A = p.bodyA;
+        RigidBody* B = p.bodyB;
+        const glm::vec3 rA = p.worldAnchorA - (A ? A->position : p.worldAnchorA);
+        const glm::vec3 rB = p.worldAnchorB - (B ? B->position : p.worldAnchorB);
+
+        const glm::vec3 PA = p.accumulatedImpulse * p.dirA;
+        const glm::vec3 PB = p.accumulatedImpulse * p.dirB;
+        if (A && A->inverseMass > 0.0f) {
+            A->velocity        += PA * A->inverseMass;
+            A->angularVelocity += A->inverseInertiaWorld * glm::cross(rA, PA);
+        }
+        if (B && B->inverseMass > 0.0f) {
+            B->velocity        += PB * B->inverseMass;
+            B->angularVelocity += B->inverseInertiaWorld * glm::cross(rB, PB);
+        }
+    }
+}
+
+// ============================================================================
+// Pulley Constraint Solver (ideal inextensible rope: lengthA + lengthB = L)
+//
+// One shared scalar impulse (tension) per constraint. The SAME impulse acts on
+// both segments, applied at the attachment points so torque is produced
+// naturally. Solved once per solver iteration alongside contacts so that a
+// mass resting on the floor lets the contact impulse win: the pulley then
+// simply produces tension instead of dragging the body through the floor.
+// ============================================================================
+
+void PhysicsSolver::solvePulleyVelocities() {
+    for (auto& p : pulleys) {
+        if (!p.taut) continue;
 
         RigidBody* A = p.bodyA;
         RigidBody* B = p.bodyB;
@@ -1404,12 +1444,10 @@ void PhysicsSolver::solvePulleyVelocities() {
         const glm::vec3 rB = p.worldAnchorB - (B ? B->position : p.worldAnchorB);
 
         // ---- BILATERAL EQUALITY CONSTRAINT ----
-        // C = lengthA + lengthB - L = 0
-        // Cdot = dot(vA, dirA) + dot(vB, dirB) = 0
-        //
-        // Jacobian: J = [dirA^T, (rA x dirA)^T, dirB^T, (rB x dirB)^T]
-        // Effective mass: 1 / (J * M^-1 * J^T)
-
+        // C    = lengthA + lengthB - L = 0
+        // Cdot = dot(vAnchorA, dirA) + dot(vAnchorB, dirB) = 0
+        // Jacobian rows: J = [ dirA, rA x dirA, dirB, rB x dirB ]
+        // Effective mass: 1 / (J M^-1 J^T)
         const glm::vec3 rAxDA = glm::cross(rA, p.dirA);
         const glm::vec3 rBxDB = glm::cross(rB, p.dirB);
         const float angContribA = glm::dot(p.dirA, glm::cross(invIA * rAxDA, rA));
@@ -1418,32 +1456,39 @@ void PhysicsSolver::solvePulleyVelocities() {
         if (effMassInv < 1e-10f) continue;
         const float effMass = 1.0f / effMassInv;
 
-        // Current constraint velocity (Cdot)
+        // Current constraint velocity (Cdot = rate of change of total length)
         glm::vec3 vA(0.0f), vB(0.0f);
         if (A && A->inverseMass > 0.0f) vA = A->velocity + glm::cross(A->angularVelocity, rA);
         if (B && B->inverseMass > 0.0f) vB = B->velocity + glm::cross(B->angularVelocity, rB);
         const float Cdot = glm::dot(vA, p.dirA) + glm::dot(vB, p.dirB);
 
-        // Baumgarte stabilization: drives positional error C toward 0
+        // Baumgarte: remove only tiny drift, deadbanded by the penetration slop
+        // so it never actively "enforces" (and therefore never fights the floor
+        // contact). This is the difference between a rope and a teleporter.
         const float C = p.currentTotal - p.totalRopeLength;
-        const float beta = 0.8f;
-        const float bias = (beta / FIXED_DT) * C;
+        const float softC = (std::abs(C) > PENETRATION_SLOP)
+            ? C - (C > 0.0f ? PENETRATION_SLOP : -PENETRATION_SLOP)
+            : 0.0f;
+        const float bias = (POSITION_BETA / FIXED_DT) * softC;
 
-        // Constraint impulse (BILATERAL — no clamping, rope is always taut)
+        // Incremental impulse; accumulate so warm-start carries it to next step.
+        // Applied along the Jacobian (+dirA / +dirB). With gravity trying to
+        // grow the total length, lambda is negative -> both bodies are pulled
+        // toward the pulley (tension). This enforces equal & opposite motion
+        // without ever copying velocities between the bodies.
         const float lambda = effMass * (-(Cdot + bias));
+        p.accumulatedImpulse += lambda;
+        p.tension = std::abs(p.accumulatedImpulse) / FIXED_DT; // reported tension force
 
-        p.tension = std::abs(lambda) / FIXED_DT; // approximate tension force
-
-        // Apply impulse: pulls bodies TOWARD the pulley (reduces rope length)
-        // J_A = dirA (derivative of lenA w.r.t. position of A)
-        // To reduce C: apply force in -dirA direction on A, -dirB direction on B
+        const glm::vec3 PA = lambda * p.dirA;
+        const glm::vec3 PB = lambda * p.dirB;
         if (A && A->inverseMass > 0.0f) {
-            A->velocity += lambda * (-p.dirA) * invMassA;
-            A->angularVelocity += invIA * glm::cross(rA, lambda * (-p.dirA));
+            A->velocity        += PA * invMassA;
+            A->angularVelocity += invIA * glm::cross(rA, PA);
         }
         if (B && B->inverseMass > 0.0f) {
-            B->velocity += lambda * (-p.dirB) * invMassB;
-            B->angularVelocity += invIB * glm::cross(rB, lambda * (-p.dirB));
+            B->velocity        += PB * invMassB;
+            B->angularVelocity += invIB * glm::cross(rB, PB);
         }
     }
 }

@@ -41,14 +41,14 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "Physics::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Physics-Release-e579c6af56c10945cfe4.json",
+					"jsonFile" : "target-Physics-Release-0f5f81de3285cee691fc.json",
 					"name" : "Physics",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "PhysicsTests::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-PhysicsTests-Release-3906adb3d984e7a5e46a.json",
+					"jsonFile" : "target-PhysicsTests-Release-e49b18559df7b2cb8bb8.json",
 					"name" : "PhysicsTests",
 					"projectIndex" : 0
 				}
@@ -58,12 +58,12 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/build",
-		"source" : "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics"
+		"build" : "C:/Coding Projects/GitHub/Physics/build",
+		"source" : "C:/Coding Projects/GitHub/Physics"
 	},
 	"version" : 
 	{
 		"major" : 2,
-		"minor" : 6
+		"minor" : 8
 	}
 }

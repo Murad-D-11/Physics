@@ -77,7 +77,7 @@
 			[
 				{
 					"backtrace" : 5,
-					"path" : "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/include"
+					"path" : "C:/Coding Projects/GitHub/Physics/include"
 				}
 			],
 			"language" : "CXX",
@@ -117,7 +117,7 @@
 			[
 				{
 					"backtrace" : 5,
-					"path" : "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/include"
+					"path" : "C:/Coding Projects/GitHub/Physics/include"
 				}
 			],
 			"language" : "C",
@@ -142,7 +142,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-LC:\\Users\\SOBACH~1\\Desktop\\DESKTO~1\\CODING~1\\WORKSP~1\\Physics\\lib",
+				"fragment" : "-LC:\\CODING~1\\GitHub\\Physics\\lib",
 				"role" : "libraryPath"
 			},
 			{
@@ -194,13 +194,13 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/renderer/Camera.cpp",
+			"path" : "src/renderer/camera.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/renderer/Cube.cpp",
+			"path" : "src/renderer/cube.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

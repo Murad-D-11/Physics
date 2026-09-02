@@ -151,6 +151,8 @@ class PhysicsSolver {
         void solveHingeVelocities();
         void solveHingePositions();
         void solveRopeVelocities();
+        void preparePulleys();
+        void warmStartPulleys();
         void solvePulleyVelocities();
         void matchAndLoadCache(std::vector<Contact>& contacts);
         void storeCache(const std::vector<Contact>& contacts);

@@ -815,6 +815,7 @@ std::vector<RigidBody> spawnRopePulleyDemo(PhysicsSolver& solver) {
     atwood.localAnchorB = glm::vec3(0.0f);
     atwood.pulleyPos = pulleyPos;
     atwood.totalRopeLength = std::sqrt(0.8f * 0.8f + 3.0f * 3.0f) * 2.0f;
+    atwood.pulleyRadius = 0.25f; // render-only wheel radius
     solver.pulleys.push_back(atwood);
 
     // =====================================================================
@@ -1118,24 +1119,56 @@ int main() {
         for (const auto& p : physicsSolver.pulleys) {
             glm::vec3 wA = p.bodyA ? p.bodyA->position + p.bodyA->orientation * p.localAnchorA : p.localAnchorA;
             glm::vec3 wB = p.bodyB ? p.bodyB->position + p.bodyB->orientation * p.localAnchorB : p.localAnchorB;
-            // Draw rope segments: pulley->A and pulley->B (cyan)
-            renderer.drawLine(camera, aspectRatio, p.pulleyPos, wA, glm::vec3(0.2f, 0.8f, 1.0f));
-            renderer.drawLine(camera, aspectRatio, p.pulleyPos, wB, glm::vec3(0.2f, 0.8f, 1.0f));
+
+            const float wheelR = p.pulleyRadius; // render-only radius
+            // The pulley sits in the XY plane; the wheel axis is +Z so the two
+            // rope sides wrap around opposite edges of the wheel.
+
+            // Tangent point where a rope from world anchor `anchor` leaves a
+            // wheel of radius r centered at `center`. `side` (+1/-1) selects
+            // which of the two tangents to use so each segment departs from an
+            // opposite edge of the wheel. Falls back to the center if the anchor
+            // is inside the wheel (degenerate).
+            auto tangentPoint = [&](const glm::vec3& center, const glm::vec3& anchor, float side) -> glm::vec3 {
+                const glm::vec3 toAnchor = anchor - center;
+                const float d = glm::length(toAnchor);
+                if (d <= wheelR + 1e-4f) return center; // degenerate: anchor inside wheel
+                const glm::vec3 u = toAnchor / d;                 // center -> anchor (unit)
+                float c = wheelR / d;
+                if (c < -1.0f) c = -1.0f; else if (c > 1.0f) c = 1.0f;
+                const float alpha = std::acos(c);
+                // Rotate u by ±alpha about the wheel axis (Rodrigues; axis = +Z).
+                const float s = std::sin(side * alpha);
+                const float cs = std::cos(side * alpha);
+                const glm::vec3 rotated(
+                    u.x * cs - u.y * s,
+                    u.x * s + u.y * cs,
+                    u.z);
+                return center + rotated * wheelR;
+            };
+
+            const glm::vec3 tangA = tangentPoint(p.pulleyPos, wA, +1.0f);
+            const glm::vec3 tangB = tangentPoint(p.pulleyPos, wB, -1.0f);
+
+            // Rope segments: body anchor -> tangent point on the wheel (cyan).
+            renderer.drawLine(camera, aspectRatio, wA, tangA, glm::vec3(0.2f, 0.8f, 1.0f));
+            renderer.drawLine(camera, aspectRatio, wB, tangB, glm::vec3(0.2f, 0.8f, 1.0f));
+
             // Draw pulley wheel as a circle of line segments (white)
-            const float wheelR = 0.3f;
-            const int segs = 16;
+            const int segs = 24;
             for (int seg = 0; seg < segs; ++seg) {
-                const float a1 = 2.0f * 3.14159f * seg / segs;
-                const float a2 = 2.0f * 3.14159f * (seg + 1) / segs;
+                const float a1 = 2.0f * 3.14159265f * seg / segs;
+                const float a2 = 2.0f * 3.14159265f * (seg + 1) / segs;
                 glm::vec3 p1 = p.pulleyPos + glm::vec3(wheelR * std::cos(a1), wheelR * std::sin(a1), 0.0f);
                 glm::vec3 p2 = p.pulleyPos + glm::vec3(wheelR * std::cos(a2), wheelR * std::sin(a2), 0.0f);
                 renderer.drawLine(camera, aspectRatio, p1, p2, glm::vec3(1.0f, 1.0f, 1.0f));
             }
-            // Draw axle cross
+            // Draw axle cross (scaled to the wheel radius)
+            const float ax = wheelR * 0.5f;
             renderer.drawLine(camera, aspectRatio,
-                p.pulleyPos + glm::vec3(-0.15f, 0, 0), p.pulleyPos + glm::vec3(0.15f, 0, 0), glm::vec3(0.7f, 0.7f, 0.7f));
+                p.pulleyPos + glm::vec3(-ax, 0, 0), p.pulleyPos + glm::vec3(ax, 0, 0), glm::vec3(0.7f, 0.7f, 0.7f));
             renderer.drawLine(camera, aspectRatio,
-                p.pulleyPos + glm::vec3(0, -0.15f, 0), p.pulleyPos + glm::vec3(0, 0.15f, 0), glm::vec3(0.7f, 0.7f, 0.7f));
+                p.pulleyPos + glm::vec3(0, -ax, 0), p.pulleyPos + glm::vec3(0, ax, 0), glm::vec3(0.7f, 0.7f, 0.7f));
         }
 
         // Pause indicator

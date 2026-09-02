@@ -8,16 +8,16 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/glad.c" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/app/main.cpp" "CMakeFiles/Physics.dir/src/app/main.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/app/main.cpp.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/Collision.cpp" "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/OBB.cpp" "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/physics/PhysicsSolver.cpp" "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Camera.cpp" "CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Cube.cpp" "CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Cube.cpp.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Ground.cpp" "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Render.cpp" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj.d"
-  "C:/Users/Sobachya Morda/Desktop/Desktop Folder/Coding Projects/Workspaces/Physics/src/renderer/Sphere.cpp" "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/glad.c" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/app/main.cpp" "CMakeFiles/Physics.dir/src/app/main.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/app/main.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp" "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp" "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp" "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/Ground.cpp" "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/Render.cpp" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/Sphere.cpp" "CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/camera.cpp" "CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/cube.cpp" "CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
