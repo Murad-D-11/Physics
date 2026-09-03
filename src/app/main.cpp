@@ -17,9 +17,14 @@
 #include "../physics/rigidbody.h"
 #include "../physics/physicssolver.h"
 
+#include "Scene.h"
+#include "SceneManager.h"
+#include "Scenes.h"
+
 using namespace std;
 
 Camera* activeCamera = nullptr;
+SceneManager* activeSceneManager = nullptr; // set in main(); used by key input
 bool simulationPaused = true; // starts paused; press P to begin
 bool isDragging = false;
 double lastMouseX = 0.0;
@@ -54,26 +59,41 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+    if (action != GLFW_PRESS) return;
+
+    if (key == GLFW_KEY_P) {
         simulationPaused = !simulationPaused;
+        return;
     }
+
+    if (activeSceneManager == nullptr) return;
+
+    // Number keys 1-5: instantly switch to the corresponding registered scene.
+    if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5) {
+        if (activeSceneManager->loadSceneIndex(key - GLFW_KEY_1)) {
+            simulationPaused = true; // start each freshly loaded scene paused
+        }
+        return;
+    }
+
+    // Convenience: R restart, N/B next/previous scene.
+    if (key == GLFW_KEY_R) { activeSceneManager->restartCurrentScene(); simulationPaused = true; }
+    else if (key == GLFW_KEY_N) { activeSceneManager->nextScene();      simulationPaused = true; }
+    else if (key == GLFW_KEY_B) { activeSceneManager->previousScene();  simulationPaused = true; }
 }
 
 // ===========================================================================
-// Mass property helper
+// Physics scenes now live in Scene.h / SceneManager.h / Scenes.h. The old
+// hardcoded spawn* functions were replaced by the modular scene system; this
+// file only wires the SceneManager into the render/step/input loop.
 // ===========================================================================
+
+#if 0 // --- legacy hardcoded demos (superseded by the Scene Manager) ---
 void setCubeMassProperties(RigidBody& body, float mass) {
     body.mass = mass;
     body.inverseMass = (mass > 0.0f) ? (1.0f / mass) : 0.0f;
     body.updateInertiaTensor();
 }
-
-// ===========================================================================
-// Physics Demo Scenarios
-// ===========================================================================
-// Uncomment exactly ONE line in main() to choose which demo runs.
-// Each function returns a self-contained scene centered near the origin.
-// ===========================================================================
 
 std::vector<RigidBody> spawnExplosion() {
     // A cluster of cubes sitting together, then an "explosion" gives each one
@@ -802,6 +822,7 @@ std::vector<RigidBody> spawnSlopeDemo(PhysicsSolver& solver) {
 
     return bodies;
 }
+#endif // --- end legacy hardcoded demos ---
 
 // ===========================================================================
 // Main
@@ -854,22 +875,24 @@ int main() {
     PhysicsSolver physicsSolver;
 
     // -----------------------------------------------------------------
-    // Uncomment exactly ONE line below to choose which demo runs.
-    // Press P to start/pause the simulation.
+    // Modular scenes. Press number keys 1-5 to switch instantly;
+    // R = restart, N / B = next / previous scene, P = start/pause.
     // -----------------------------------------------------------------
-    // --- Aerodynamics demos (physically based drag; see PhysicsSolver) ---
-    std::vector<RigidBody> bodies = spawnAeroTerminalVelocityDemo(physicsSolver);
-    // std::vector<RigidBody> bodies = spawnAeroWindDemo(physicsSolver);
-    // --- Other demos ---
-    // std::vector<RigidBody> bodies = spawnStableTower();
-    // std::vector<RigidBody> bodies = spawnSphereDemo();
-    // std::vector<RigidBody> bodies = spawnSlopeDemo(physicsSolver);
-    // std::vector<RigidBody> bodies = spawnExplosion();
-    // std::vector<RigidBody> bodies = spawnBilliards();
-    // std::vector<RigidBody> bodies = spawnInertiaDemo();
-    // std::vector<RigidBody> bodies = spawnElasticVsInelastic();
-    // std::vector<RigidBody> bodies = spawnNewtonsCradle();
-    // std::vector<RigidBody> bodies = spawnDominoSpiral();
+    DominoSpiralScene   dominoSpiral;
+    AtwoodMachineScene  atwood;
+    RopeBridgeScene     ropeBridge;
+    SpringPendulumScene springPendulum;
+    EmptySandboxScene   sandbox;
+
+    SceneManager sceneManager(physicsSolver);
+    sceneManager.registerScene("Domino Spiral",   &dominoSpiral);   // 1
+    sceneManager.registerScene("Atwood Machine",  &atwood);         // 2
+    sceneManager.registerScene("Rope Bridge",     &ropeBridge);     // 3
+    sceneManager.registerScene("Spring Pendulum", &springPendulum); // 4
+    sceneManager.registerScene("Empty Sandbox",   &sandbox);        // 5
+    activeSceneManager = &sceneManager;
+
+    sceneManager.loadScene("Domino Spiral"); // initial scene
 
     // Fixed timestep
     static constexpr float FIXED_DT = 1.0f / 60.0f;
@@ -886,11 +909,15 @@ int main() {
         lastTime = currentTime;
         accumulator += frameTime;
 
+        // The live world is owned by the active scene.
+        std::vector<RigidBody>& bodies = sceneManager.bodies();
+
         // Physics loop (only when unpaused)
         if (!simulationPaused) {
             const float physicsStart = static_cast<float>(glfwGetTime());
 
             while (accumulator >= FIXED_DT) {
+                sceneManager.update(FIXED_DT);        // scripted-scene hook (no-op by default)
                 physicsSolver.step(bodies, FIXED_DT); // CCD-aware advance (integrate + TOI + resolve)
                 accumulator -= FIXED_DT;
             }

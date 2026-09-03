@@ -408,4 +408,7 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: \
  C:/Coding\ Projects/GitHub/Physics/src/physics/obb.h \
  C:/Coding\ Projects/GitHub/Physics/src/physics/collisioninfo.h \
  C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h \
- C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h
+ C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h \
+ C:\Coding\ Projects\GitHub\Physics\src\app\Scene.h \
+ C:\Coding\ Projects\GitHub\Physics\src\app\SceneManager.h \
+ C:\Coding\ Projects\GitHub\Physics\src\app\Scenes.h

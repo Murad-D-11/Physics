@@ -192,6 +192,7 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Coding\ Projects/GitHub/Physics/
   C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/PhysicsSolver.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/RigidBody.h \
+  C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/CollisionInfo.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/OBB.h \
   C:/Coding\ Projects/GitHub/Physics/src/renderer/Render.h \
@@ -1380,6 +1381,7 @@ CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj: C:/Coding\ Projects/Gi
   C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h \
   C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h \
+  C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/Collision.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/CollisionInfo.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/OBB.h \
@@ -3023,9 +3025,9 @@ C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_mat4x4.hpp:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/detail/func_vector_relational.inl:
 
-C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_float.hpp:
-
 C:/msys64/ucrt64/include/rpcasync.h:
+
+C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_float.hpp:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_mat2x2.hpp:
 
@@ -3316,6 +3318,8 @@ C:/msys64/ucrt64/include/apiset.h:
 C:/msys64/ucrt64/include/consoleapi3.h:
 
 C:/Coding\ Projects/GitHub/Physics/src/physics/RigidBody.h:
+
+C:/Coding\ Projects/GitHub/Physics/src/physics/Telemetry.h:
 
 C:/Coding\ Projects/GitHub/Physics/src/physics/OBB.h:
 
