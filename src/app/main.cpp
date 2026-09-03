@@ -16,6 +16,7 @@
 #include "../renderer/ground.h"
 #include "../physics/rigidbody.h"
 #include "../physics/physicssolver.h"
+#include "../physics/Material.h"
 
 #include "Scene.h"
 #include "SceneManager.h"
@@ -27,6 +28,7 @@ using namespace std;
 
 Camera* activeCamera = nullptr;
 SceneManager* activeSceneManager = nullptr; // set in main(); used by key input
+PhysicsSolver* activeSolver = nullptr;      // set in main(); env controls
 SimulationRecorder* activeRecorder = nullptr; // set in main(); records each step
 SandboxScene* activeSandbox = nullptr;        // set when the sandbox is loaded
 PathPredictor* activePredictor = nullptr;     // set in main(); trajectory preview
@@ -39,6 +41,16 @@ double lastMouseY = 0.0;
 bool predictionEnabled = false; // P: draw predicted trajectory of selection
 bool recordingEnabled  = true;  // R: capture each timestep into the recorder
 static constexpr int PREDICTION_FRAMES = 90; // ~1.5 s preview at 60 Hz
+
+// --- Physics inspector overlay toggles (Part 4) ---
+bool ovContactNormals = false;  // F1: contact normals (from telemetry)
+bool ovAngularAxis    = false;  // F2: angular-velocity axis per body
+bool ovCenterOfMass   = false;  // F3: center-of-mass cross
+bool ovBoundingVolume = false;  // F4: axis-aligned bounding box
+bool ovSleeping       = true;   // F5: tint sleeping bodies (on by default)
+
+// --- Single-frame step request (Simulation panel) ---
+bool stepOnce = false;          // set by the '.' key; advances exactly one step
 
 // --- Interaction state ------------------------------------------------------
 int   selectedBody   = -1;    // index into the active scene's bodies (-1 = none)
@@ -272,11 +284,20 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
 // The on-screen HUD shows colored bars; this gives the full text readout since
 // there is no font renderer.
 static void logStatus() {
+    Scene* s = activeSceneManager ? activeSceneManager->activeScene() : nullptr;
     const char* scene = activeSceneManager ? activeSceneManager->activeName().c_str() : "(none)";
+    const char* model = (activePredictor && activePredictor->hasModel())
+        ? activePredictor->modelPath().c_str() : "(none: physics rollout)";
     std::cout << "[Status] Scene: " << scene
               << "  |  Recording: " << (recordingEnabled ? "ON" : "OFF")
               << "  |  Prediction: " << (predictionEnabled ? "ON" : "OFF")
+              << "  |  Model: " << model
               << (simulationPaused ? "  |  (paused)" : "") << "\n";
+    if (s && s->description()[0]) {
+        std::cout << "         " << s->description();
+        if (s->principle()[0]) std::cout << "  [" << s->principle() << "]";
+        std::cout << "\n";
+    }
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -301,7 +322,56 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         return;
     }
 
+    // Single-frame step (advance exactly one fixed step while paused).
+    if (key == GLFW_KEY_PERIOD) {
+        stepOnce = true;
+        return;
+    }
+
+    // --- Physics inspector overlay toggles (F1-F5) -------------------------
+    if (key == GLFW_KEY_F1) { ovContactNormals = !ovContactNormals; std::cout << "[Overlay] contact normals "  << (ovContactNormals?"ON":"OFF") << "\n"; return; }
+    if (key == GLFW_KEY_F2) { ovAngularAxis    = !ovAngularAxis;    std::cout << "[Overlay] angular axis "     << (ovAngularAxis?"ON":"OFF")    << "\n"; return; }
+    if (key == GLFW_KEY_F3) { ovCenterOfMass   = !ovCenterOfMass;   std::cout << "[Overlay] center of mass "   << (ovCenterOfMass?"ON":"OFF")   << "\n"; return; }
+    if (key == GLFW_KEY_F4) { ovBoundingVolume = !ovBoundingVolume; std::cout << "[Overlay] bounding volume " << (ovBoundingVolume?"ON":"OFF") << "\n"; return; }
+    if (key == GLFW_KEY_F5) { ovSleeping       = !ovSleeping;       std::cout << "[Overlay] sleeping markers " << (ovSleeping?"ON":"OFF")       << "\n"; return; }
+
     if (activeSceneManager == nullptr) return;
+
+    // --- Environment controls (Part 3): affect the running simulation ------
+    // G toggles aerodynamics, Shift+G toggles gravity. [ / ] adjust air
+    // density. Left / Right arrows adjust wind along X.
+    if (activeSolver && key == GLFW_KEY_G) {
+        if (mods & GLFW_MOD_SHIFT) {
+            activeSolver->gravityEnabled = !activeSolver->gravityEnabled;
+            std::cout << "[Env] gravity " << (activeSolver->gravityEnabled?"ON":"OFF") << "\n";
+        } else {
+            activeSolver->aerodynamicsEnabled = !activeSolver->aerodynamicsEnabled;
+            std::cout << "[Env] aerodynamics " << (activeSolver->aerodynamicsEnabled?"ON":"OFF") << "\n";
+        }
+        return;
+    }
+    if (activeSolver && key == GLFW_KEY_LEFT_BRACKET)  { activeSolver->airDensity = std::max(0.0f, activeSolver->airDensity - 0.2f); std::cout << "[Env] air density " << activeSolver->airDensity << " kg/m^3\n"; return; }
+    if (activeSolver && key == GLFW_KEY_RIGHT_BRACKET) { activeSolver->airDensity += 0.2f; std::cout << "[Env] air density " << activeSolver->airDensity << " kg/m^3\n"; return; }
+    if (activeSolver && key == GLFW_KEY_LEFT)  { activeSolver->windVelocity.x -= 1.0f; std::cout << "[Env] wind (" << activeSolver->windVelocity.x << ",0,0) m/s\n"; return; }
+    if (activeSolver && key == GLFW_KEY_RIGHT) { activeSolver->windVelocity.x += 1.0f; std::cout << "[Env] wind (" << activeSolver->windVelocity.x << ",0,0) m/s\n"; return; }
+
+    // --- Material assignment to the selected body (Part 3) -----------------
+    // Keys 6..0 would collide with scene switching; use F6-F10 for materials.
+    auto assignMaterial = [&](MaterialType mt) {
+        std::vector<RigidBody>& bs = activeSceneManager->bodies();
+        if (selectedBody >= 0 && selectedBody < static_cast<int>(bs.size())) {
+            applyMaterial(bs[selectedBody], mt);
+            std::cout << "[Material] body " << selectedBody << " -> " << materialName(mt)
+                      << "  (mass=" << bs[selectedBody].mass << " kg)\n";
+        } else {
+            std::cout << "[Material] no body selected\n";
+        }
+    };
+    if (key == GLFW_KEY_F6)  { assignMaterial(MaterialType::Steel);    return; }
+    if (key == GLFW_KEY_F7)  { assignMaterial(MaterialType::Aluminum); return; }
+    if (key == GLFW_KEY_F8)  { assignMaterial(MaterialType::Wood);     return; }
+    if (key == GLFW_KEY_F9)  { assignMaterial(MaterialType::Rubber);   return; }
+    if (key == GLFW_KEY_F10) { assignMaterial(MaterialType::Ice);      return; }
 
     // Refresh interaction/recorder state after any scene (re)load: the body
     // set changed, so clear the selection and the recording, and re-resolve
@@ -316,8 +386,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         logStatus();
     };
 
-    // Number keys 1-6: instantly switch to the corresponding registered scene.
-    if (key >= GLFW_KEY_1 && key <= GLFW_KEY_6) {
+    // Number keys 1-9: instantly switch to the corresponding registered scene.
+    if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9) {
         if (activeSceneManager->loadSceneIndex(key - GLFW_KEY_1)) onSceneChanged();
         return;
     }
@@ -1164,25 +1234,44 @@ int main() {
     activeCamera = &camera;
 
     PhysicsSolver physicsSolver;
+    physicsSolver.captureTelemetry = true; // fill lastTelemetry for stats/overlays
+    activeSolver = &physicsSolver;         // env controls reach it from callbacks
 
     // -----------------------------------------------------------------
-    // Modular scenes. Press number keys 1-5 to switch instantly;
-    // R = restart, N / B = next / previous scene, P = start/pause.
+    // Modular scenes. Press number keys 1-9 to switch instantly;
+    // Backspace = restart, N / B = next / previous scene, Space = play/pause.
     // -----------------------------------------------------------------
-    DominoSpiralScene   dominoSpiral;
-    AtwoodMachineScene  atwood;
-    RopeBridgeScene     ropeBridge;
-    SpringPendulumScene springPendulum;
-    EmptySandboxScene   emptySandbox;
-    SandboxScene        sandbox;
+    // Experiment library. Grouped Mechanics / Structures / Dynamics + the
+    // interactive sandbox. Number keys 1-9 load the first nine; the rest are
+    // reachable with N / B (next / previous).
+    EmptySandboxScene    emptySandbox;   // Mechanics
+    DominoSpiralScene    dominoSpiral;
+    NewtonsCradleScene   newtonsCradle;
+    AtwoodMachineScene   atwood;
+    InclinedPlaneScene   inclinedPlane;
+    RopeBridgeScene      ropeBridge;      // Structures
+    SuspensionBridgeScene suspensionBridge;
+    CantileverBeamScene  cantilever;
+    HangingChainScene    hangingChain;
+    DoublePendulumScene  doublePendulum;  // Dynamics
+    SpringPendulumScene  springPendulum;
+    TrebuchetScene       trebuchet;
+    SandboxScene         sandbox;         // Interactive
 
     SceneManager sceneManager(physicsSolver);
-    sceneManager.registerScene("Domino Spiral",   &dominoSpiral);   // 1
-    sceneManager.registerScene("Atwood Machine",  &atwood);         // 2
-    sceneManager.registerScene("Rope Bridge",     &ropeBridge);     // 3
-    sceneManager.registerScene("Spring Pendulum", &springPendulum); // 4
-    sceneManager.registerScene("Empty Sandbox",   &emptySandbox);   // 5
-    sceneManager.registerScene("Sandbox",         &sandbox);        // 6
+    sceneManager.registerScene("Empty Sandbox",     &emptySandbox);     // 1
+    sceneManager.registerScene("Domino Spiral",     &dominoSpiral);     // 2
+    sceneManager.registerScene("Newton's Cradle",   &newtonsCradle);    // 3
+    sceneManager.registerScene("Atwood Machine",    &atwood);           // 4
+    sceneManager.registerScene("Inclined Plane",    &inclinedPlane);    // 5
+    sceneManager.registerScene("Rope Bridge",       &ropeBridge);       // 6
+    sceneManager.registerScene("Suspension Bridge", &suspensionBridge); // 7
+    sceneManager.registerScene("Cantilever Beam",   &cantilever);       // 8
+    sceneManager.registerScene("Hanging Chain",     &hangingChain);     // 9
+    sceneManager.registerScene("Double Pendulum",   &doublePendulum);   // N/B
+    sceneManager.registerScene("Spring Pendulum",   &springPendulum);   // N/B
+    sceneManager.registerScene("Trebuchet",         &trebuchet);        // N/B
+    sceneManager.registerScene("Sandbox",           &sandbox);          // N/B
     activeSceneManager = &sceneManager;
 
     // In-memory simulation recorder (captures every timestep; never mutates
@@ -1225,30 +1314,40 @@ int main() {
         // The live world is owned by the active scene.
         std::vector<RigidBody>& bodies = sceneManager.bodies();
 
-        // Physics loop (only when unpaused)
+        // Physics loop. Runs while unpaused; while paused, a single '.' press
+        // advances exactly one fixed step (Simulation panel single-frame step).
         if (!simulationPaused) {
-            const float physicsStart = static_cast<float>(glfwGetTime());
-
             while (accumulator >= FIXED_DT) {
                 sceneManager.update(FIXED_DT);        // scripted-scene hook (no-op by default)
                 physicsSolver.step(bodies, FIXED_DT); // CCD-aware advance (integrate + TOI + resolve)
                 recorder.capture(bodies, FIXED_DT);   // read-only snapshot AFTER the step
                 accumulator -= FIXED_DT;
             }
-
-            const float physicsTimeMs = (static_cast<float>(glfwGetTime()) - physicsStart) * 1000.0f;
-
-            // Debug statistics
-            if (currentTime - lastDebugTime >= 0.1f) {
-                const int pairCount = static_cast<int>(bodies.size() * (bodies.size() - 1) / 2);
-                std::cout << "[Physics] Bodies: " << bodies.size()
-                          << "  |  Pairs: " << pairCount
-                          << "  |  Contacts: " << physicsSolver.lastContactCount
-                          << "  |  Time: " << std::fixed << std::setprecision(2) << physicsTimeMs << " ms\n";
-                lastDebugTime = currentTime;
-            }
         } else {
             accumulator = 0.0f; // don't let time pile up while paused
+            if (stepOnce) {
+                sceneManager.update(FIXED_DT);
+                physicsSolver.step(bodies, FIXED_DT);
+                recorder.capture(bodies, FIXED_DT);
+                stepOnce = false;
+            }
+        }
+
+        // Statistics panel (telemetry-driven; throttled console readout).
+        // FPS, timestep, active/sleeping bodies, contacts, constraints, energy.
+        if (currentTime - lastDebugTime >= 0.25f) {
+            const TelemetryFrame& t = physicsSolver.lastTelemetry;
+            const float fps = frameTime > 1e-6f ? 1.0f / frameTime : 0.0f;
+            std::cout << std::fixed << std::setprecision(2)
+                      << "[Stats] FPS: " << fps
+                      << "  | dt: " << (FIXED_DT * 1000.0f) << " ms"
+                      << "  | bodies: " << bodies.size()
+                      << " (awake " << t.awakeCount << ", asleep " << t.sleepingCount << ")"
+                      << "  | contacts: " << t.contactCount
+                      << "  | constraints: " << t.constraints.size()
+                      << "  | KE: " << (t.kineticLinear + t.kineticRotational)
+                      << " J  | PE: " << t.potential << " J\n";
+            lastDebugTime = currentTime;
         }
 
 
@@ -1378,9 +1477,63 @@ int main() {
                 p.pulleyPos + glm::vec3(0, -ax, 0), p.pulleyPos + glm::vec3(0, ax, 0), glm::vec3(0.7f, 0.7f, 0.7f));
         }
 
-        // Predicted trajectory (dotted): for the selected body when prediction
-        // is enabled. Uses the PathPredictor (physics rollout by default; an
-        // ONNX model if one is loaded). Read-only: never touches live bodies.
+        // -------------------------------------------------------------------
+        // Physics inspector overlays (Part 4). All read-only, driven by the
+        // live bodies and the solver's telemetry snapshot. Toggle with F1-F5.
+        // -------------------------------------------------------------------
+        {
+            const TelemetryFrame& tel = physicsSolver.lastTelemetry;
+
+            // Contact normals (yellow): from the solved contact set.
+            if (ovContactNormals) {
+                for (const auto& c : tel.contacts) {
+                    renderer.drawLine(camera, aspectRatio, c.point,
+                                      c.point + c.normal * 0.6f, glm::vec3(1.0f, 0.95f, 0.2f));
+                }
+            }
+
+            for (const auto& b : bodies) {
+                // Center of mass (magenta cross).
+                if (ovCenterOfMass) {
+                    const float s = 0.15f;
+                    renderer.drawLine(camera, aspectRatio, b.position - glm::vec3(s,0,0), b.position + glm::vec3(s,0,0), glm::vec3(1.0f, 0.2f, 1.0f));
+                    renderer.drawLine(camera, aspectRatio, b.position - glm::vec3(0,s,0), b.position + glm::vec3(0,s,0), glm::vec3(1.0f, 0.2f, 1.0f));
+                    renderer.drawLine(camera, aspectRatio, b.position - glm::vec3(0,0,s), b.position + glm::vec3(0,0,s), glm::vec3(1.0f, 0.2f, 1.0f));
+                }
+                // Angular-velocity axis (orange): direction + magnitude.
+                if (ovAngularAxis) {
+                    const float w = glm::length(b.angularVelocity);
+                    if (w > 1e-3f) {
+                        const glm::vec3 axis = b.angularVelocity / w;
+                        renderer.drawLine(camera, aspectRatio, b.position,
+                                          b.position + axis * std::min(w * 0.2f, 1.5f),
+                                          glm::vec3(1.0f, 0.5f, 0.0f));
+                    }
+                }
+                // Axis-aligned bounding volume (grey wireframe box).
+                if (ovBoundingVolume) {
+                    const glm::vec3 he = (b.shape == ShapeType::Sphere) ? glm::vec3(b.radius) : b.scale * 0.5f;
+                    glm::vec3 c[8]; int n = 0;
+                    for (int sx=-1; sx<=1; sx+=2) for (int sy=-1; sy<=1; sy+=2) for (int sz=-1; sz<=1; sz+=2)
+                        c[n++] = b.position + glm::vec3(sx*he.x, sy*he.y, sz*he.z);
+                    static const int E[12][2] = {{0,1},{0,2},{0,4},{1,3},{1,5},{2,3},{2,6},{3,7},{4,5},{4,6},{5,7},{6,7}};
+                    for (auto& e : E) renderer.drawLine(camera, aspectRatio, c[e[0]], c[e[1]], glm::vec3(0.5f, 0.5f, 0.55f));
+                }
+                // Sleeping bodies: small blue marker above them.
+                if (ovSleeping && b.asleep) {
+                    renderer.drawLine(camera, aspectRatio, b.position + glm::vec3(0, 0.3f, 0),
+                                      b.position + glm::vec3(0, 0.7f, 0), glm::vec3(0.3f, 0.5f, 1.0f));
+                }
+            }
+        }
+
+        // -------------------------------------------------------------------
+        // Dual trajectory (Part 8): for the selected body when prediction is on.
+        //   Ground truth  = solid green   (an isolated physics rollout)
+        //   AI prediction = dotted purple (PathPredictor; rollout until a model
+        //                    is loaded, in which case the two diverge)
+        // Both use isolated Environments, so they never touch the live world.
+        // -------------------------------------------------------------------
         if (predictionEnabled && activePredictor &&
             selectedBody >= 0 && selectedBody < static_cast<int>(bodies.size())) {
             const RigidBody& b = bodies[selectedBody];
@@ -1394,13 +1547,34 @@ int main() {
             obs.orientation     = b.orientation;
             obs.sleeping        = b.asleep;
 
+            // Ground truth: roll the single body forward in its own Environment.
+            {
+                RigidBody gt = b;
+                gt.asleep = false; gt.sleepTimer = 0.0f;
+                Environment truthEnv;
+                truthEnv.setBodies({gt});
+                truthEnv.solver().sleepingEnabled = false;
+                truthEnv.solver().gravityEnabled = physicsSolver.gravityEnabled;
+                truthEnv.solver().aerodynamicsEnabled = physicsSolver.aerodynamicsEnabled;
+                truthEnv.solver().airDensity = physicsSolver.airDensity;
+                truthEnv.solver().windVelocity = physicsSolver.windVelocity;
+                std::vector<glm::vec3> truth;
+                truth.reserve(PREDICTION_FRAMES + 1);
+                truth.push_back(b.position);
+                for (int f = 0; f < PREDICTION_FRAMES; ++f) {
+                    truthEnv.step(FIXED_DT);
+                    truth.push_back(truthEnv.getObservation(0).position);
+                }
+                renderer.drawPath(camera, aspectRatio, truth, glm::vec3(0.1f, 0.9f, 0.2f)); // green
+            }
+
+            // AI prediction (purple dotted), seeded from the current position.
             const std::vector<glm::vec3> path = activePredictor->predict(obs, PREDICTION_FRAMES);
-            // Cyan dotted line, seeded from the body's current position.
             std::vector<glm::vec3> full;
             full.reserve(path.size() + 1);
             full.push_back(b.position);
             for (const auto& p : path) full.push_back(p);
-            renderer.drawDottedPath(camera, aspectRatio, full, glm::vec3(0.2f, 0.9f, 1.0f));
+            renderer.drawDottedPath(camera, aspectRatio, full, glm::vec3(0.7f, 0.2f, 0.9f)); // purple
         }
 
         // Pause indicator
@@ -1408,11 +1582,13 @@ int main() {
             renderer.drawPauseIcon();
         }
 
-        // HUD status bars (font-free): slot 0 = recording, slot 1 = prediction.
-        // Green = ON, red = OFF. Full text status is logged to the console on
-        // every toggle (scene name + recording + prediction).
+        // HUD status bars (font-free): slot 0 = recording, slot 1 = prediction,
+        // slot 2 = simulation running. Green = ON/active, red = OFF/paused. The
+        // full text status (scene, recording, prediction, model) is logged to
+        // the console on every toggle.
         renderer.drawStatusBar(0, recordingEnabled);
         renderer.drawStatusBar(1, predictionEnabled);
+        renderer.drawStatusBar(2, !simulationPaused);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

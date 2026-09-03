@@ -33,6 +33,7 @@
 #include <glm/glm.hpp>
 
 #include "../physics/rigidbody.h"
+#include "../physics/Material.h"
 #include "Environment.h"
 
 class DatasetGenerator {
@@ -59,7 +60,7 @@ public:
         std::ofstream out(path, std::ios::out | std::ios::trunc);
         if (!out.is_open()) return false;
 
-        out << "episode,frame,object_id,shape,mass,"
+        out << "episode,frame,object_id,shape,material,mass,"
                "pos_x,pos_y,pos_z,"
                "vel_x,vel_y,vel_z,"
                "ang_vel_x,ang_vel_y,ang_vel_z,"
@@ -109,13 +110,13 @@ private:
                 const Observation& o = now[i];
                 const glm::vec3&   fp = future[i].position; // same body id
                 std::snprintf(line, sizeof(line),
-                    "%d,%d,%d,%d,%.6f,"
+                    "%d,%d,%d,%d,%d,%.6f,"
                     "%.6f,%.6f,%.6f,"
                     "%.6f,%.6f,%.6f,"
                     "%.6f,%.6f,%.6f,"
                     "%.6f,%.6f,%.6f,%.6f,%d,"
                     "%.6f,%.6f,%.6f\n",
-                    episode, f, o.id, o.shape, o.mass,
+                    episode, f, o.id, o.shape, o.material, o.mass,
                     o.position.x, o.position.y, o.position.z,
                     o.velocity.x, o.velocity.y, o.velocity.z,
                     o.angularVelocity.x, o.angularVelocity.y, o.angularVelocity.z,
@@ -133,6 +134,7 @@ private:
     void buildRandomScene(Environment& env) {
         std::uniform_int_distribution<int>  countDist(cfg_.minBodies, cfg_.maxBodies);
         std::uniform_int_distribution<int>  shapeDist(0, 1);
+        std::uniform_int_distribution<int>  matDist(0, static_cast<int>(MaterialType::Count) - 1);
         std::uniform_real_distribution<float> massDist(cfg_.minMass, cfg_.maxMass);
         std::uniform_real_distribution<float> xzDist(-4.0f, 4.0f);
         std::uniform_real_distribution<float> yDist(1.0f, 8.0f);
@@ -155,20 +157,19 @@ private:
                 b.shape = ShapeType::Sphere;
                 b.radius = r;
                 b.scale = glm::vec3(r * 2.0f);
-                b.mass = mass;
-                b.inverseMass = 1.0f / mass;
-                b.restitution = 0.4f;
-                b.friction = 0.5f;
             } else {
                 // Box
                 b.shape = ShapeType::Box;
                 b.scale = glm::vec3(sizeDist(rng_), sizeDist(rng_), sizeDist(rng_));
-                b.mass = mass;
-                b.inverseMass = 1.0f / mass;
-                b.restitution = 0.2f;
-                b.friction = 0.6f;
             }
-            b.updateInertiaTensor();
+            b.mass = mass;
+            b.inverseMass = 1.0f / mass;
+
+            // Assign a random material: sets friction/restitution and derives a
+            // physically consistent mass from density * volume (overriding the
+            // placeholder mass above), and tags b.materialType for the dataset.
+            const MaterialType mt = static_cast<MaterialType>(matDist(rng_));
+            applyMaterial(b, mt);
 
             // Random initial impulse -> initial velocity (dv = J / m).
             b.velocity = randomImpulse() * b.inverseMass;

@@ -31,6 +31,7 @@ struct Observation {
     int       id;                 // body index within the environment
     float     mass;               // kg (0 => static/infinite mass)
     int       shape;              // 0 = box, 1 = sphere
+    int       material;           // MaterialType as int (-1 = unassigned)
     glm::vec3 position;
     glm::vec3 velocity;
     glm::vec3 angularVelocity;
@@ -94,6 +95,7 @@ public:
         o.id              = id;
         o.mass            = b.mass;
         o.shape           = static_cast<int>(b.shape);
+        o.material        = b.materialType;
         o.position        = b.position;
         o.velocity        = b.velocity;
         o.angularVelocity = b.angularVelocity;

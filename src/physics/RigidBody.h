@@ -122,4 +122,11 @@ class RigidBody {
         // ^^^^^ Inertia Tensor ^^^^^ //
 
         float rollingResistance = 0.02f;
+
+        // --- Non-physical annotation ---------------------------------------
+        // Which material preset this body was assigned (see Material.h). Purely
+        // descriptive: the solver never reads it. Exposed so the inspector and
+        // ML/dataset layers can report/record a body's material. Default -1
+        // means "unassigned / custom".
+        int materialType = -1;
 };

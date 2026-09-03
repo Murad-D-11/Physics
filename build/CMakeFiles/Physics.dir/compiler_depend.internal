@@ -190,6 +190,8 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/matrix.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/simd/platform.h
  C:/Coding Projects/GitHub/Physics/include/glm/vector_relational.hpp
+ C:/Coding Projects/GitHub/Physics/src/ml/Environment.h
+ C:/Coding Projects/GitHub/Physics/src/ml/PathPredictor.h
  C:/Coding Projects/GitHub/Physics/src/physics/Constraint.h
  C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.h
  C:/Coding Projects/GitHub/Physics/src/physics/RigidBody.h

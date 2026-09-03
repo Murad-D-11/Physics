@@ -383,6 +383,7 @@ CMakeFiles/DatasetGenerator.dir/src/app/dataset_main.cpp.obj: \
  C:/CODING~1/GitHub/Physics/include/glm/gtc/epsilon.hpp \
  C:/CODING~1/GitHub/Physics/include/glm/gtc/../detail/setup.hpp \
  C:/CODING~1/GitHub/Physics/include/glm/gtc/epsilon.inl \
+ C:/Coding\ Projects/GitHub/Physics/src/physics/Material.h \
  C:/Coding\ Projects/GitHub/Physics/src/ml/Environment.h \
  C:/Coding\ Projects/GitHub/Physics/src/physics/PhysicsSolver.h \
  C:/msys64/ucrt64/include/c++/15.2.0/utility \

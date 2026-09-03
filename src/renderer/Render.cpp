@@ -362,6 +362,14 @@ void Render::drawDottedPath(const Camera& camera, float aspectRatio,
     }
 }
 
+void Render::drawPath(const Camera& camera, float aspectRatio,
+                      const std::vector<glm::vec3>& points, glm::vec3 color) const {
+    if (points.size() < 2) return;
+    for (std::size_t i = 0; i + 1 < points.size(); ++i) {
+        drawLine(camera, aspectRatio, points[i], points[i + 1], color);
+    }
+}
+
 void Render::drawStatusBar(int slot, bool on) const {
     // A small filled rectangle in the top-left, stacked downward by slot.
     // Green = on, red = off. Font-free stand-in for a text status readout.

@@ -96,6 +96,46 @@ public:
     // Human-readable name (shown in the window / logs). Override optionally.
     virtual const char* name() const { return "Scene"; }
 
+    // Short human description of what the scene shows. Override optionally.
+    virtual const char* description() const { return ""; }
+
+    // The physical principle the scene demonstrates. Override optionally.
+    virtual const char* principle() const { return ""; }
+
+    // Adjustable parameters exposed to the GUI / hotkeys. A scene registers
+    // named scalar knobs here in its constructor; changing a value and calling
+    // reset() rebuilds the scene with the new setting (load() reads them). This
+    // keeps parameters data-driven without a bespoke UI per scene.
+    struct Param {
+        std::string name;
+        float value;
+        float minValue;
+        float maxValue;
+    };
+    std::vector<Param> params;
+
+    // Look up a parameter's current value by name, or `fallback` if absent.
+    float param(const std::string& key, float fallback) const {
+        for (const auto& p : params) if (p.name == key) return p.value;
+        return fallback;
+    }
+    // Set a parameter by name (clamped to its range). No-op if unknown.
+    void setParam(const std::string& key, float v) {
+        for (auto& p : params) {
+            if (p.name == key) {
+                p.value = (v < p.minValue) ? p.minValue : (v > p.maxValue ? p.maxValue : v);
+                return;
+            }
+        }
+    }
+
+protected:
+    // Register an adjustable parameter (call from a scene constructor).
+    void addParam(const std::string& n, float value, float minV, float maxV) {
+        params.push_back({n, value, minV, maxV});
+    }
+public:
+
     // Build the scene from scratch. Implementations should clear() then fill
     // the `bodies`/constraint description vectors. Called by reset().
     virtual void load() = 0;

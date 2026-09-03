@@ -189,6 +189,8 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Coding\ Projects/GitHub/Physics/
   C:/Coding\ Projects/GitHub/Physics/include/glm/matrix.hpp \
   C:/Coding\ Projects/GitHub/Physics/include/glm/simd/platform.h \
   C:/Coding\ Projects/GitHub/Physics/include/glm/vector_relational.hpp \
+  C:/Coding\ Projects/GitHub/Physics/src/ml/Environment.h \
+  C:/Coding\ Projects/GitHub/Physics/src/ml/PathPredictor.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/PhysicsSolver.h \
   C:/Coding\ Projects/GitHub/Physics/src/physics/RigidBody.h \
@@ -3135,6 +3137,8 @@ C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_vec2.hpp:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_vec2.inl:
 
+C:/Coding\ Projects/GitHub/Physics/src/ml/PathPredictor.h:
+
 C:/msys64/ucrt64/include/_bsd_types.h:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_vec3.hpp:
@@ -3326,6 +3330,10 @@ C:/Coding\ Projects/GitHub/Physics/include/glm/mat4x4.hpp:
 C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/avx512vlbwintrin.h:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/simd/platform.h:
+
+C:/msys64/ucrt64/include/c++/15.2.0/cerrno:
+
+C:/Coding\ Projects/GitHub/Physics/src/ml/Environment.h:
 
 C:/Coding\ Projects/GitHub/Physics/src/physics/Constraint.h:
 
@@ -3556,8 +3564,6 @@ C:/msys64/ucrt64/include/handleapi.h:
 C:/msys64/ucrt64/include/c++/15.2.0/cassert:
 
 C:/msys64/ucrt64/include/c++/15.2.0/cctype:
-
-C:/msys64/ucrt64/include/c++/15.2.0/cerrno:
 
 C:/msys64/ucrt64/include/c++/15.2.0/climits:
 

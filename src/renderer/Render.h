@@ -29,6 +29,10 @@ public:
     // segments with gaps between them. Used for predicted trajectories.
     void drawDottedPath(const Camera& camera, float aspectRatio,
                         const std::vector<glm::vec3>& points, glm::vec3 color) const;
+    // Draw a poly-line as a solid connected line. Used for the ground-truth
+    // trajectory.
+    void drawPath(const Camera& camera, float aspectRatio,
+                  const std::vector<glm::vec3>& points, glm::vec3 color) const;
     void drawGround(const Ground& ground, const Camera& camera, float aspectRatio) const;
     void drawPauseIcon() const;
     // Overlay HUD status indicator: a small filled bar in the top-left, stacked
