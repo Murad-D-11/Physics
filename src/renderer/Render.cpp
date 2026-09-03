@@ -158,6 +158,37 @@ Render::Render() {
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 
+    // Status HUD shader: screen-space quad in NDC with a uniform color.
+    {
+        const char* svs = R"(
+            #version 330 core
+            layout (location = 0) in vec2 aPos;
+            void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
+        )";
+        const char* sfs = R"(
+            #version 330 core
+            out vec4 FragColor;
+            uniform vec3 uColor;
+            void main() { FragColor = vec4(uColor, 0.9); }
+        )";
+        GLuint v = compileShader(svs, GL_VERTEX_SHADER);
+        GLuint f = compileShader(sfs, GL_FRAGMENT_SHADER);
+        statusShaderProgram = linkProgram(v, f);
+        glDeleteShader(v);
+        glDeleteShader(f);
+    }
+
+    // Status HUD geometry: a dynamic 2D quad (6 verts, 2 floats each) whose NDC
+    // rectangle is rewritten per draw so one buffer serves every slot.
+    glGenVertexArrays(1, &statusVAO);
+    glGenBuffers(1, &statusVBO);
+    glBindVertexArray(statusVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, statusVBO);
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
     // Line rendering: dynamic VBO for 2 vertices (pos+color = 6 floats each)
     glGenVertexArrays(1, &lineVAO);
     glGenBuffers(1, &lineVBO);
@@ -181,6 +212,9 @@ Render::~Render() {
     glDeleteBuffers(1, &pauseVBO);
     glDeleteVertexArrays(1, &lineVAO);
     glDeleteBuffers(1, &lineVBO);
+    glDeleteProgram(statusShaderProgram);
+    glDeleteVertexArrays(1, &statusVAO);
+    glDeleteBuffers(1, &statusVBO);
 }
 
 GLuint Render::compileShader(const std::string& source, GLenum shaderType) const {
@@ -310,6 +344,56 @@ void Render::drawPauseIcon() const {
 
     glBindVertexArray(pauseVAO);
     glDrawArrays(GL_TRIANGLES, 0, 12);
+    glBindVertexArray(0);
+
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+}
+
+void Render::drawDottedPath(const Camera& camera, float aspectRatio,
+                            const std::vector<glm::vec3>& points, glm::vec3 color) const {
+    if (points.size() < 2) return;
+    // Render every other span between consecutive samples so the trajectory
+    // reads as a dotted/dashed line rather than a solid one. Reuses drawLine.
+    for (std::size_t i = 0; i + 1 < points.size(); ++i) {
+        if ((i & 1u) == 0u) { // draw even spans, skip odd ones -> dashes
+            drawLine(camera, aspectRatio, points[i], points[i + 1], color);
+        }
+    }
+}
+
+void Render::drawStatusBar(int slot, bool on) const {
+    // A small filled rectangle in the top-left, stacked downward by slot.
+    // Green = on, red = off. Font-free stand-in for a text status readout.
+    const float w = 0.05f;   // NDC width
+    const float h = 0.03f;   // NDC height
+    const float x0 = -0.98f; // left edge
+    const float top = 0.78f; // first bar top (just below the pause icon area)
+    const float gap = 0.02f;
+
+    const float yTop = top - static_cast<float>(slot) * (h + gap);
+    const float yBot = yTop - h;
+    const float x1 = x0 + w;
+
+    const float verts[12] = {
+        x0, yBot,  x1, yBot,  x1, yTop,
+        x0, yBot,  x1, yTop,  x0, yTop,
+    };
+
+    const glm::vec3 color = on ? glm::vec3(0.15f, 0.85f, 0.25f)   // green
+                               : glm::vec3(0.85f, 0.2f, 0.2f);    // red
+
+    glUseProgram(statusShaderProgram);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glUniform3fv(glGetUniformLocation(statusShaderProgram, "uColor"), 1, glm::value_ptr(color));
+
+    glBindVertexArray(statusVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, statusVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 
     glDisable(GL_BLEND);

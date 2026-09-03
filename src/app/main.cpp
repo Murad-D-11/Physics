@@ -21,6 +21,7 @@
 #include "SceneManager.h"
 #include "Scenes.h"
 #include "SimulationRecorder.h"
+#include "../ml/PathPredictor.h"
 
 using namespace std;
 
@@ -28,10 +29,16 @@ Camera* activeCamera = nullptr;
 SceneManager* activeSceneManager = nullptr; // set in main(); used by key input
 SimulationRecorder* activeRecorder = nullptr; // set in main(); records each step
 SandboxScene* activeSandbox = nullptr;        // set when the sandbox is loaded
-bool simulationPaused = true; // starts paused; press P to begin
+PathPredictor* activePredictor = nullptr;     // set in main(); trajectory preview
+bool simulationPaused = true; // starts paused; press Space to begin
 bool isDragging = false;      // left-drag orbiting the camera
 double lastMouseX = 0.0;
 double lastMouseY = 0.0;
+
+// --- Feature toggles (shown in the HUD) ---
+bool predictionEnabled = false; // P: draw predicted trajectory of selection
+bool recordingEnabled  = true;  // R: capture each timestep into the recorder
+static constexpr int PREDICTION_FRAMES = 90; // ~1.5 s preview at 60 Hz
 
 // --- Interaction state ------------------------------------------------------
 int   selectedBody   = -1;    // index into the active scene's bodies (-1 = none)
@@ -261,11 +268,36 @@ void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
     activeCamera->processScroll(static_cast<float>(yOffset));
 }
 
+// Print the current UI status to the console (scene + recording + prediction).
+// The on-screen HUD shows colored bars; this gives the full text readout since
+// there is no font renderer.
+static void logStatus() {
+    const char* scene = activeSceneManager ? activeSceneManager->activeName().c_str() : "(none)";
+    std::cout << "[Status] Scene: " << scene
+              << "  |  Recording: " << (recordingEnabled ? "ON" : "OFF")
+              << "  |  Prediction: " << (predictionEnabled ? "ON" : "OFF")
+              << (simulationPaused ? "  |  (paused)" : "") << "\n";
+}
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action != GLFW_PRESS) return;
 
+    // --- Primary UI toggles (per task spec) --------------------------------
+    // P = prediction on/off, R = recording on/off. Space pauses/resumes.
     if (key == GLFW_KEY_P) {
+        predictionEnabled = !predictionEnabled;
+        logStatus();
+        return;
+    }
+    if (key == GLFW_KEY_R) {
+        recordingEnabled = !recordingEnabled;
+        if (activeRecorder) activeRecorder->setEnabled(recordingEnabled);
+        logStatus();
+        return;
+    }
+    if (key == GLFW_KEY_SPACE) {
         simulationPaused = !simulationPaused;
+        logStatus();
         return;
     }
 
@@ -281,6 +313,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         applyingImpulse = false;
         activeSandbox = dynamic_cast<SandboxScene*>(activeSceneManager->activeScene());
         resetRecordingForStructuralChange();
+        logStatus();
     };
 
     // Number keys 1-6: instantly switch to the corresponding registered scene.
@@ -289,17 +322,17 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         return;
     }
 
-    // Convenience: R restart, N/B next/previous scene.
-    if (key == GLFW_KEY_R) { activeSceneManager->restartCurrentScene(); onSceneChanged(); return; }
-    if (key == GLFW_KEY_N) { activeSceneManager->nextScene();           onSceneChanged(); return; }
-    if (key == GLFW_KEY_B) { activeSceneManager->previousScene();       onSceneChanged(); return; }
+    // Scene navigation: Backspace restarts the current scene, N / B cycle.
+    // (R now toggles recording and Space pauses, per the UI spec.)
+    if (key == GLFW_KEY_BACKSPACE) { activeSceneManager->restartCurrentScene(); onSceneChanged(); return; }
+    if (key == GLFW_KEY_N) { activeSceneManager->nextScene();     onSceneChanged(); return; }
+    if (key == GLFW_KEY_B) { activeSceneManager->previousScene(); onSceneChanged(); return; }
 
     // -----------------------------------------------------------------------
-    // Sandbox editing + recording controls.
-    //   C = spawn cube, V = spawn sphere (in front of the camera target)
+    // Sandbox editing + recording export.
+    //   C = spawn cube, V = spawn sphere (near the origin)
     //   X / Delete = delete the selected body
     //   E = export the recording to CSV
-    //   T = toggle recording on/off
     // Structural edits clear the recording so object ids stay consistent.
     // -----------------------------------------------------------------------
     if (key == GLFW_KEY_E) {
@@ -312,14 +345,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             } else {
                 std::cerr << "[Recorder] failed to write " << path << "\n";
             }
-        }
-        return;
-    }
-
-    if (key == GLFW_KEY_T) {
-        if (activeRecorder) {
-            activeRecorder->setEnabled(!activeRecorder->enabled());
-            std::cout << "[Recorder] recording " << (activeRecorder->enabled() ? "ON" : "OFF") << "\n";
         }
         return;
     }
@@ -1164,10 +1189,23 @@ int main() {
     // physics). Exported to CSV on demand with the E key.
     SimulationRecorder recorder;
     activeRecorder = &recorder;
+    recorder.setEnabled(recordingEnabled);
+
+    // Trajectory predictor. Try to load a model from disk; if none exists (the
+    // default), predict() falls back to a physics rollout. Model loading is
+    // isolated inside PathPredictor and needs no ONNX to be installed.
+    PathPredictor predictor;
+    activePredictor = &predictor;
+    if (predictor.loadModel("model.onnx")) {
+        std::cout << "[Predictor] loaded model: " << predictor.modelPath() << "\n";
+    } else {
+        std::cout << "[Predictor] no model loaded; using physics rollout.\n";
+    }
 
     sceneManager.loadScene("Sandbox"); // start in the interactive sandbox
     activeSandbox = &sandbox;
     recorder.clear();
+    logStatus();
 
     // Fixed timestep
     static constexpr float FIXED_DT = 1.0f / 60.0f;
@@ -1340,10 +1378,41 @@ int main() {
                 p.pulleyPos + glm::vec3(0, -ax, 0), p.pulleyPos + glm::vec3(0, ax, 0), glm::vec3(0.7f, 0.7f, 0.7f));
         }
 
+        // Predicted trajectory (dotted): for the selected body when prediction
+        // is enabled. Uses the PathPredictor (physics rollout by default; an
+        // ONNX model if one is loaded). Read-only: never touches live bodies.
+        if (predictionEnabled && activePredictor &&
+            selectedBody >= 0 && selectedBody < static_cast<int>(bodies.size())) {
+            const RigidBody& b = bodies[selectedBody];
+            Observation obs;
+            obs.id              = selectedBody;
+            obs.mass            = b.mass;
+            obs.shape           = static_cast<int>(b.shape);
+            obs.position        = b.position;
+            obs.velocity        = b.velocity;
+            obs.angularVelocity = b.angularVelocity;
+            obs.orientation     = b.orientation;
+            obs.sleeping        = b.asleep;
+
+            const std::vector<glm::vec3> path = activePredictor->predict(obs, PREDICTION_FRAMES);
+            // Cyan dotted line, seeded from the body's current position.
+            std::vector<glm::vec3> full;
+            full.reserve(path.size() + 1);
+            full.push_back(b.position);
+            for (const auto& p : path) full.push_back(p);
+            renderer.drawDottedPath(camera, aspectRatio, full, glm::vec3(0.2f, 0.9f, 1.0f));
+        }
+
         // Pause indicator
         if (simulationPaused) {
             renderer.drawPauseIcon();
         }
+
+        // HUD status bars (font-free): slot 0 = recording, slot 1 = prediction.
+        // Green = ON, red = OFF. Full text status is logged to the console on
+        // every toggle (scene name + recording + prediction).
+        renderer.drawStatusBar(0, recordingEnabled);
+        renderer.drawStatusBar(1, predictionEnabled);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
