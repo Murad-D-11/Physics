@@ -20,32 +20,235 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "Scenes.h"
+#include "SimulationRecorder.h"
 
 using namespace std;
 
 Camera* activeCamera = nullptr;
 SceneManager* activeSceneManager = nullptr; // set in main(); used by key input
+SimulationRecorder* activeRecorder = nullptr; // set in main(); records each step
+SandboxScene* activeSandbox = nullptr;        // set when the sandbox is loaded
 bool simulationPaused = true; // starts paused; press P to begin
-bool isDragging = false;
+bool isDragging = false;      // left-drag orbiting the camera
 double lastMouseX = 0.0;
 double lastMouseY = 0.0;
+
+// --- Interaction state ------------------------------------------------------
+int   selectedBody   = -1;    // index into the active scene's bodies (-1 = none)
+bool  draggingBody   = false; // left-drag repositioning the selected body (paused only)
+bool  applyingImpulse = false;// right-drag aiming an impulse at the selected body
+double impulseStartX = 0.0, impulseStartY = 0.0;
+glm::vec3 dragPlanePoint(0.0f); // point on the drag plane under the cursor at grab
+
+// Screen -> world picking ray (origin at the camera, direction through the
+// pixel under the cursor). Built from the inverse of proj*view. Read-only.
+static void screenRay(double mouseX, double mouseY, int width, int height,
+                      const Camera& cam, glm::vec3& outOrigin, glm::vec3& outDir) {
+    const float aspect = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : 1.0f;
+    // Normalised device coordinates in [-1, 1], y flipped (screen y grows down).
+    const float ndcX = (2.0f * static_cast<float>(mouseX)) / static_cast<float>(width) - 1.0f;
+    const float ndcY = 1.0f - (2.0f * static_cast<float>(mouseY)) / static_cast<float>(height);
+
+    const glm::mat4 invVP = glm::inverse(cam.getProjectionMatrix(aspect) * cam.getViewMatrix());
+    glm::vec4 nearP = invVP * glm::vec4(ndcX, ndcY, -1.0f, 1.0f); // near plane
+    glm::vec4 farP  = invVP * glm::vec4(ndcX, ndcY,  1.0f, 1.0f); // far plane
+    nearP /= nearP.w;
+    farP  /= farP.w;
+
+    outOrigin = glm::vec3(nearP);
+    outDir    = glm::normalize(glm::vec3(farP - nearP));
+}
+
+// Ray vs sphere. Returns nearest positive hit distance in `t`, or false.
+static bool raySphere(const glm::vec3& o, const glm::vec3& d,
+                      const glm::vec3& center, float radius, float& t) {
+    const glm::vec3 oc = o - center;
+    const float b = glm::dot(oc, d);
+    const float c = glm::dot(oc, oc) - radius * radius;
+    const float disc = b * b - c;
+    if (disc < 0.0f) return false;
+    const float sq = std::sqrt(disc);
+    float t0 = -b - sq;
+    float t1 = -b + sq;
+    if (t0 < 0.0f) t0 = t1;
+    if (t0 < 0.0f) return false;
+    t = t0;
+    return true;
+}
+
+// Ray vs oriented box (OBB). Slab test in the body's local frame. Returns the
+// nearest positive entry distance in `t`, or false.
+static bool rayOBB(const glm::vec3& o, const glm::vec3& d,
+                   const glm::vec3& center, const glm::quat& orient,
+                   const glm::vec3& halfExtents, float& t) {
+    // Transform the ray into the box's local space.
+    const glm::quat inv = glm::conjugate(orient);
+    const glm::vec3 lo = inv * (o - center);
+    const glm::vec3 ld = inv * d;
+
+    float tmin = -1e30f, tmax = 1e30f;
+    for (int i = 0; i < 3; ++i) {
+        if (std::abs(ld[i]) < 1e-8f) {
+            if (lo[i] < -halfExtents[i] || lo[i] > halfExtents[i]) return false; // parallel & outside
+        } else {
+            float inv1 = 1.0f / ld[i];
+            float ta = (-halfExtents[i] - lo[i]) * inv1;
+            float tb = ( halfExtents[i] - lo[i]) * inv1;
+            if (ta > tb) std::swap(ta, tb);
+            tmin = std::max(tmin, ta);
+            tmax = std::min(tmax, tb);
+            if (tmin > tmax) return false;
+        }
+    }
+    float hit = (tmin >= 0.0f) ? tmin : tmax;
+    if (hit < 0.0f) return false;
+    t = hit;
+    return true;
+}
+
+// Pick the nearest body under the cursor. Returns its index or -1.
+static int pickBody(double mouseX, double mouseY, int width, int height,
+                    const Camera& cam, const std::vector<RigidBody>& bodies) {
+    glm::vec3 o, d;
+    screenRay(mouseX, mouseY, width, height, cam, o, d);
+
+    int best = -1;
+    float bestT = 1e30f;
+    for (std::size_t i = 0; i < bodies.size(); ++i) {
+        const RigidBody& b = bodies[i];
+        float t;
+        bool hit = (b.shape == ShapeType::Sphere)
+            ? raySphere(o, d, b.position, b.radius, t)
+            : rayOBB(o, d, b.position, b.orientation, b.scale * 0.5f, t);
+        if (hit && t < bestT) { bestT = t; best = static_cast<int>(i); }
+    }
+    return best;
+}
+
+// Intersect a picking ray with the horizontal plane y = planeY. Returns false
+// if the ray is parallel to the plane. Used for drag-repositioning.
+static bool rayPlaneY(const glm::vec3& o, const glm::vec3& d, float planeY, glm::vec3& out) {
+    if (std::abs(d.y) < 1e-8f) return false;
+    const float t = (planeY - o.y) / d.y;
+    if (t < 0.0f) return false;
+    out = o + d * t;
+    return true;
+}
+
+// Clear the recorder on any structural change so object ids stay consistent.
+static void resetRecordingForStructuralChange() {
+    if (activeRecorder) activeRecorder->clear();
+}
 
 void framebufferSizeChanged(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    if (button != GLFW_MOUSE_BUTTON_LEFT) return;
-    if (action == GLFW_PRESS) {
-        isDragging = true;
-        glfwGetCursorPos(window, &lastMouseX, &lastMouseY);
-    } else if (action == GLFW_RELEASE) {
-        isDragging = false;
+    if (activeCamera == nullptr || activeSceneManager == nullptr) return;
+
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    double mx, my;
+    glfwGetCursorPos(window, &mx, &my);
+    std::vector<RigidBody>& bodies = activeSceneManager->bodies();
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            // First, try to pick a body under the cursor.
+            const int hit = pickBody(mx, my, width, height, *activeCamera, bodies);
+            if (hit >= 0) {
+                selectedBody = hit;
+                // While paused, a left-drag on a picked body repositions it on
+                // the horizontal plane through the body's current height.
+                if (simulationPaused) {
+                    glm::vec3 o, d;
+                    screenRay(mx, my, width, height, *activeCamera, o, d);
+                    glm::vec3 hitPt;
+                    if (rayPlaneY(o, d, bodies[hit].position.y, hitPt)) {
+                        draggingBody = true;
+                        dragPlanePoint = hitPt;
+                    }
+                }
+                // If not repositioning, fall through to orbit the camera too.
+                isDragging = true;
+                lastMouseX = mx; lastMouseY = my;
+            } else {
+                // Empty space: clear selection and orbit the camera.
+                selectedBody = -1;
+                isDragging = true;
+                lastMouseX = mx; lastMouseY = my;
+            }
+        } else if (action == GLFW_RELEASE) {
+            isDragging = false;
+            draggingBody = false;
+        }
+        return;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (action == GLFW_PRESS) {
+            // Right-press picks (if nothing selected yet) then begins aiming an
+            // impulse; the impulse is applied on release based on drag vector.
+            const int hit = pickBody(mx, my, width, height, *activeCamera, bodies);
+            if (hit >= 0) selectedBody = hit;
+            if (selectedBody >= 0) {
+                applyingImpulse = true;
+                impulseStartX = mx; impulseStartY = my;
+            }
+        } else if (action == GLFW_RELEASE && applyingImpulse) {
+            applyingImpulse = false;
+            if (selectedBody >= 0 && selectedBody < static_cast<int>(bodies.size())) {
+                // Convert the screen drag into a world-space velocity along the
+                // camera's right/up axes. Dragging further = stronger impulse.
+                const float dx = static_cast<float>(mx - impulseStartX);
+                const float dy = static_cast<float>(my - impulseStartY);
+                const glm::mat4 view = activeCamera->getViewMatrix();
+                // Camera basis rows of the view matrix give world axes.
+                const glm::vec3 right(view[0][0], view[1][0], view[2][0]);
+                const glm::vec3 up   (view[0][1], view[1][1], view[2][1]);
+                const float scale = 0.05f; // pixels -> m/s
+                glm::vec3 impulse = right * (dx * scale) + up * (-dy * scale);
+                RigidBody& b = bodies[selectedBody];
+                if (b.inverseMass > 0.0f) {
+                    b.velocity += impulse;   // apply as a velocity change (impulse / mass)
+                    b.asleep = false;        // wake it so the impulse takes effect
+                    b.sleepTimer = 0.0f;
+                }
+            }
+        }
+        return;
     }
 }
 
 void cursorPosCallback(GLFWwindow* window, double xPos, double yPos) {
-    if (!isDragging || activeCamera == nullptr) return;
+    if (activeCamera == nullptr) return;
+
+    // Repositioning the selected body takes priority over camera orbit.
+    if (draggingBody && simulationPaused && activeSceneManager &&
+        selectedBody >= 0) {
+        std::vector<RigidBody>& bodies = activeSceneManager->bodies();
+        if (selectedBody < static_cast<int>(bodies.size())) {
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
+            glm::vec3 o, d;
+            screenRay(xPos, yPos, width, height, *activeCamera, o, d);
+            glm::vec3 hitPt;
+            RigidBody& b = bodies[selectedBody];
+            if (rayPlaneY(o, d, b.position.y, hitPt)) {
+                const glm::vec3 delta = hitPt - dragPlanePoint;
+                b.position += glm::vec3(delta.x, 0.0f, delta.z); // slide on the plane
+                b.velocity = glm::vec3(0.0f);                    // no residual velocity
+                dragPlanePoint = hitPt;
+                // Moving a body invalidates any prior recording's geometry.
+                resetRecordingForStructuralChange();
+            }
+        }
+        lastMouseX = xPos; lastMouseY = yPos;
+        return;
+    }
+
+    if (!isDragging) return;
     const float deltaX = static_cast<float>(xPos - lastMouseX);
     const float deltaY = static_cast<float>(yPos - lastMouseY);
     lastMouseX = xPos;
@@ -68,18 +271,81 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     if (activeSceneManager == nullptr) return;
 
-    // Number keys 1-5: instantly switch to the corresponding registered scene.
-    if (key >= GLFW_KEY_1 && key <= GLFW_KEY_5) {
-        if (activeSceneManager->loadSceneIndex(key - GLFW_KEY_1)) {
-            simulationPaused = true; // start each freshly loaded scene paused
-        }
+    // Refresh interaction/recorder state after any scene (re)load: the body
+    // set changed, so clear the selection and the recording, and re-resolve
+    // the sandbox pointer.
+    auto onSceneChanged = [&]() {
+        simulationPaused = true; // start each freshly loaded scene paused
+        selectedBody = -1;
+        draggingBody = false;
+        applyingImpulse = false;
+        activeSandbox = dynamic_cast<SandboxScene*>(activeSceneManager->activeScene());
+        resetRecordingForStructuralChange();
+    };
+
+    // Number keys 1-6: instantly switch to the corresponding registered scene.
+    if (key >= GLFW_KEY_1 && key <= GLFW_KEY_6) {
+        if (activeSceneManager->loadSceneIndex(key - GLFW_KEY_1)) onSceneChanged();
         return;
     }
 
     // Convenience: R restart, N/B next/previous scene.
-    if (key == GLFW_KEY_R) { activeSceneManager->restartCurrentScene(); simulationPaused = true; }
-    else if (key == GLFW_KEY_N) { activeSceneManager->nextScene();      simulationPaused = true; }
-    else if (key == GLFW_KEY_B) { activeSceneManager->previousScene();  simulationPaused = true; }
+    if (key == GLFW_KEY_R) { activeSceneManager->restartCurrentScene(); onSceneChanged(); return; }
+    if (key == GLFW_KEY_N) { activeSceneManager->nextScene();           onSceneChanged(); return; }
+    if (key == GLFW_KEY_B) { activeSceneManager->previousScene();       onSceneChanged(); return; }
+
+    // -----------------------------------------------------------------------
+    // Sandbox editing + recording controls.
+    //   C = spawn cube, V = spawn sphere (in front of the camera target)
+    //   X / Delete = delete the selected body
+    //   E = export the recording to CSV
+    //   T = toggle recording on/off
+    // Structural edits clear the recording so object ids stay consistent.
+    // -----------------------------------------------------------------------
+    if (key == GLFW_KEY_E) {
+        if (activeRecorder) {
+            const char* path = "recording.csv";
+            if (activeRecorder->exportCSV(path)) {
+                std::cout << "[Recorder] exported " << activeRecorder->rowCount()
+                          << " rows (" << activeRecorder->stepCount() << " steps) to "
+                          << path << "\n";
+            } else {
+                std::cerr << "[Recorder] failed to write " << path << "\n";
+            }
+        }
+        return;
+    }
+
+    if (key == GLFW_KEY_T) {
+        if (activeRecorder) {
+            activeRecorder->setEnabled(!activeRecorder->enabled());
+            std::cout << "[Recorder] recording " << (activeRecorder->enabled() ? "ON" : "OFF") << "\n";
+        }
+        return;
+    }
+
+    // The remaining edits require the sandbox scene.
+    if (activeSandbox == nullptr) return;
+
+    if (key == GLFW_KEY_C) {
+        // Spawn a cube slightly above the ground near the origin.
+        activeSandbox->spawnCube(glm::vec3(0.0f, 3.0f, 0.0f));
+        resetRecordingForStructuralChange();
+        return;
+    }
+    if (key == GLFW_KEY_V) {
+        activeSandbox->spawnSphere(glm::vec3(0.0f, 3.0f, 0.0f));
+        resetRecordingForStructuralChange();
+        return;
+    }
+    if (key == GLFW_KEY_X || key == GLFW_KEY_DELETE) {
+        if (selectedBody >= 0 && activeSandbox->deleteBody(selectedBody)) {
+            selectedBody = -1;
+            draggingBody = false;
+            resetRecordingForStructuralChange();
+        }
+        return;
+    }
 }
 
 // ===========================================================================
@@ -882,17 +1148,26 @@ int main() {
     AtwoodMachineScene  atwood;
     RopeBridgeScene     ropeBridge;
     SpringPendulumScene springPendulum;
-    EmptySandboxScene   sandbox;
+    EmptySandboxScene   emptySandbox;
+    SandboxScene        sandbox;
 
     SceneManager sceneManager(physicsSolver);
     sceneManager.registerScene("Domino Spiral",   &dominoSpiral);   // 1
     sceneManager.registerScene("Atwood Machine",  &atwood);         // 2
     sceneManager.registerScene("Rope Bridge",     &ropeBridge);     // 3
     sceneManager.registerScene("Spring Pendulum", &springPendulum); // 4
-    sceneManager.registerScene("Empty Sandbox",   &sandbox);        // 5
+    sceneManager.registerScene("Empty Sandbox",   &emptySandbox);   // 5
+    sceneManager.registerScene("Sandbox",         &sandbox);        // 6
     activeSceneManager = &sceneManager;
 
-    sceneManager.loadScene("Domino Spiral"); // initial scene
+    // In-memory simulation recorder (captures every timestep; never mutates
+    // physics). Exported to CSV on demand with the E key.
+    SimulationRecorder recorder;
+    activeRecorder = &recorder;
+
+    sceneManager.loadScene("Sandbox"); // start in the interactive sandbox
+    activeSandbox = &sandbox;
+    recorder.clear();
 
     // Fixed timestep
     static constexpr float FIXED_DT = 1.0f / 60.0f;
@@ -919,6 +1194,7 @@ int main() {
             while (accumulator >= FIXED_DT) {
                 sceneManager.update(FIXED_DT);        // scripted-scene hook (no-op by default)
                 physicsSolver.step(bodies, FIXED_DT); // CCD-aware advance (integrate + TOI + resolve)
+                recorder.capture(bodies, FIXED_DT);   // read-only snapshot AFTER the step
                 accumulator -= FIXED_DT;
             }
 
@@ -954,6 +1230,36 @@ int main() {
                 renderer.drawSphere(sphereMesh, camera, aspectRatio, body.position, body.orientation, body.radius, body.isColliding);
             } else {
                 renderer.drawBody(cube, camera, aspectRatio, body.position, body.orientation, body.scale, body.isColliding);
+            }
+        }
+
+        // Highlight the selected body with a wireframe bounding box (orange).
+        if (selectedBody >= 0 && selectedBody < static_cast<int>(bodies.size())) {
+            const RigidBody& b = bodies[selectedBody];
+            // Half extents: box uses scale*0.5; sphere uses its radius.
+            const glm::vec3 he = (b.shape == ShapeType::Sphere)
+                ? glm::vec3(b.radius) : b.scale * 0.5f;
+            // Spheres have no meaningful orientation for a box outline; use
+            // identity so the highlight stays axis-aligned and readable.
+            const glm::quat q = (b.shape == ShapeType::Sphere)
+                ? glm::quat(1.0f, 0.0f, 0.0f, 0.0f) : b.orientation;
+            const glm::vec3 col(1.0f, 0.6f, 0.1f);
+
+            // 8 corners in local space, transformed to world.
+            glm::vec3 c[8];
+            int n = 0;
+            for (int sx = -1; sx <= 1; sx += 2)
+                for (int sy = -1; sy <= 1; sy += 2)
+                    for (int sz = -1; sz <= 1; sz += 2)
+                        c[n++] = b.position + q * glm::vec3(sx * he.x, sy * he.y, sz * he.z);
+
+            // 12 edges of the box (indices into the corner array above).
+            static const int edges[12][2] = {
+                {0,1},{0,2},{0,4},{1,3},{1,5},{2,3},
+                {2,6},{3,7},{4,5},{4,6},{5,7},{6,7}
+            };
+            for (auto& e : edges) {
+                renderer.drawLine(camera, aspectRatio, c[e[0]], c[e[1]], col);
             }
         }
 

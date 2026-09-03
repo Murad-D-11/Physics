@@ -413,7 +413,10 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Coding\ Projects/GitHub/Physics/
   C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/mm_malloc.h \
   C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stddef.h \
   C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h \
-  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h
+  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h \
+  C:/Coding\ Projects/GitHub/Physics/src/app/Scene.h \
+  C:/Coding\ Projects/GitHub/Physics/src/app/SceneManager.h \
+  C:/Coding\ Projects/GitHub/Physics/src/app/Scenes.h
 
 CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj: C:/Coding\ Projects/GitHub/Physics/src/physics/Collision.cpp \
   C:/Coding\ Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp \
@@ -2887,9 +2890,11 @@ C:/Coding\ Projects/GitHub/Physics/include/glm/ext/matrix_float4x2.hpp:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/ext/matrix_transform.hpp:
 
-C:/Coding\ Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp:
-
 C:/Coding\ Projects/GitHub/Physics/include/glm/glm.hpp:
+
+C:/Coding\ Projects/GitHub/Physics/src/app/SceneManager.h:
+
+C:/Coding\ Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_half.hpp:
 
@@ -3131,6 +3136,8 @@ C:/msys64/ucrt64/include/consoleapi.h:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_vec4.hpp:
 
+C:/Coding\ Projects/GitHub/Physics/src/app/Scenes.h:
+
 C:/Coding\ Projects/GitHub/Physics/include/glm/detail/type_vec4.inl:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/exponential.hpp:
@@ -3145,11 +3152,11 @@ C:/Coding\ Projects/GitHub/Physics/include/glm/ext/matrix_double2x4.hpp:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/ext/matrix_double3x2.hpp:
 
+C:/msys64/ucrt64/include/rpc.h:
+
 C:/Coding\ Projects/GitHub/Physics/include/glm/ext/matrix_double3x3.hpp:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/vector_relational.hpp:
-
-C:/msys64/ucrt64/include/rpc.h:
 
 C:/Coding\ Projects/GitHub/Physics/include/glm/ext/matrix_double3x3_precision.hpp:
 
@@ -3623,10 +3630,6 @@ C:/msys64/ucrt64/include/nb30.h:
 
 C:/msys64/ucrt64/include/c++/15.2.0/pstl/pstl_config.h:
 
-C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/avx512bf16intrin.h:
-
-C:/msys64/ucrt64/include/realtimeapiset.h:
-
 C:/msys64/ucrt64/include/c++/15.2.0/stdexcept:
 
 C:/msys64/ucrt64/include/c++/15.2.0/streambuf:
@@ -3759,6 +3762,8 @@ C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stddef.h:
 
 C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h:
 
+C:/Coding\ Projects/GitHub/Physics/src/app/Scene.h:
+
 C:/Coding\ Projects/GitHub/Physics/src/physics/Collision.h:
 
 C:/Coding\ Projects/GitHub/Physics/src/physics/OBB.cpp:
@@ -3868,6 +3873,10 @@ C:/msys64/ucrt64/include/pshpack2.h:
 C:/msys64/ucrt64/include/wincon.h:
 
 C:/msys64/ucrt64/include/pshpack8.h:
+
+C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/avx512bf16intrin.h:
+
+C:/msys64/ucrt64/include/realtimeapiset.h:
 
 C:/msys64/ucrt64/include/reason.h:
 

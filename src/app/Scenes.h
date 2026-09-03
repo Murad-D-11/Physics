@@ -268,3 +268,78 @@ public:
         bodies.push_back(marker);
     }
 };
+
+// ---------------------------------------------------------------------------
+// 6. Sandbox
+//
+// An interactive, AI-ready playground. It starts from a fixed, deterministic
+// layout (one cube + one sphere resting on the ground) and exposes runtime
+// mutators so the app can spawn / delete bodies from mouse + keyboard input:
+//
+//   spawnCube(pos)   — drop a unit cube at pos
+//   spawnSphere(pos) — drop a sphere at pos
+//   deleteBody(i)    — remove the body at index i
+//
+// The scene has NO constraints, so appending / erasing bodies at runtime never
+// invalidates solver constraint pointers (there are none to invalidate). The
+// app is responsible for clearing the SimulationRecorder on any structural
+// change so recorded object ids stay consistent.
+// ---------------------------------------------------------------------------
+class SandboxScene : public Scene {
+public:
+    const char* name() const override { return "Sandbox"; }
+
+    void load() override {
+        // Reserve generously so early spawns don't force a reallocation. There
+        // are no constraints referencing these bodies, so even a reallocation
+        // would be safe; reserving simply avoids churn.
+        bodies.reserve(64);
+
+        RigidBody cube;
+        cube.scale = glm::vec3(1.0f);
+        cube.position = glm::vec3(-1.5f, 0.5f, 0.0f);
+        sceneSetCubeMass(cube, 1.0f);
+        cube.restitution = 0.2f;
+        cube.friction = 0.6f;
+        bodies.push_back(cube);
+
+        RigidBody ball;
+        ball.position = glm::vec3(1.5f, 0.5f, 0.0f);
+        sceneSetSphereMass(ball, 1.0f, 0.5f);
+        ball.restitution = 0.4f;
+        ball.friction = 0.5f;
+        bodies.push_back(ball);
+    }
+
+    // --- Runtime mutators (called from the app) ----------------------------
+
+    // Drop a unit cube at world position `pos`. Returns the new body's index.
+    int spawnCube(const glm::vec3& pos) {
+        RigidBody cube;
+        cube.scale = glm::vec3(1.0f);
+        cube.position = pos;
+        sceneSetCubeMass(cube, 1.0f);
+        cube.restitution = 0.2f;
+        cube.friction = 0.6f;
+        bodies.push_back(cube);
+        return static_cast<int>(bodies.size()) - 1;
+    }
+
+    // Drop a sphere at world position `pos`. Returns the new body's index.
+    int spawnSphere(const glm::vec3& pos, float radius = 0.5f) {
+        RigidBody ball;
+        ball.position = pos;
+        sceneSetSphereMass(ball, 1.0f, radius);
+        ball.restitution = 0.4f;
+        ball.friction = 0.5f;
+        bodies.push_back(ball);
+        return static_cast<int>(bodies.size()) - 1;
+    }
+
+    // Remove the body at `index`. Returns true if a body was removed.
+    bool deleteBody(int index) {
+        if (index < 0 || index >= static_cast<int>(bodies.size())) return false;
+        bodies.erase(bodies.begin() + index);
+        return true;
+    }
+};
