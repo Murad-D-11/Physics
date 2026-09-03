@@ -876,6 +876,8 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
             precomputeHinges();
             preparePulleys();
             warmStartPulleys();
+            prepareRopes();
+            warmStartRopes();
             for (int iter = 0; iter < solverIterations; ++iter) {
                 solveHingeVelocities();
                 solveRopeVelocities();
@@ -884,6 +886,7 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
             for (int iter = 0; iter < positionIterations; ++iter) {
                 solveHingePositions();
             }
+            solveRopePositions();
         }
         return;
     }
@@ -915,6 +918,8 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     precomputeHinges();
     preparePulleys();
     warmStartPulleys();
+    prepareRopes();
+    warmStartRopes();
     for (int iter = 0; iter < solverIterations; ++iter) {
         solveVelocities(contacts, (iter & 1) != 0);
         solveHingeVelocities();
@@ -931,35 +936,12 @@ void PhysicsSolver::detectAndResolve(std::vector<RigidBody>& bodies) {
     integratePseudoVelocities(bodies);
     solveHingePositions();
 
-    // Direct position projection for ropes: enforce maxLength at position level.
-    // This prevents bodies from drifting past the rope limit between frames.
-    for (auto& r : ropes) {
-        glm::vec3 wA = r.bodyA
-            ? r.bodyA->position + r.bodyA->orientation * r.localAnchorA
-            : r.localAnchorA;
-        glm::vec3 wB = r.bodyB
-            ? r.bodyB->position + r.bodyB->orientation * r.localAnchorB
-            : r.localAnchorB;
-
-        const glm::vec3 delta = wB - wA;
-        const float dist = glm::length(delta);
-        if (dist <= r.maxLength || dist < 1e-6f) continue;
-
-        const glm::vec3 dir = delta / dist;
-        const float excess = dist - r.maxLength;
-
-        const float invMassA = (r.bodyA && r.bodyA->inverseMass > 0.0f) ? r.bodyA->inverseMass : 0.0f;
-        const float invMassB = (r.bodyB && r.bodyB->inverseMass > 0.0f) ? r.bodyB->inverseMass : 0.0f;
-        const float totalInv = invMassA + invMassB;
-        if (totalInv < 1e-10f) continue;
-
-        // Pull bodies toward each other to satisfy the constraint
-        const glm::vec3 correction = dir * excess;
-        if (r.bodyA && r.bodyA->inverseMass > 0.0f)
-            r.bodyA->position += correction * (invMassA / totalInv);
-        if (r.bodyB && r.bodyB->inverseMass > 0.0f)
-            r.bodyB->position -= correction * (invMassB / totalInv);
-    }
+    // Geometric position correction for ropes: an iterated, rotation-aware,
+    // one-sided projection that removes any residual overstretch without
+    // touching velocity (energy-free). Replaces the old single-shot hard
+    // teleport, which overshot and (combined with a Baumgarte velocity bias)
+    // pumped energy. This mirrors the hinge position solve.
+    solveRopePositions();
 
     // NOTE: The pulley is an IDEAL inextensible rope enforced purely at the
     // VELOCITY level (see solvePulleyVelocities + warmStartPulleys). We do NOT
@@ -1466,12 +1448,44 @@ void PhysicsSolver::solveHingePositions() {
 }
 
 // ============================================================================
-// Rope Constraint Solver (one-sided: only activates when taut)
+// Rope Constraint Solver (one-sided inextensible distance constraint)
+//
+// A rope is an inequality distance constraint: length <= maxLength. When taut
+// it must transmit REAL tension -- enough to hold a hanging weight, act as a
+// rigid pendulum arm, and pass momentum down a line of bodies -- while never
+// pushing (compression-free) and never injecting energy.
+//
+// The implementation mirrors the (working) hinge design, which is the whole
+// reason ropes now behave:
+//
+//   prepareRopes()        - compute world anchors, length, direction and the
+//                           scalar effective mass ONCE per step (a fixed
+//                           Jacobian for the iteration loop). Decide taut here.
+//   warmStartRopes()      - re-apply the impulse accumulated last step so the
+//                           solver starts near the converged tension. This is
+//                           what lets a finite iteration budget hold a weight
+//                           under gravity. The accumulator PERSISTS across
+//                           steps (it is only reset when the rope is genuinely
+//                           slack in prepareRopes()).
+//   solveRopeVelocities() - bias-free velocity solve: drive the relative
+//                           anchor velocity along the rope to zero, clamped so
+//                           the accumulated impulse stays >= 0 (tension only).
+//                           NO Baumgarte term -> injects no energy.
+//   solveRopePositions()  - separate geometric (split-impulse-style) position
+//                           pass that removes any residual overstretch by
+//                           moving AND rotating the bodies, iterated. This is
+//                           where positional error is corrected, NOT in the
+//                           velocity solve -- the same separation the hinge
+//                           uses to stay stable.
+//
+// The previous implementation folded a Baumgarte bias into the velocity solve
+// AND did a one-shot hard position teleport, with no warm start and an
+// accumulator that was zeroed on any slack iteration. That combination could
+// not hold tension and pumped energy -- the source of the chaos.
 // ============================================================================
 
-void PhysicsSolver::solveRopeVelocities() {
+void PhysicsSolver::prepareRopes() {
     for (auto& r : ropes) {
-        // Compute world anchors
         r.worldAnchorA = r.bodyA
             ? r.bodyA->position + r.bodyA->orientation * r.localAnchorA
             : r.localAnchorA;
@@ -1482,16 +1496,29 @@ void PhysicsSolver::solveRopeVelocities() {
         const glm::vec3 delta = r.worldAnchorB - r.worldAnchorA;
         r.currentLength = glm::length(delta);
 
-        // Only activate when stretched beyond max length (one-sided)
-        if (r.currentLength <= r.maxLength) {
+        // One-sided: below the limit the rope is slack and carries no force.
+        // A slack rope forgets its warm-start seed entirely.
+        if (r.currentLength <= r.maxLength || r.currentLength < 1e-6f) {
             r.taut = false;
             r.tension = 0.0f;
             r.accumulatedImpulse = 0.0f;
+            r.warmImpulse = 0.0f;
             continue;
         }
 
         r.taut = true;
-        r.direction = delta / r.currentLength; // A -> B
+        r.direction = delta / r.currentLength; // unit A -> B
+        // Seed this pass's accumulator from the persisted warm impulse. Because
+        // the accumulator is reloaded (not carried) at the start of every solve
+        // pass, a rope resolved twice in one step (e.g. across a CCD sub-step)
+        // no longer double-counts its reported tension.
+        r.accumulatedImpulse = r.warmImpulse;
+    }
+}
+
+void PhysicsSolver::warmStartRopes() {
+    for (auto& r : ropes) {
+        if (!r.taut || r.warmImpulse == 0.0f) continue;
 
         RigidBody* A = r.bodyA;
         RigidBody* B = r.bodyB;
@@ -1503,7 +1530,35 @@ void PhysicsSolver::solveRopeVelocities() {
         const glm::vec3 rA = r.worldAnchorA - (A ? A->position : r.worldAnchorA);
         const glm::vec3 rB = r.worldAnchorB - (B ? B->position : r.worldAnchorB);
 
-        // Effective mass along rope direction
+        // Re-apply the persisted converged impulse (A toward B, B toward A).
+        const glm::vec3 impulse = r.warmImpulse * r.direction;
+        if (A && A->inverseMass > 0.0f) {
+            A->velocity        += impulse * invMassA;
+            A->angularVelocity += invIA * glm::cross(rA, impulse);
+        }
+        if (B && B->inverseMass > 0.0f) {
+            B->velocity        -= impulse * invMassB;
+            B->angularVelocity -= invIB * glm::cross(rB, impulse);
+        }
+    }
+}
+
+void PhysicsSolver::solveRopeVelocities() {
+    for (auto& r : ropes) {
+        if (!r.taut) continue;
+
+        RigidBody* A = r.bodyA;
+        RigidBody* B = r.bodyB;
+        const float invMassA = (A && A->inverseMass > 0.0f) ? A->inverseMass : 0.0f;
+        const float invMassB = (B && B->inverseMass > 0.0f) ? B->inverseMass : 0.0f;
+        const glm::mat3 invIA = (A && A->inverseMass > 0.0f) ? A->inverseInertiaWorld : glm::mat3(0.0f);
+        const glm::mat3 invIB = (B && B->inverseMass > 0.0f) ? B->inverseInertiaWorld : glm::mat3(0.0f);
+
+        const glm::vec3 rA = r.worldAnchorA - (A ? A->position : r.worldAnchorA);
+        const glm::vec3 rB = r.worldAnchorB - (B ? B->position : r.worldAnchorB);
+
+        // Effective mass along the rope direction (includes the r x n lever
+        // arms, so an off-centre anchor produces the correct torque).
         const glm::vec3 rAxN = glm::cross(rA, r.direction);
         const glm::vec3 rBxN = glm::cross(rB, r.direction);
         const float angA = glm::dot(r.direction, glm::cross(invIA * rAxN, rA));
@@ -1512,35 +1567,112 @@ void PhysicsSolver::solveRopeVelocities() {
         if (effMassInv < 1e-10f) continue;
         const float effMass = 1.0f / effMassInv;
 
-        // Relative velocity along rope
+        // Relative velocity of the anchors along the rope (v + w x r).
         glm::vec3 vA(0.0f), vB(0.0f);
         if (A && A->inverseMass > 0.0f) vA = A->velocity + glm::cross(A->angularVelocity, rA);
         if (B && B->inverseMass > 0.0f) vB = B->velocity + glm::cross(B->angularVelocity, rB);
         const float vn = glm::dot(vB - vA, r.direction);
 
-        // Baumgarte bias for positional error (rope stretched beyond max)
-        const float penetration = r.currentLength - r.maxLength;
-        const float bias = (0.8f / FIXED_DT) * penetration;
+        // Bias-free: drive the separation velocity to zero (no Baumgarte, so
+        // no energy is injected). Positional error is handled geometrically in
+        // solveRopePositions().
+        //
+        // n = direction = unit(B - A). vn = (vB - vA).n is the separation rate
+        // (vn > 0 => the anchors are pulling apart). The tension scalar that
+        // exactly cancels the separation is T = vn * effMass. Tension is
+        // ONE-SIDED: T >= 0 (a rope pulls, never pushes), enforced by clamping
+        // the ACCUMULATED tension >= 0 so warm-starting stays valid. The
+        // tension impulse pulls the anchors together: -T*n on B, +T*n on A.
+        float dT = vn * effMass;
 
-        // Target: stop further separation (vn + bias <= 0)
-        float lambda = effMass * (-(vn + bias));
-
-        // One-sided: rope can only PULL (tension >= 0). Clamp accumulated impulse >= 0.
         const float oldAccum = r.accumulatedImpulse;
-        r.accumulatedImpulse = std::max(0.0f, oldAccum + lambda);
-        lambda = r.accumulatedImpulse - oldAccum;
+        r.accumulatedImpulse = std::max(0.0f, oldAccum + dT);
+        dT = r.accumulatedImpulse - oldAccum;
 
         r.tension = r.accumulatedImpulse;
+        r.warmImpulse = r.accumulatedImpulse; // persist for next pass/step warm start
 
-        // Apply impulse along rope direction (pulls A toward B, pulls B toward A)
-        const glm::vec3 impulse = lambda * r.direction;
+        const glm::vec3 impulse = dT * r.direction; // magnitude dT along n (A -> B)
+        // Pull together: A gains +impulse (toward B), B gains -impulse (toward A).
         if (A && A->inverseMass > 0.0f) {
-            A->velocity += impulse * invMassA;
+            A->velocity        += impulse * invMassA;
             A->angularVelocity += invIA * glm::cross(rA, impulse);
         }
         if (B && B->inverseMass > 0.0f) {
-            B->velocity -= impulse * invMassB;
+            B->velocity        -= impulse * invMassB;
             B->angularVelocity -= invIB * glm::cross(rB, impulse);
+        }
+    }
+}
+
+// Geometric (split-impulse-style) position correction: remove any residual
+// overstretch by moving AND rotating the bodies, iterated Gauss-Seidel. This
+// edits geometry only (never velocity), so it injects no energy -- the same
+// design the hinge position solve uses. One-sided: only corrects when the rope
+// is over its limit.
+void PhysicsSolver::solveRopePositions() {
+    const int   kPosIters = 8;
+    const float beta      = 0.8f; // fraction of the overstretch removed per pass
+
+    auto skew = [](const glm::vec3& v) {
+        return glm::mat3( 0.0f,  v.z, -v.y,
+                         -v.z,  0.0f,  v.x,
+                          v.y, -v.x,  0.0f);
+    };
+
+    for (int iter = 0; iter < kPosIters; ++iter) {
+        for (auto& r : ropes) {
+            RigidBody* A = r.bodyA;
+            RigidBody* B = r.bodyB;
+
+            const float invMassA = (A && A->inverseMass > 0.0f) ? A->inverseMass : 0.0f;
+            const float invMassB = (B && B->inverseMass > 0.0f) ? B->inverseMass : 0.0f;
+            const glm::mat3 invIA = (A && A->inverseMass > 0.0f) ? A->inverseInertiaWorld : glm::mat3(0.0f);
+            const glm::mat3 invIB = (B && B->inverseMass > 0.0f) ? B->inverseInertiaWorld : glm::mat3(0.0f);
+            if (invMassA + invMassB < 1e-10f) continue;
+
+            const glm::vec3 wA = (A && A->inverseMass > 0.0f)
+                ? A->position + A->orientation * r.localAnchorA : r.worldAnchorA;
+            const glm::vec3 wB = (B && B->inverseMass > 0.0f)
+                ? B->position + B->orientation * r.localAnchorB : r.worldAnchorB;
+
+            const glm::vec3 delta = wB - wA;
+            const float dist = glm::length(delta);
+            const float C = dist - r.maxLength; // >0 => overstretched
+            if (C <= 0.0f || dist < 1e-6f) continue; // one-sided: slack does nothing
+
+            const glm::vec3 n = delta / dist;
+            const glm::vec3 rA = wA - (A ? A->position : wA);
+            const glm::vec3 rB = wB - (B ? B->position : wB);
+
+            // Scalar effective mass along n including rotational arms.
+            const glm::vec3 rAxN = glm::cross(rA, n);
+            const glm::vec3 rBxN = glm::cross(rB, n);
+            const float angA = glm::dot(n, glm::cross(invIA * rAxN, rA));
+            const float angB = glm::dot(n, glm::cross(invIB * rBxN, rB));
+            const float effMassInv = invMassA + invMassB + angA + angB;
+            if (effMassInv < 1e-10f) continue;
+
+            // Positive scalar correction magnitude along n; applied to pull the
+            // anchors together (A gets +P toward B, B gets -P toward A), exactly
+            // matching the velocity solve's sign convention.
+            const float mag = beta * C / effMassInv;
+            const glm::vec3 P = mag * n;
+
+            auto applyRot = [](RigidBody* body, const glm::vec3& dTheta) {
+                const glm::quat dq(0.0f, dTheta.x, dTheta.y, dTheta.z);
+                body->orientation = glm::normalize(body->orientation + 0.5f * dq * body->orientation);
+                const glm::mat3 R = glm::mat3_cast(body->orientation);
+                body->inverseInertiaWorld = R * body->inverseInertiaLocal * glm::transpose(R);
+            };
+            if (A && A->inverseMass > 0.0f) {
+                A->position        += P * invMassA;
+                applyRot(A, invIA * glm::cross(rA, P));
+            }
+            if (B && B->inverseMass > 0.0f) {
+                B->position        -= P * invMassB;
+                applyRot(B, -(invIB * glm::cross(rB, P)));
+            }
         }
     }
 }
