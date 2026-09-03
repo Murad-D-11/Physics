@@ -82,5 +82,29 @@
   "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
   "output": "CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/DatasetGenerator.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\app\\dataset_main.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\dataset_main.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/app/dataset_main.cpp",
+  "output": "CMakeFiles/DatasetGenerator.dir/src/app/dataset_main.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/DatasetGenerator.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp",
+  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/PhysicsSolver.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/DatasetGenerator.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\OBB.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp",
+  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/OBB.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/DatasetGenerator.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
+  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/Collision.cpp.obj"
 }
 ]

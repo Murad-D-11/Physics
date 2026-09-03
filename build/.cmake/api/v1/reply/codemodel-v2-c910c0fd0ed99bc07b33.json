@@ -16,7 +16,8 @@
 					"targetIndexes" : 
 					[
 						0,
-						1
+						1,
+						2
 					]
 				}
 			],
@@ -32,12 +33,20 @@
 					"targetIndexes" : 
 					[
 						0,
-						1
+						1,
+						2
 					]
 				}
 			],
 			"targets" : 
 			[
+				{
+					"directoryIndex" : 0,
+					"id" : "DatasetGenerator::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DatasetGenerator-Release-a8e53a99892876e39cf0.json",
+					"name" : "DatasetGenerator",
+					"projectIndex" : 0
+				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Physics::@6890427a1f51a3e7e1df",

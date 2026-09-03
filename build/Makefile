@@ -141,6 +141,43 @@ PhysicsTests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/build
 .PHONY : PhysicsTests/fast
 
+#=============================================================================
+# Target rules for targets named DatasetGenerator
+
+# Build rule for target.
+DatasetGenerator: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 DatasetGenerator
+.PHONY : DatasetGenerator
+
+# fast build rule for target.
+DatasetGenerator/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/build
+.PHONY : DatasetGenerator/fast
+
+src/app/dataset_main.obj: src/app/dataset_main.cpp.obj
+.PHONY : src/app/dataset_main.obj
+
+# target to build an object file
+src/app/dataset_main.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/app/dataset_main.cpp.obj
+.PHONY : src/app/dataset_main.cpp.obj
+
+src/app/dataset_main.i: src/app/dataset_main.cpp.i
+.PHONY : src/app/dataset_main.i
+
+# target to preprocess a source file
+src/app/dataset_main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/app/dataset_main.cpp.i
+.PHONY : src/app/dataset_main.cpp.i
+
+src/app/dataset_main.s: src/app/dataset_main.cpp.s
+.PHONY : src/app/dataset_main.s
+
+# target to generate assembly for a file
+src/app/dataset_main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/app/dataset_main.cpp.s
+.PHONY : src/app/dataset_main.cpp.s
+
 src/app/main.obj: src/app/main.cpp.obj
 .PHONY : src/app/main.obj
 
@@ -196,6 +233,7 @@ src/physics/Collision.obj: src/physics/Collision.cpp.obj
 src/physics/Collision.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/Collision.cpp.obj
 .PHONY : src/physics/Collision.cpp.obj
 
 src/physics/Collision.i: src/physics/Collision.cpp.i
@@ -205,6 +243,7 @@ src/physics/Collision.i: src/physics/Collision.cpp.i
 src/physics/Collision.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/Collision.cpp.i
 .PHONY : src/physics/Collision.cpp.i
 
 src/physics/Collision.s: src/physics/Collision.cpp.s
@@ -214,6 +253,7 @@ src/physics/Collision.s: src/physics/Collision.cpp.s
 src/physics/Collision.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/Collision.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/Collision.cpp.s
 .PHONY : src/physics/Collision.cpp.s
 
 src/physics/OBB.obj: src/physics/OBB.cpp.obj
@@ -223,6 +263,7 @@ src/physics/OBB.obj: src/physics/OBB.cpp.obj
 src/physics/OBB.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/OBB.cpp.obj
 .PHONY : src/physics/OBB.cpp.obj
 
 src/physics/OBB.i: src/physics/OBB.cpp.i
@@ -232,6 +273,7 @@ src/physics/OBB.i: src/physics/OBB.cpp.i
 src/physics/OBB.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/OBB.cpp.i
 .PHONY : src/physics/OBB.cpp.i
 
 src/physics/OBB.s: src/physics/OBB.cpp.s
@@ -241,6 +283,7 @@ src/physics/OBB.s: src/physics/OBB.cpp.s
 src/physics/OBB.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/OBB.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/OBB.cpp.s
 .PHONY : src/physics/OBB.cpp.s
 
 src/physics/PhysicsSolver.obj: src/physics/PhysicsSolver.cpp.obj
@@ -250,6 +293,7 @@ src/physics/PhysicsSolver.obj: src/physics/PhysicsSolver.cpp.obj
 src/physics/PhysicsSolver.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/PhysicsSolver.cpp.obj
 .PHONY : src/physics/PhysicsSolver.cpp.obj
 
 src/physics/PhysicsSolver.i: src/physics/PhysicsSolver.cpp.i
@@ -259,6 +303,7 @@ src/physics/PhysicsSolver.i: src/physics/PhysicsSolver.cpp.i
 src/physics/PhysicsSolver.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/PhysicsSolver.cpp.i
 .PHONY : src/physics/PhysicsSolver.cpp.i
 
 src/physics/PhysicsSolver.s: src/physics/PhysicsSolver.cpp.s
@@ -268,6 +313,7 @@ src/physics/PhysicsSolver.s: src/physics/PhysicsSolver.cpp.s
 src/physics/PhysicsSolver.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Physics.dir\build.make CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/PhysicsSolver.cpp.s
 .PHONY : src/physics/PhysicsSolver.cpp.s
 
 src/renderer/Ground.obj: src/renderer/Ground.cpp.obj
@@ -422,8 +468,12 @@ help:
 	@echo ... depend
 	@echo ... edit_cache
 	@echo ... rebuild_cache
+	@echo ... DatasetGenerator
 	@echo ... Physics
 	@echo ... PhysicsTests
+	@echo ... src/app/dataset_main.obj
+	@echo ... src/app/dataset_main.i
+	@echo ... src/app/dataset_main.s
 	@echo ... src/app/main.obj
 	@echo ... src/app/main.i
 	@echo ... src/app/main.s

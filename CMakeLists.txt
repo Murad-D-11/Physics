@@ -30,3 +30,12 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E
 add_executable(PhysicsTests src/app/physics_tests.cpp src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp)
 target_compile_options(PhysicsTests PRIVATE -O2)
 target_include_directories(PhysicsTests PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+# ---------------------------------------------------------------------------
+# Headless ML dataset generator (no OpenGL). Uses the rendering-independent
+# Environment (src/ml) over the physics solver to emit supervised-learning CSV
+# datasets. Build with:  cmake --build build --target DatasetGenerator
+# ---------------------------------------------------------------------------
+add_executable(DatasetGenerator src/app/dataset_main.cpp src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp)
+target_compile_options(DatasetGenerator PRIVATE -O2)
+target_include_directories(DatasetGenerator PRIVATE ${CMAKE_SOURCE_DIR}/include)
