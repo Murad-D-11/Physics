@@ -130,78 +130,60 @@ public:
 
     void load() override {
         const int planks = 10;
-        const float plankGap = 1.0f;         // horizontal spacing
-        const float y = 5.0f;                // suspension height
+        const float plankGap = 1.0f;         // horizontal spacing (plank centres)
+        const float deckY = 5.0f;            // deck height (world)
+        const float anchorY = 8.0f;          // fixed suspension points, 3 m above deck
         const float span = (planks - 1) * plankGap;
         const float x0 = -span * 0.5f;
-        const glm::vec3 plankScale(0.8f, 0.15f, 1.6f);
+        const glm::vec3 plankScale(0.9f, 0.15f, 1.6f);
+        const float hangerLen = anchorY - deckY; // rope length that holds a plank at deckY
 
-        bodies.reserve(planks + 3);
+        // The deck is ONLY dynamic planks; the "towers" are just fixed world
+        // anchor points in the air (no bodies needed). Each plank is held up by
+        // a vertical hanger rope from a fixed anchor directly above it, and
+        // linked to its neighbours by short deck ropes. Because every plank is
+        // suspended from above, the deck hangs in mid-air and sags under load
+        // instead of collapsing to the floor.
+        bodies.reserve(planks + 1);
 
-        // Two fixed anchor towers (static boxes) at the ends.
-        RigidBody towerL;                     // index 0 (static)
-        towerL.scale = glm::vec3(0.6f, 3.0f, 2.0f);
-        towerL.position = glm::vec3(x0 - plankGap, y - 1.0f, 0.0f);
-        sceneSetCubeMass(towerL, 1.0f);
-        sceneMakeStatic(towerL);
-        towerL.friction = 0.6f;
-        bodies.push_back(towerL);
-
-        RigidBody towerR;                     // index 1 (static)
-        towerR.scale = glm::vec3(0.6f, 3.0f, 2.0f);
-        towerR.position = glm::vec3(x0 + span + plankGap, y - 1.0f, 0.0f);
-        sceneSetCubeMass(towerR, 1.0f);
-        sceneMakeStatic(towerR);
-        towerR.friction = 0.6f;
-        bodies.push_back(towerR);
-
-        // Plank deck (indices 2 .. 2+planks-1).
-        const int firstPlank = 2;
         for (int i = 0; i < planks; ++i) {
             RigidBody plank;
             plank.scale = plankScale;
-            plank.position = glm::vec3(x0 + i * plankGap, y, 0.0f);
+            plank.position = glm::vec3(x0 + i * plankGap, deckY, 0.0f);
             sceneSetCubeMass(plank, 0.5f);
             plank.restitution = 0.05f;
             plank.friction = 0.7f;
-            bodies.push_back(plank);
+            bodies.push_back(plank);           // indices 0 .. planks-1
         }
 
-        // Rope: left tower top -> first plank.
-        const glm::vec3 towerTopL(0.0f, 1.5f, 0.0f); // local top of tower box
-        const glm::vec3 towerTopR(0.0f, 1.5f, 0.0f);
-        {
-            RopeDesc r;
-            r.bodyA = 0; r.localAnchorA = glm::vec3(0.25f, 1.5f, 0.0f);
-            r.bodyB = firstPlank; r.localAnchorB = glm::vec3(-plankScale.x * 0.5f, 0.0f, 0.0f);
-            r.maxLength = plankGap * 1.1f;
-            ropes.push_back(r);
+        // Vertical hanger ropes: a fixed world anchor above each plank holds it
+        // up. maxLength = hangerLen so the plank rests exactly at deckY; extra
+        // load lets the whole deck sag a little (the ropes are one-sided).
+        for (int i = 0; i < planks; ++i) {
+            RopeDesc h;
+            h.bodyA = -1; h.localAnchorA = glm::vec3(x0 + i * plankGap, anchorY, 0.0f);
+            h.bodyB = i;  h.localAnchorB = glm::vec3(0.0f);
+            h.maxLength = hangerLen;
+            ropes.push_back(h);
         }
-        // Plank <-> plank ropes.
+
+        // Deck ropes: link consecutive planks edge-to-edge so the walkway holds
+        // together and transmits sway. maxLength slightly over the gap so the
+        // deck can flex without the ropes fighting the hangers.
         for (int i = 0; i < planks - 1; ++i) {
             RopeDesc r;
-            r.bodyA = firstPlank + i;     r.localAnchorA = glm::vec3(plankScale.x * 0.5f, 0.0f, 0.0f);
-            r.bodyB = firstPlank + i + 1; r.localAnchorB = glm::vec3(-plankScale.x * 0.5f, 0.0f, 0.0f);
-            r.maxLength = plankGap * 1.05f;
-            ropes.push_back(r);
-        }
-        // Rope: last plank -> right tower top.
-        {
-            RopeDesc r;
-            r.bodyA = firstPlank + planks - 1; r.localAnchorA = glm::vec3(plankScale.x * 0.5f, 0.0f, 0.0f);
-            r.bodyB = 1; r.localAnchorB = glm::vec3(-0.25f, 1.5f, 0.0f);
-            r.maxLength = plankGap * 1.1f;
+            r.bodyA = i;     r.localAnchorA = glm::vec3(plankScale.x * 0.5f, 0.0f, 0.0f);
+            r.bodyB = i + 1; r.localAnchorB = glm::vec3(-plankScale.x * 0.5f, 0.0f, 0.0f);
+            r.maxLength = plankGap * 1.02f;
             ropes.push_back(r);
         }
 
-        // A ball dropped onto the middle of the deck to make it swing.
+        // A ball dropped onto the middle of the deck so it visibly sags + sways.
         RigidBody ball;
-        ball.position = glm::vec3(x0 + span * 0.5f, y + 4.0f, 0.0f);
-        sceneSetSphereMass(ball, 2.0f, 0.5f);
+        ball.position = glm::vec3(0.0f, deckY + 4.0f, 0.0f);
+        sceneSetSphereMass(ball, 1.0f, 0.4f);
         ball.restitution = 0.2f; ball.friction = 0.5f;
-        bodies.push_back(ball);
-
-        (void)towerTopL; (void)towerTopR;
+        bodies.push_back(ball);                 // index planks
     }
 };
 
@@ -376,33 +358,47 @@ public:
 
     void load() override {
         const int balls = static_cast<int>(param("balls", 5.0f));
-        const int pull  = static_cast<int>(param("pullBack", 2.0f));
+        const int pull  = static_cast<int>(param("pullBack", 1.0f));
         const float r = 0.5f;
-        const float y = 6.0f;             // anchor height
-        const float len = 3.0f;           // pendulum length
-        const float spacing = 2.0f * r;   // touching at rest
+        const float y = 6.0f;             // anchor height (world)
+        const float len = 3.0f;           // pendulum (rope) length
+
+        // Anchors sit one ball-diameter apart so the balls touch at rest. A
+        // hair of clearance (1 mm) between neighbours keeps them from being
+        // born inter-penetrating, which would make the contact solver treat the
+        // whole row as one pre-loaded island instead of transmitting a clean
+        // impulse on impact.
+        const float anchorSpacing = 2.0f * r + 0.001f;
 
         bodies.reserve(balls);
-        const float x0 = -(balls - 1) * spacing * 0.5f;
+        const float x0 = -(balls - 1) * anchorSpacing * 0.5f;
+
+        // Anchor x for ball i (rope hangs straight down to the ball at rest).
+        auto anchorX = [&](int i) { return x0 + i * anchorSpacing; };
+
         for (int i = 0; i < balls; ++i) {
             RigidBody ball;
-            const float restX = x0 + i * spacing;
-            ball.position = glm::vec3(restX, y - len, 0.0f);
+            ball.position = glm::vec3(anchorX(i), y - len, 0.0f); // directly below its anchor
             sceneSetSphereMass(ball, 1.0f, r);
-            ball.restitution = 0.98f;  // near-elastic so the click transmits
-            ball.friction = 0.0f;
+            ball.restitution = 1.0f;  // ideal elastic click -> momentum passes through
+            ball.friction = 0.0f;     // frictionless so no spin steals energy
             bodies.push_back(ball);
         }
-        // Raise the leftmost `pull` balls to a starting angle.
+
+        // Raise the leftmost `pull` balls along their pendulum arc (swing about
+        // their OWN anchor), so on release they descend and strike the line.
+        const float angle = glm::radians(55.0f);
         for (int i = 0; i < pull && i < balls; ++i) {
-            const float angle = glm::radians(50.0f);
-            const float ax = x0 + i * spacing;
-            bodies[i].position = glm::vec3(ax - len * std::sin(angle), y - len * std::cos(angle), 0.0f);
+            bodies[i].position = glm::vec3(anchorX(i) - len * std::sin(angle),
+                                           y - len * std::cos(angle), 0.0f);
         }
-        // Rope from anchor (world) straight down to each ball.
+
+        // One rope per ball: fixed world anchor straight down to the ball. The
+        // rope length equals the rest distance, so a hanging ball is exactly
+        // taut and swings as a rigid pendulum.
         for (int i = 0; i < balls; ++i) {
             RopeDesc rope;
-            rope.bodyA = -1; rope.localAnchorA = glm::vec3(x0 + i * spacing, y, 0.0f);
+            rope.bodyA = -1; rope.localAnchorA = glm::vec3(anchorX(i), y, 0.0f);
             rope.bodyB = i;  rope.localAnchorB = glm::vec3(0.0f);
             rope.maxLength = len;
             ropes.push_back(rope);
@@ -430,23 +426,30 @@ public:
     void load() override {
         const float angle = glm::radians(param("angleDeg", 25.0f));
         const float mu = param("friction", 0.30f);
+        const float half = 0.5f;              // block half-extent (unit cube)
 
-        // Static ramp plane, tilted about the Z axis.
+        // Static ramp, tilted by `angle` about the Z axis. The surface normal
+        // is (sin, cos, 0): it tilts so the +x side is uphill.
         PhysicsSolver::StaticPlane ramp;
-        ramp.point = glm::vec3(0.0f, 1.0f, 0.0f);
+        ramp.point  = glm::vec3(0.0f, 1.0f, 0.0f);
         ramp.normal = glm::normalize(glm::vec3(std::sin(angle), std::cos(angle), 0.0f));
         ramp.friction = mu;
         ramp.restitution = 0.1f;
         ramp.halfExtent = glm::vec2(6.0f, 4.0f);
         planes.push_back(ramp);
 
-        // Block resting on the ramp surface, nudged up-slope a bit.
+        // Directions IN the slope plane (unit): up-slope points uphill along the
+        // surface, perpendicular to the normal in the x-y plane.
+        const glm::vec3 upSlope = glm::normalize(glm::vec3(-std::cos(angle), std::sin(angle), 0.0f));
+
+        // Place the block so its FACE sits flush on the ramp: centre = a point
+        // on the surface + half-extent along the normal. Start it up-slope so
+        // there is room to slide down. A tiny extra clearance (1 mm) along the
+        // normal avoids being born interpenetrating (which would explode).
         RigidBody block;
         block.scale = glm::vec3(1.0f);
-        // Place it slightly above the ramp point along the normal.
-        block.position = ramp.point + ramp.normal * 0.55f + glm::vec3(-std::cos(angle), 0.0f, 0.0f) * 2.0f;
-        // Orient the block to lie flat on the slope.
-        block.orientation = glm::angleAxis(-angle, glm::vec3(0.0f, 0.0f, 1.0f));
+        block.orientation = glm::angleAxis(-angle, glm::vec3(0.0f, 0.0f, 1.0f)); // lie flat on slope
+        block.position = ramp.point + upSlope * 2.5f + ramp.normal * (half + 0.001f);
         sceneSetCubeMass(block, 1.0f);
         block.friction = mu;
         block.restitution = 0.1f;
@@ -470,24 +473,48 @@ public:
 
     void load() override {
         const int planks = static_cast<int>(param("planks", 12.0f));
-        const float gap = 1.0f;
-        const float deckY = 4.0f;
+        const float gap = 1.0f;                 // deck plank spacing
+        const float deckY = 4.0f;               // deck height
         const float span = (planks - 1) * gap;
         const float x0 = -span * 0.5f;
-        const glm::vec3 plankScale(0.8f, 0.15f, 2.0f);
+        const glm::vec3 plankScale(0.9f, 0.15f, 2.0f);
 
-        bodies.reserve(planks + 2 + (planks + 1));
+        // Suspension geometry: a MAIN CABLE (chain of light nodes) is strung in
+        // a shallow arc between the two tower tops. Each deck plank hangs from
+        // the cable node directly above it by a short VERTICAL hanger. This is
+        // the real load path -- deck weight -> hangers -> cable -> towers --
+        // instead of roping a static tower straight to a far plank (which was
+        // massively overstretched and blew up).
+        const float towerTopY = deckY + 4.0f;   // cable ends sit up on the towers
+        const float cableSagY  = deckY + 1.5f;  // lowest cable node (mid-span)
 
-        // Towers (static) at each end, taller than the deck.
-        RigidBody towerL; towerL.scale = glm::vec3(0.6f, 6.0f, 2.5f);
-        towerL.position = glm::vec3(x0 - gap, deckY + 1.0f, 0.0f);
+        // Layout: [0]=towerL(static) [1]=towerR(static)
+        //         [2 .. 2+planks-1]   = cable nodes (one above each plank)
+        //         [next .. +planks-1] = deck planks
+        bodies.reserve(2 + planks + planks);
+
+        RigidBody towerL; towerL.scale = glm::vec3(0.6f, 8.0f, 2.5f);
+        towerL.position = glm::vec3(x0 - gap, deckY + 2.0f, 0.0f); // top ~ deckY+6
         sceneSetCubeMass(towerL, 1.0f); sceneMakeStatic(towerL); towerL.friction = 0.7f;
-        bodies.push_back(towerL);                              // index 0
+        bodies.push_back(towerL);                                   // index 0
         RigidBody towerR = towerL;
-        towerR.position = glm::vec3(x0 + span + gap, deckY + 1.0f, 0.0f);
-        bodies.push_back(towerR);                              // index 1
+        towerR.position = glm::vec3(x0 + span + gap, deckY + 2.0f, 0.0f);
+        bodies.push_back(towerR);                                   // index 1
 
-        const int firstPlank = 2;
+        // Main-cable nodes: a shallow parabola from tower top down to mid-span
+        // sag and back up. Light nodes so the deck load shapes the cable.
+        const int firstNode = 2;
+        for (int i = 0; i < planks; ++i) {
+            const float t = (planks > 1) ? float(i) / (planks - 1) : 0.0f; // 0..1
+            const float parab = 4.0f * (t - 0.5f) * (t - 0.5f);            // 1 at ends, 0 mid
+            const float ny = cableSagY + (towerTopY - cableSagY) * parab;
+            RigidBody node;
+            node.position = glm::vec3(x0 + i * gap, ny, 0.0f);
+            sceneSetSphereMass(node, 0.15f, 0.06f);
+            node.restitution = 0.0f; node.friction = 0.3f;
+            bodies.push_back(node);
+        }
+        const int firstPlank = firstNode + planks;
         for (int i = 0; i < planks; ++i) {
             RigidBody plank; plank.scale = plankScale;
             plank.position = glm::vec3(x0 + i * gap, deckY, 0.0f);
@@ -496,29 +523,43 @@ public:
             bodies.push_back(plank);
         }
 
-        // Plank-to-plank deck ropes.
-        for (int i = 0; i < planks - 1; ++i) {
-            RopeDesc r; r.bodyA = firstPlank + i;     r.localAnchorA = glm::vec3(plankScale.x * 0.5f, 0, 0);
-            r.bodyB = firstPlank + i + 1; r.localAnchorB = glm::vec3(-plankScale.x * 0.5f, 0, 0);
-            r.maxLength = gap * 1.05f; ropes.push_back(r);
+        // Anchor the cable ends to the tower tops (short ropes).
+        {
+            RopeDesc e; e.bodyA = 0; e.localAnchorA = glm::vec3(0.0f, 4.0f, 0.0f);
+            e.bodyB = firstNode; e.localAnchorB = glm::vec3(0.0f);
+            e.maxLength = glm::length(bodies[firstNode].position - (towerL.position + glm::vec3(0, 4, 0))) + 0.05f;
+            ropes.push_back(e);
         }
-        // Tower-to-end-plank ropes (the main cable ends).
-        RopeDesc lc; lc.bodyA = 0; lc.localAnchorA = glm::vec3(0, 3.0f, 0);
-        lc.bodyB = firstPlank; lc.localAnchorB = glm::vec3(0, 0, 0); lc.maxLength = gap * 1.5f;
-        ropes.push_back(lc);
-        RopeDesc rc; rc.bodyA = 1; rc.localAnchorA = glm::vec3(0, 3.0f, 0);
-        rc.bodyB = firstPlank + planks - 1; rc.localAnchorB = glm::vec3(0, 0, 0); rc.maxLength = gap * 1.5f;
-        ropes.push_back(rc);
-
-        // Vertical hanger ropes from the tower tops down to interior planks
-        // (approximate suspension geometry with a shallow catenary of hangers).
-        for (int i = 1; i < planks - 1; ++i) {
+        {
+            RopeDesc e; e.bodyA = 1; e.localAnchorA = glm::vec3(0.0f, 4.0f, 0.0f);
+            e.bodyB = firstNode + planks - 1; e.localAnchorB = glm::vec3(0.0f);
+            e.maxLength = glm::length(bodies[firstNode + planks - 1].position - (towerR.position + glm::vec3(0, 4, 0))) + 0.05f;
+            ropes.push_back(e);
+        }
+        // Cable segments node<->node (the main cable). maxLength = the initial
+        // node spacing so the cable is inextensible but flexible.
+        for (int i = 0; i < planks - 1; ++i) {
+            RopeDesc c;
+            c.bodyA = firstNode + i; c.bodyB = firstNode + i + 1;
+            c.localAnchorA = glm::vec3(0.0f); c.localAnchorB = glm::vec3(0.0f);
+            c.maxLength = glm::length(bodies[firstNode + i + 1].position - bodies[firstNode + i].position) + 0.02f;
+            ropes.push_back(c);
+        }
+        // Vertical hangers: each cable node -> the plank directly below it.
+        for (int i = 0; i < planks; ++i) {
             RopeDesc h;
-            const int tower = (i < planks / 2) ? 0 : 1;
-            h.bodyA = tower; h.localAnchorA = glm::vec3(0, 3.0f, 0);
-            h.bodyB = firstPlank + i; h.localAnchorB = glm::vec3(0, 0, 0);
-            h.maxLength = 4.0f + std::abs(i - (planks - 1) * 0.5f) * 0.3f;
+            h.bodyA = firstNode + i; h.bodyB = firstPlank + i;
+            h.localAnchorA = glm::vec3(0.0f); h.localAnchorB = glm::vec3(0.0f);
+            h.maxLength = bodies[firstNode + i].position.y - deckY; // vertical drop
             ropes.push_back(h);
+        }
+        // Deck ropes: link planks edge-to-edge into a walkway.
+        for (int i = 0; i < planks - 1; ++i) {
+            RopeDesc r;
+            r.bodyA = firstPlank + i;     r.localAnchorA = glm::vec3(plankScale.x * 0.5f, 0, 0);
+            r.bodyB = firstPlank + i + 1; r.localAnchorB = glm::vec3(-plankScale.x * 0.5f, 0, 0);
+            r.maxLength = gap * 1.02f;
+            ropes.push_back(r);
         }
     }
 };

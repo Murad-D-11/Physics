@@ -1,5 +1,5 @@
-CMakeFiles/Physics.dir/src/physics/collision.cpp.obj: \
- C:\Coding\ Projects\GitHub\Physics\src\physics\collision.cpp \
+CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj: \
+ C:\Coding\ Projects\GitHub\Physics\src\physics\Collision.cpp \
  C:\Coding\ Projects\GitHub\Physics\src\physics\collision.h \
  C:\Coding\ Projects\GitHub\Physics\src\physics\obb.h \
  C:/CODING~1/GitHub/Physics/include/glm/glm.hpp \

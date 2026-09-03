@@ -429,10 +429,16 @@ void PhysicsSolver::buildBroadphasePairs(const std::vector<RigidBody>& bodies,
     grid.reserve(bodies.size() * 2);
 
     for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
-        // Skip bodies at extreme positions (fallen off the world due to
-        // unsupported constraints). Prevents spatial-hash overflow/crash.
-        if (std::abs(aabbMin[i].x) > 1000.0f || std::abs(aabbMin[i].y) > 1000.0f || std::abs(aabbMin[i].z) > 1000.0f ||
-            std::abs(aabbMax[i].x) > 1000.0f || std::abs(aabbMax[i].y) > 1000.0f || std::abs(aabbMax[i].z) > 1000.0f) {
+        // Skip bodies at extreme OR non-finite positions. A NaN/Inf AABB (from
+        // an upstream divergence) must never reach the cell math: NaN compares
+        // false against any bound, so it would slip past a plain >1000 test,
+        // then std::floor(NaN)->NaN->int cast produces garbage loop bounds and
+        // the triple cell loop can spin over a colossal range (an effective
+        // hang). Guarding finiteness here keeps the broadphase robust; the
+        // divergence itself is a separate bug to fix, not masked by this.
+        auto bad = [](float v) { return !std::isfinite(v) || std::abs(v) > 1000.0f; };
+        if (bad(aabbMin[i].x) || bad(aabbMin[i].y) || bad(aabbMin[i].z) ||
+            bad(aabbMax[i].x) || bad(aabbMax[i].y) || bad(aabbMax[i].z)) {
             continue;
         }
         const int minx = static_cast<int>(std::floor(aabbMin[i].x * inv));

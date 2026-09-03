@@ -1,5 +1,5 @@
-CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj: \
- C:\Coding\ Projects\GitHub\Physics\src\renderer\camera.cpp \
+CMakeFiles/Physics.dir/src/renderer/Camera.cpp.obj: \
+ C:\Coding\ Projects\GitHub\Physics\src\renderer\Camera.cpp \
  C:\Coding\ Projects\GitHub\Physics\src\renderer\camera.h \
  C:/CODING~1/GitHub/Physics/include/glm/glm.hpp \
  C:/CODING~1/GitHub/Physics/include/glm/detail/_fixes.hpp \

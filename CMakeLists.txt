@@ -39,3 +39,13 @@ target_include_directories(PhysicsTests PRIVATE ${CMAKE_SOURCE_DIR}/include)
 add_executable(DatasetGenerator src/app/dataset_main.cpp src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp)
 target_compile_options(DatasetGenerator PRIVATE -O2)
 target_include_directories(DatasetGenerator PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+# ---------------------------------------------------------------------------
+# Headless scene validation harness (no OpenGL). Loads every registered Scene
+# through the real SceneManager + solver and checks physical invariants
+# (finite, no explosion, deck-stays-suspended, etc.). Reproduces scene crashes
+# deterministically. Build with:  cmake --build build --target SceneTests
+# ---------------------------------------------------------------------------
+add_executable(SceneTests src/app/scene_tests.cpp src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp)
+target_compile_options(SceneTests PRIVATE -O2)
+target_include_directories(SceneTests PRIVATE ${CMAKE_SOURCE_DIR}/include)

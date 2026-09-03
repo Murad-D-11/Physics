@@ -1,5 +1,5 @@
-CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj: \
- C:\Coding\ Projects\GitHub\Physics\src\renderer\sphere.cpp \
+CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj: \
+ C:\Coding\ Projects\GitHub\Physics\src\renderer\Sphere.cpp \
  C:\Coding\ Projects\GitHub\Physics\src\renderer\sphere.h \
  C:/CODING~1/GitHub/Physics/include/glad/glad.h \
  C:/CODING~1/GitHub/Physics/include/KHR/khrplatform.h \

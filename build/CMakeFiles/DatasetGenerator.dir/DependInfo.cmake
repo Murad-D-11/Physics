@@ -9,9 +9,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Coding Projects/GitHub/Physics/src/app/dataset_main.cpp" "CMakeFiles/DatasetGenerator.dir/src/app/dataset_main.cpp.obj" "gcc" "CMakeFiles/DatasetGenerator.dir/src/app/dataset_main.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/collision.cpp" "CMakeFiles/DatasetGenerator.dir/src/physics/collision.cpp.obj" "gcc" "CMakeFiles/DatasetGenerator.dir/src/physics/collision.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/obb.cpp" "CMakeFiles/DatasetGenerator.dir/src/physics/obb.cpp.obj" "gcc" "CMakeFiles/DatasetGenerator.dir/src/physics/obb.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.cpp" "CMakeFiles/DatasetGenerator.dir/src/physics/physicssolver.cpp.obj" "gcc" "CMakeFiles/DatasetGenerator.dir/src/physics/physicssolver.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp" "CMakeFiles/DatasetGenerator.dir/src/physics/collision.cpp.obj" "gcc" "CMakeFiles/DatasetGenerator.dir/src/physics/collision.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp" "CMakeFiles/DatasetGenerator.dir/src/physics/obb.cpp.obj" "gcc" "CMakeFiles/DatasetGenerator.dir/src/physics/obb.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp" "CMakeFiles/DatasetGenerator.dir/src/physics/physicssolver.cpp.obj" "gcc" "CMakeFiles/DatasetGenerator.dir/src/physics/physicssolver.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
