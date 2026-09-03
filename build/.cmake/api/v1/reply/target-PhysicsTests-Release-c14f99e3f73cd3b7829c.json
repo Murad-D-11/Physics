@@ -46,6 +46,11 @@
 			}
 		]
 	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 11
+	},
 	"compileGroups" : 
 	[
 		{
@@ -94,10 +99,6 @@
 				"role" : "flags"
 			},
 			{
-				"fragment" : "",
-				"role" : "flags"
-			},
-			{
 				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
 				"role" : "libraries"
 			}
@@ -128,26 +129,42 @@
 	[
 		{
 			"backtrace" : 1,
+			"backtraces" : 
+			[
+				1
+			],
 			"compileGroupIndex" : 0,
 			"path" : "src/app/physics_tests.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
+			"backtraces" : 
+			[
+				1
+			],
 			"compileGroupIndex" : 0,
-			"path" : "src/physics/PhysicsSolver.cpp",
+			"path" : "src/physics/physicssolver.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
+			"backtraces" : 
+			[
+				1
+			],
 			"compileGroupIndex" : 0,
-			"path" : "src/physics/OBB.cpp",
+			"path" : "src/physics/obb.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
+			"backtraces" : 
+			[
+				1
+			],
 			"compileGroupIndex" : 0,
-			"path" : "src/physics/Collision.cpp",
+			"path" : "src/physics/collision.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

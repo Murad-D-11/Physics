@@ -10,14 +10,14 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Coding Projects/GitHub/Physics/src/renderer/glad.c" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/glad.c.obj.d"
   "C:/Coding Projects/GitHub/Physics/src/app/main.cpp" "CMakeFiles/Physics.dir/src/app/main.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/app/main.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp" "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp" "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp" "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/renderer/Ground.cpp" "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/renderer/Render.cpp" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/renderer/Sphere.cpp" "CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/collision.cpp" "CMakeFiles/Physics.dir/src/physics/collision.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/collision.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/obb.cpp" "CMakeFiles/Physics.dir/src/physics/obb.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/obb.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.cpp" "CMakeFiles/Physics.dir/src/physics/physicssolver.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/physics/physicssolver.cpp.obj.d"
   "C:/Coding Projects/GitHub/Physics/src/renderer/camera.cpp" "CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj.d"
   "C:/Coding Projects/GitHub/Physics/src/renderer/cube.cpp" "CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/ground.cpp" "CMakeFiles/Physics.dir/src/renderer/ground.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/ground.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/render.cpp" "CMakeFiles/Physics.dir/src/renderer/render.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/render.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/renderer/sphere.cpp" "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
