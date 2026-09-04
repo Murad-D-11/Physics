@@ -10,7 +10,22 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-add_executable(${PROJECT_NAME} src/app/main.cpp src/renderer/camera.cpp src/renderer/cube.cpp src/renderer/sphere.cpp src/renderer/render.cpp src/renderer/glad.c src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp src/renderer/ground.cpp)
+# Dear ImGui (vendored) — clickable scene selector, param sliders, and the
+# fading scene-title overlay. Only the GUI app links this; the headless test
+# targets do not. Uses the GLFW + OpenGL3 backends against the existing
+# OpenGL 3.3 core context (imgui_impl_opengl3 loads GL itself, so it coexists
+# with glad without conflict).
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/vendor/imgui)
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp)
+
+add_executable(${PROJECT_NAME} src/app/main.cpp src/renderer/camera.cpp src/renderer/cube.cpp src/renderer/sphere.cpp src/renderer/render.cpp src/renderer/glad.c src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp src/renderer/ground.cpp ${IMGUI_SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_DIR} ${IMGUI_DIR}/backends)
 
 # Always optimize this target. GLM + std containers run ~20x slower at -O0, and
 # editor/CMake tooling tends to reconfigure to a Debug (-O0) build, which

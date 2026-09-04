@@ -61,6 +61,42 @@
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\imgui.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\imgui.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\imgui_draw.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\imgui_draw.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_draw.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\imgui_tables.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\imgui_tables.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_tables.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\imgui_widgets.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\imgui_widgets.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_widgets.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\backends\\imgui_impl_glfw.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\backends\\imgui_impl_glfw.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/backends/imgui_impl_glfw.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\backends\\imgui_impl_opengl3.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\backends\\imgui_impl_opengl3.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/backends/imgui_impl_opengl3.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
   "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\PhysicsTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\app\\physics_tests.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\physics_tests.cpp\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/app/physics_tests.cpp",
   "output": "CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj"

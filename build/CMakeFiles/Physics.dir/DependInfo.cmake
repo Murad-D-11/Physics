@@ -18,6 +18,12 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Coding Projects/GitHub/Physics/src/renderer/ground.cpp" "CMakeFiles/Physics.dir/src/renderer/ground.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/ground.cpp.obj.d"
   "C:/Coding Projects/GitHub/Physics/src/renderer/render.cpp" "CMakeFiles/Physics.dir/src/renderer/render.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/render.cpp.obj.d"
   "C:/Coding Projects/GitHub/Physics/src/renderer/sphere.cpp" "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj" "gcc" "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/vendor/imgui/backends/imgui_impl_glfw.cpp" "CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj" "gcc" "CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/vendor/imgui/backends/imgui_impl_opengl3.cpp" "CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj" "gcc" "CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui.cpp" "CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj" "gcc" "CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_draw.cpp" "CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj" "gcc" "CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_tables.cpp" "CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj" "gcc" "CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_widgets.cpp" "CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj" "gcc" "CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -50,6 +50,70 @@ inline void sceneMakeStatic(RigidBody& body) {
 }
 
 // ---------------------------------------------------------------------------
+// Reusable APPARATUS builders. Every mechanical scene is assembled from real
+// physical parts (frames, posts, rails, guide walls, ramps) rather than
+// invisible anchors, so the geometry itself constrains the intended motion.
+// Each helper appends a static RigidBody to `bodies` and returns its index.
+// (Static bodies are rendered, so the apparatus is visible.)
+// ---------------------------------------------------------------------------
+
+// A static box part (beam / post / rail / wall / base). `fullExtents` is the
+// full size in metres; `orientation` lets it be tilted (e.g. an A-frame leg or
+// a ramp). Returns the new body index.
+inline int sceneAddStaticBox(std::vector<RigidBody>& bodies,
+                             const glm::vec3& center,
+                             const glm::vec3& fullExtents,
+                             const glm::quat& orientation = glm::quat(1, 0, 0, 0),
+                             float friction = 0.7f) {
+    RigidBody b;
+    b.scale = fullExtents;
+    b.position = center;
+    b.orientation = orientation;
+    sceneSetCubeMass(b, 1.0f);   // mass is irrelevant once static
+    sceneMakeStatic(b);
+    b.friction = friction;
+    b.restitution = 0.0f;
+    bodies.push_back(b);
+    return static_cast<int>(bodies.size()) - 1;
+}
+
+// A pair of static walls forming a VERTICAL GUIDE SHAFT centred on x=`cx`,
+// z=0, running from y=`yBottom` to y=`yTop`. A body of half-width `slot` in X
+// dropped between them can only move vertically (the walls physically stop
+// lateral drift). `gap` is the clear channel width. Appends two walls.
+inline void sceneAddGuideShaft(std::vector<RigidBody>& bodies,
+                               float cx, float yBottom, float yTop,
+                               float gap, float depth = 1.2f,
+                               float wallThickness = 0.15f,
+                               float friction = 0.05f) {
+    const float h = yTop - yBottom;
+    const float cy = 0.5f * (yBottom + yTop);
+    const float half = gap * 0.5f + wallThickness * 0.5f;
+    sceneAddStaticBox(bodies, glm::vec3(cx - half, cy, 0.0f),
+                      glm::vec3(wallThickness, h, depth), glm::quat(1,0,0,0), friction);
+    sceneAddStaticBox(bodies, glm::vec3(cx + half, cy, 0.0f),
+                      glm::vec3(wallThickness, h, depth), glm::quat(1,0,0,0), friction);
+}
+
+// A static angled ramp slab whose TOP surface passes through `surfacePoint`
+// with unit up-normal `normal`, extent `alongLen` down-slope and `width`
+// across, and thickness `thick`. Returns the body index. The matching
+// collision StaticPlane should use the same point/normal so the visible slab
+// and the contact surface coincide.
+inline int sceneAddRampSlab(std::vector<RigidBody>& bodies,
+                            const glm::vec3& surfacePoint,
+                            const glm::vec3& normal,
+                            float alongLen, float width, float thick,
+                            const glm::quat& orientation,
+                            float friction = 0.5f) {
+    const glm::vec3 n = glm::normalize(normal);
+    // Slab centre sits half a thickness BELOW the surface along the normal.
+    const glm::vec3 center = surfacePoint - n * (thick * 0.5f);
+    return sceneAddStaticBox(bodies, center, glm::vec3(alongLen, thick, width),
+                             orientation, friction);
+}
+
+// ---------------------------------------------------------------------------
 // Index-based constraint descriptions (pointer-safe, copyable). Body indices
 // refer to positions in Scene::bodies; -1 means a fixed world anchor.
 // ---------------------------------------------------------------------------
@@ -68,6 +132,16 @@ struct HingeDesc {
     glm::vec3 localAnchorB = glm::vec3(0.0f);
     glm::vec3 localAxisA   = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 localAxisB   = glm::vec3(0.0f, 0.0f, 1.0f);
+    // Optional revolute limits (radians). If min >= max (default), the hinge is
+    // free to spin. Used to build axles that only swing through a range: a
+    // cantilever segment that can droop but not fold back, a trebuchet arm, a
+    // Rube-Goldberg gate/pin. Maps straight onto HingeConstraint.
+    float angleLimitMin = 0.0f;
+    float angleLimitMax = 0.0f;         // min >= max => no limit (free spin)
+    // Optional motor: if maxMotorTorque > 0 the hinge drives toward
+    // targetAngularVelocity about its axis (e.g. a powered gate).
+    float targetAngularVelocity = 0.0f;
+    float maxMotorTorque        = 0.0f; // 0 => motor disabled
 };
 
 struct RopeDesc {

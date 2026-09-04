@@ -221,6 +221,96 @@ CMakeFiles/Physics.dir/src/renderer/ground.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/src/renderer/ground.cpp.s"
 	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Coding Projects\GitHub\Physics\src\renderer\ground.cpp" -o CMakeFiles\Physics.dir\src\renderer\ground.cpp.s
 
+CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj: C:/Coding\ Projects/GitHub/Physics/vendor/imgui/imgui.cpp
+CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj -MF CMakeFiles\Physics.dir\vendor\imgui\imgui.cpp.obj.d -o CMakeFiles\Physics.dir\vendor\imgui\imgui.cpp.obj -c "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui.cpp"
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.i"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui.cpp" > CMakeFiles\Physics.dir\vendor\imgui\imgui.cpp.i
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.s"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui.cpp" -o CMakeFiles\Physics.dir\vendor\imgui\imgui.cpp.s
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj: C:/Coding\ Projects/GitHub/Physics/vendor/imgui/imgui_draw.cpp
+CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj -MF CMakeFiles\Physics.dir\vendor\imgui\imgui_draw.cpp.obj.d -o CMakeFiles\Physics.dir\vendor\imgui\imgui_draw.cpp.obj -c "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_draw.cpp"
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.i"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_draw.cpp" > CMakeFiles\Physics.dir\vendor\imgui\imgui_draw.cpp.i
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.s"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_draw.cpp" -o CMakeFiles\Physics.dir\vendor\imgui\imgui_draw.cpp.s
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj: C:/Coding\ Projects/GitHub/Physics/vendor/imgui/imgui_tables.cpp
+CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj -MF CMakeFiles\Physics.dir\vendor\imgui\imgui_tables.cpp.obj.d -o CMakeFiles\Physics.dir\vendor\imgui\imgui_tables.cpp.obj -c "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_tables.cpp"
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.i"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_tables.cpp" > CMakeFiles\Physics.dir\vendor\imgui\imgui_tables.cpp.i
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.s"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_tables.cpp" -o CMakeFiles\Physics.dir\vendor\imgui\imgui_tables.cpp.s
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj: C:/Coding\ Projects/GitHub/Physics/vendor/imgui/imgui_widgets.cpp
+CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj -MF CMakeFiles\Physics.dir\vendor\imgui\imgui_widgets.cpp.obj.d -o CMakeFiles\Physics.dir\vendor\imgui\imgui_widgets.cpp.obj -c "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_widgets.cpp"
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.i"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_widgets.cpp" > CMakeFiles\Physics.dir\vendor\imgui\imgui_widgets.cpp.i
+
+CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.s"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Coding Projects\GitHub\Physics\vendor\imgui\imgui_widgets.cpp" -o CMakeFiles\Physics.dir\vendor\imgui\imgui_widgets.cpp.s
+
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj: C:/Coding\ Projects/GitHub/Physics/vendor/imgui/backends/imgui_impl_glfw.cpp
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj -MF CMakeFiles\Physics.dir\vendor\imgui\backends\imgui_impl_glfw.cpp.obj.d -o CMakeFiles\Physics.dir\vendor\imgui\backends\imgui_impl_glfw.cpp.obj -c "C:\Coding Projects\GitHub\Physics\vendor\imgui\backends\imgui_impl_glfw.cpp"
+
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.i"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Coding Projects\GitHub\Physics\vendor\imgui\backends\imgui_impl_glfw.cpp" > CMakeFiles\Physics.dir\vendor\imgui\backends\imgui_impl_glfw.cpp.i
+
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.s"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Coding Projects\GitHub\Physics\vendor\imgui\backends\imgui_impl_glfw.cpp" -o CMakeFiles\Physics.dir\vendor\imgui\backends\imgui_impl_glfw.cpp.s
+
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj: CMakeFiles/Physics.dir/flags.make
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj: CMakeFiles/Physics.dir/includes_CXX.rsp
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj: C:/Coding\ Projects/GitHub/Physics/vendor/imgui/backends/imgui_impl_opengl3.cpp
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj: CMakeFiles/Physics.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj -MF CMakeFiles\Physics.dir\vendor\imgui\backends\imgui_impl_opengl3.cpp.obj.d -o CMakeFiles\Physics.dir\vendor\imgui\backends\imgui_impl_opengl3.cpp.obj -c "C:\Coding Projects\GitHub\Physics\vendor\imgui\backends\imgui_impl_opengl3.cpp"
+
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.i"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "C:\Coding Projects\GitHub\Physics\vendor\imgui\backends\imgui_impl_opengl3.cpp" > CMakeFiles\Physics.dir\vendor\imgui\backends\imgui_impl_opengl3.cpp.i
+
+CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.s"
+	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "C:\Coding Projects\GitHub\Physics\vendor\imgui\backends\imgui_impl_opengl3.cpp" -o CMakeFiles\Physics.dir\vendor\imgui\backends\imgui_impl_opengl3.cpp.s
+
 # Object files for target Physics
 Physics_OBJECTS = \
 "CMakeFiles/Physics.dir/src/app/main.cpp.obj" \
@@ -232,7 +322,13 @@ Physics_OBJECTS = \
 "CMakeFiles/Physics.dir/src/physics/physicssolver.cpp.obj" \
 "CMakeFiles/Physics.dir/src/physics/obb.cpp.obj" \
 "CMakeFiles/Physics.dir/src/physics/collision.cpp.obj" \
-"CMakeFiles/Physics.dir/src/renderer/ground.cpp.obj"
+"CMakeFiles/Physics.dir/src/renderer/ground.cpp.obj" \
+"CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj" \
+"CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj" \
+"CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj" \
+"CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj" \
+"CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj" \
+"CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj"
 
 # External object files for target Physics
 Physics_EXTERNAL_OBJECTS =
@@ -247,11 +343,17 @@ Physics.exe: CMakeFiles/Physics.dir/src/physics/physicssolver.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/physics/obb.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/physics/collision.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/src/renderer/ground.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj
+Physics.exe: CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj
 Physics.exe: CMakeFiles/Physics.dir/build.make
 Physics.exe: CMakeFiles/Physics.dir/linkLibs.rsp
 Physics.exe: CMakeFiles/Physics.dir/objects1.rsp
 Physics.exe: CMakeFiles/Physics.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable Physics.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX executable Physics.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\Physics.dir\link.txt --verbose=$(VERBOSE)
 	"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:/Coding Projects/GitHub/Physics/glfw3.dll" "C:/Coding Projects/GitHub/Physics/build"
 

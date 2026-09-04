@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "ValidationSuite.exe"
+			"path" : "SceneTests.exe"
 		},
 		{
-			"path" : "ValidationSuite.pdb"
+			"path" : "SceneTests.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -29,19 +29,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 60,
+				"line" : 64,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 61,
+				"line" : 65,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 62,
+				"line" : 66,
 				"parent" : 0
 			}
 		]
@@ -89,7 +89,7 @@
 			]
 		}
 	],
-	"id" : "ValidationSuite::@6890427a1f51a3e7e1df",
+	"id" : "SceneTests::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -105,8 +105,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "ValidationSuite",
-	"nameOnDisk" : "ValidationSuite.exe",
+	"name" : "SceneTests",
+	"nameOnDisk" : "SceneTests.exe",
 	"paths" : 
 	{
 		"build" : ".",
@@ -134,7 +134,7 @@
 				1
 			],
 			"compileGroupIndex" : 0,
-			"path" : "src/app/validation_suite.cpp",
+			"path" : "src/app/scene_tests.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

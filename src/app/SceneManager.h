@@ -83,6 +83,14 @@ public:
     Scene*      activeScene() const { return active_; }
     int         activeIndex() const { return activeIndex_; }
     std::size_t count()       const { return scenes_.size(); }
+
+    // Registered name for a scene by index (for building a UI list). Returns
+    // "" if out of range.
+    const std::string& sceneName(int index) const {
+        static const std::string none = "";
+        return (index >= 0 && index < static_cast<int>(scenes_.size()))
+            ? scenes_[index].first : none;
+    }
     const std::string& activeName() const {
         static const std::string none = "(none)";
         return (activeIndex_ >= 0) ? scenes_[activeIndex_].first : none;
@@ -127,6 +135,9 @@ private:
             c.bodyA = body(d.bodyA); c.bodyB = body(d.bodyB);
             c.localAnchorA = d.localAnchorA; c.localAnchorB = d.localAnchorB;
             c.localAxisA = d.localAxisA; c.localAxisB = d.localAxisB;
+            c.angleLimitMin = d.angleLimitMin; c.angleLimitMax = d.angleLimitMax;
+            c.targetAngularVelocity = d.targetAngularVelocity;
+            c.maxMotorTorque = d.maxMotorTorque;
             solver_.hinges.push_back(c);
         }
         for (const auto& d : active_->ropes) {

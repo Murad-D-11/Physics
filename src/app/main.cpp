@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <iomanip>
 #include <glad/glad.h>
@@ -24,7 +25,23 @@
 #include "SimulationRecorder.h"
 #include "../ml/PathPredictor.h"
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 using namespace std;
+
+// --- Scene-title overlay state (set on every scene (re)load) ---
+// When a scene loads we stamp the time; the large centred title fades out over
+// a few seconds. Updated by onSceneChanged via markSceneTitle().
+static double sceneTitleStamp = -100.0;   // glfwGetTime() at last scene load
+static const char* sceneTitleName = "";
+static const char* sceneTitlePrinciple = "";
+static void markSceneTitle(const char* nm, const char* pr) {
+    sceneTitleStamp = glfwGetTime();
+    sceneTitleName = nm ? nm : "";
+    sceneTitlePrinciple = pr ? pr : "";
+}
 
 Camera* activeCamera = nullptr;
 SceneManager* activeSceneManager = nullptr; // set in main(); used by key input
@@ -165,6 +182,8 @@ void framebufferSizeChanged(GLFWwindow* window, int width, int height) {
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (activeCamera == nullptr || activeSceneManager == nullptr) return;
+    // Let ImGui consume clicks over its panels (don't also pick/orbit).
+    if (ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureMouse) return;
 
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -277,6 +296,7 @@ void cursorPosCallback(GLFWwindow* window, double xPos, double yPos) {
 
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
     if (activeCamera == nullptr) return;
+    if (ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureMouse) return;
     activeCamera->processScroll(static_cast<float>(yOffset));
 }
 
@@ -302,6 +322,8 @@ static void logStatus() {
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action != GLFW_PRESS) return;
+    // Don't fire scene hotkeys while ImGui is capturing keys (e.g. typing).
+    if (ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureKeyboard) return;
 
     // --- Primary UI toggles (per task spec) --------------------------------
     // P = prediction on/off, R = recording on/off. Space pauses/resumes.
@@ -383,6 +405,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         applyingImpulse = false;
         activeSandbox = dynamic_cast<SandboxScene*>(activeSceneManager->activeScene());
         resetRecordingForStructuralChange();
+        // Trigger the fading on-screen title for the newly loaded scene.
+        if (Scene* s = activeSceneManager->activeScene()) markSceneTitle(s->name(), s->principle());
         logStatus();
     };
 
@@ -1230,6 +1254,21 @@ int main() {
     Sphere sphereMesh; // unit-radius sphere mesh for rendering
     Ground ground(20.0f);
 
+    // -----------------------------------------------------------------
+    // Dear ImGui: clickable scene selector, per-scene parameter sliders,
+    // and the fading scene-title overlay. Initialised against the live
+    // GLFW window + OpenGL 3.3 core context.
+    // -----------------------------------------------------------------
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::GetIO().IniFilename = nullptr; // don't write imgui.ini to disk
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true); // install_callbacks=true: ImGui
+                                                 // chains our existing GLFW
+                                                 // callbacks, so scene hotkeys
+                                                 // and camera drag still work.
+    ImGui_ImplOpenGL3_Init("#version 330");
+
     Camera camera(11.0f, -55.0f, 18.0f);
     activeCamera = &camera;
 
@@ -1251,12 +1290,16 @@ int main() {
     InclinedPlaneScene   inclinedPlane;
     RopeBridgeScene      ropeBridge;      // Structures
     SuspensionBridgeScene suspensionBridge;
-    CantileverBeamScene  cantilever;
     HangingChainScene    hangingChain;
     DoublePendulumScene  doublePendulum;  // Dynamics
     SpringPendulumScene  springPendulum;
     TrebuchetScene       trebuchet;
     BallisticsScene      ballistics;      // Aerodynamics / kinematics
+    HangingChainWaveScene  hangingChainWave;  // Waves / structures
+    ObjectVolumeScene      objectVolume;
+    CableStayedBridgeScene cableStayedBridge;
+    GyroscopeScene         gyroscope;
+    ExplosionScene         explosion;
     SandboxScene         sandbox;         // Interactive
 
     SceneManager sceneManager(physicsSolver);
@@ -1267,12 +1310,16 @@ int main() {
     sceneManager.registerScene("Inclined Plane",    &inclinedPlane);    // 5
     sceneManager.registerScene("Rope Bridge",       &ropeBridge);       // 6
     sceneManager.registerScene("Suspension Bridge", &suspensionBridge); // 7
-    sceneManager.registerScene("Cantilever Beam",   &cantilever);       // 8
-    sceneManager.registerScene("Hanging Chain",     &hangingChain);     // 9
+    sceneManager.registerScene("Hanging Chain",     &hangingChain);     // 8
     sceneManager.registerScene("Double Pendulum",   &doublePendulum);   // N/B
-    sceneManager.registerScene("Spring Pendulum",   &springPendulum);   // N/B
+    sceneManager.registerScene("Spring Laboratory", &springPendulum);   // N/B
     sceneManager.registerScene("Trebuchet",         &trebuchet);        // N/B
     sceneManager.registerScene("Ballistics",        &ballistics);       // N/B
+    sceneManager.registerScene("Hanging Chain Wave", &hangingChainWave);
+    sceneManager.registerScene("Object Volume",      &objectVolume);
+    sceneManager.registerScene("Cable-Stayed Bridge",&cableStayedBridge);
+    sceneManager.registerScene("Gyroscope",          &gyroscope);
+    sceneManager.registerScene("Explosion",          &explosion);
     sceneManager.registerScene("Sandbox",           &sandbox);          // N/B
     activeSceneManager = &sceneManager;
 
@@ -1296,6 +1343,7 @@ int main() {
     sceneManager.loadScene("Sandbox"); // start in the interactive sandbox
     activeSandbox = &sandbox;
     recorder.clear();
+    if (Scene* s = sceneManager.activeScene()) markSceneTitle(s->name(), s->principle());
     logStatus();
 
     // Fixed timestep
@@ -1362,6 +1410,32 @@ int main() {
 
         // Draw the ground grid first (depth test handles cube-ground overlap)
         renderer.drawGround(ground, camera, aspectRatio);
+
+        // Draw finite static collision planes (ramps, tables, walls) as thin
+        // shaded slabs so they are actually visible. The physics represents
+        // these as PhysicsSolver::StaticPlane (a pure collision surface with no
+        // geometry); without this pass a block resting on a ramp looks like it
+        // is floating. Infinite planes (halfExtent == 0) are the world floor,
+        // which the ground grid already draws, so we skip those.
+        for (const auto& pl : physicsSolver.planes) {
+            if (pl.halfExtent.x <= 0.0f || pl.halfExtent.y <= 0.0f) continue; // infinite floor -> grid
+            const glm::vec3 n = glm::normalize(pl.normal);
+            // Orientation that rotates the slab's local +Y (its face normal) to
+            // the plane normal. Handle the antiparallel case explicitly.
+            glm::quat q;
+            const glm::vec3 up(0.0f, 1.0f, 0.0f);
+            const float d = glm::dot(up, n);
+            if (d > 0.9999f)      q = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            else if (d < -0.9999f) q = glm::angleAxis(3.14159265f, glm::vec3(1.0f, 0.0f, 0.0f));
+            else                   q = glm::angleAxis(std::acos(d), glm::normalize(glm::cross(up, n)));
+            // Slab: 2*halfExtent across the surface (local X/Z), thin in Y.
+            const float thickness = 0.2f;
+            const glm::vec3 scale(pl.halfExtent.x * 2.0f, thickness, pl.halfExtent.y * 2.0f);
+            // Offset the slab so its TOP face sits on the plane surface (the
+            // collision surface is at pl.point along +normal), not its centre.
+            const glm::vec3 pos = pl.point - n * (thickness * 0.5f);
+            renderer.drawBody(cube, camera, aspectRatio, pos, q, scale, false);
+        }
 
         // Draw all physics bodies
         for (const auto& body : bodies) {
@@ -1592,9 +1666,178 @@ int main() {
         renderer.drawStatusBar(1, predictionEnabled);
         renderer.drawStatusBar(2, !simulationPaused);
 
+        // ---------------------------------------------------------------
+        // Dear ImGui overlay: scene selector (clickable buttons for EVERY
+        // registered scene), per-scene parameter sliders, and the fading
+        // scene-title banner. Built and rendered on top of the 3D scene.
+        // ---------------------------------------------------------------
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // ===============================================================
+        // Laboratory browser (ImGui). LEFT = searchable scene list with
+        // per-scene metadata + sim controls + params; the CENTER is the live
+        // 3D view (the whole window); RIGHT = live telemetry. A shared helper
+        // performs a scene switch with all the interaction/recorder resets.
+        // ===============================================================
+        auto switchToScene = [&](int idx) {
+            if (activeSceneManager->loadSceneIndex(idx)) {
+                simulationPaused = true; selectedBody = -1; draggingBody = false; applyingImpulse = false;
+                activeSandbox = dynamic_cast<SandboxScene*>(activeSceneManager->activeScene());
+                resetRecordingForStructuralChange();
+                if (Scene* s = activeSceneManager->activeScene()) markSceneTitle(s->name(), s->principle());
+            }
+        };
+
+        // --- LEFT: scene laboratory browser ---
+        {
+            ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(320, static_cast<float>(height) - 20.0f), ImGuiCond_FirstUseEver);
+            ImGui::Begin("Physics Laboratory");
+
+            // Simulation controls.
+            if (ImGui::Button(simulationPaused ? "Play" : "Pause")) simulationPaused = !simulationPaused;
+            ImGui::SameLine();
+            if (ImGui::Button("Restart")) {
+                activeSceneManager->restartCurrentScene();
+                simulationPaused = true; selectedBody = -1; draggingBody = false; applyingImpulse = false;
+                activeSandbox = dynamic_cast<SandboxScene*>(activeSceneManager->activeScene());
+                resetRecordingForStructuralChange();
+                if (Scene* s = activeSceneManager->activeScene()) markSceneTitle(s->name(), s->principle());
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Step")) stepOnce = true;
+
+            // Top search box: filters the scene list by name (case-insensitive).
+            ImGui::Separator();
+            static char searchBuf[64] = "";
+            ImGui::SetNextItemWidth(-1.0f);
+            ImGui::InputTextWithHint("##search", "search scenes...", searchBuf, sizeof(searchBuf));
+            std::string q = searchBuf;
+            std::transform(q.begin(), q.end(), q.begin(), [](unsigned char c){ return (char)std::tolower(c); });
+
+            // Scrollable scene list with metadata. Height leaves room for the
+            // params + description below.
+            ImGui::TextUnformatted("Experiments:");
+            const int activeIdx = activeSceneManager->activeIndex();
+            ImGui::BeginChild("scenelist", ImVec2(0, 300), true);
+            for (int i = 0; i < static_cast<int>(activeSceneManager->count()); ++i) {
+                const std::string nm = activeSceneManager->sceneName(i);
+                // Apply the search filter.
+                if (!q.empty()) {
+                    std::string lower = nm;
+                    std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c){ return (char)std::tolower(c); });
+                    if (lower.find(q) == std::string::npos) continue;
+                }
+                const bool isActive = (i == activeIdx);
+                if (isActive) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.20f, 0.45f, 0.80f, 1.0f));
+                const std::string label = std::to_string(i + 1) + ".  " + nm;
+                if (ImGui::Button(label.c_str(), ImVec2(-1.0f, 0.0f))) switchToScene(i);
+                if (isActive) ImGui::PopStyleColor();
+            }
+            ImGui::EndChild();
+
+            // --- Active-scene metadata + parameters + description ---
+            if (Scene* s = activeSceneManager->activeScene()) {
+                ImGui::Separator();
+                ImGui::TextUnformatted(s->name());
+                const std::size_t nBodies = activeSceneManager->bodies().size();
+                const std::size_t nCon = physicsSolver.springs.size() + physicsSolver.hinges.size()
+                                       + physicsSolver.ropes.size() + physicsSolver.pulleys.size();
+                ImGui::Text("bodies: %zu    constraints: %zu", nBodies, nCon);
+                ImGui::TextWrapped("Principle: %s", s->principle());
+                ImGui::TextWrapped("%s", s->description());
+
+                if (!s->params.empty()) {
+                    ImGui::Separator();
+                    ImGui::TextUnformatted("Parameters:");
+                    bool changed = false;
+                    for (auto& p : s->params) {
+                        float v = p.value;
+                        if (ImGui::SliderFloat(p.name.c_str(), &v, p.minValue, p.maxValue)) {
+                            s->setParam(p.name, v); changed = true;
+                        }
+                    }
+                    if (changed) {
+                        activeSceneManager->restartCurrentScene();
+                        simulationPaused = true; selectedBody = -1; draggingBody = false;
+                        activeSandbox = dynamic_cast<SandboxScene*>(activeSceneManager->activeScene());
+                        resetRecordingForStructuralChange();
+                    }
+                }
+            }
+            ImGui::End();
+        }
+
+        // --- RIGHT: live telemetry panel ---
+        {
+            ImGui::SetNextWindowPos(ImVec2(static_cast<float>(width) - 270.0f, 10.0f), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(260, 260), ImGuiCond_FirstUseEver);
+            ImGui::Begin("Telemetry");
+            const TelemetryFrame& t = physicsSolver.lastTelemetry;
+            const float fps = frameTime > 1e-6f ? 1.0f / frameTime : 0.0f;
+            ImGui::Text("FPS: %.0f", fps);
+            ImGui::Text("state: %s", simulationPaused ? "PAUSED" : "RUNNING");
+            ImGui::Separator();
+            ImGui::Text("bodies:      %zu", activeSceneManager->bodies().size());
+            ImGui::Text("awake:       %d", t.awakeCount);
+            ImGui::Text("asleep:      %d", t.sleepingCount);
+            ImGui::Text("contacts:    %d", t.contactCount);
+            ImGui::Text("constraints: %zu", t.constraints.size());
+            ImGui::Separator();
+            ImGui::Text("kinetic E:   %.2f J", t.kineticLinear + t.kineticRotational);
+            ImGui::Text("potential E: %.2f J", t.potential);
+            ImGui::Text("total E:     %.2f J", t.kineticLinear + t.kineticRotational + t.potential);
+            ImGui::End();
+        }
+
+        // --- Fading scene-title banner (centred, large, fades over ~4s) ---
+        {
+            const float age = static_cast<float>(glfwGetTime() - sceneTitleStamp);
+            const float hold = 1.6f;   // fully opaque
+            const float fade = 2.4f;   // then fade out
+            if (age >= 0.0f && age < hold + fade && sceneTitleName[0] != '\0') {
+                float alpha = (age <= hold) ? 1.0f : 1.0f - (age - hold) / fade;
+                alpha = std::clamp(alpha, 0.0f, 1.0f);
+
+                const ImGuiViewport* vp = ImGui::GetMainViewport();
+                ImGui::SetNextWindowPos(ImVec2(vp->WorkPos.x + vp->WorkSize.x * 0.5f,
+                                               vp->WorkPos.y + vp->WorkSize.y * 0.18f),
+                                        ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+                ImGui::SetNextWindowBgAlpha(0.0f);
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, alpha));
+                ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs
+                                       | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing
+                                       | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
+                ImGui::Begin("##scenetitle", nullptr, flags);
+                // Title (rendered larger by scaling the current font).
+                ImGui::SetWindowFontScale(2.4f);
+                const ImVec2 tsz = ImGui::CalcTextSize(sceneTitleName);
+                ImGui::SetCursorPosX((ImGui::GetWindowSize().x - tsz.x) * 0.5f);
+                ImGui::TextUnformatted(sceneTitleName);
+                ImGui::SetWindowFontScale(1.1f);
+                if (sceneTitlePrinciple[0] != '\0') {
+                    const ImVec2 psz = ImGui::CalcTextSize(sceneTitlePrinciple);
+                    ImGui::SetCursorPosX((ImGui::GetWindowSize().x - psz.x) * 0.5f);
+                    ImGui::TextUnformatted(sceneTitlePrinciple);
+                }
+                ImGui::SetWindowFontScale(1.0f);
+                ImGui::End();
+                ImGui::PopStyleColor();
+            }
+        }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return 0;

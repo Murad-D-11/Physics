@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "SceneTests.exe"
+			"path" : "DatasetGenerator.exe"
 		},
 		{
-			"path" : "SceneTests.pdb"
+			"path" : "DatasetGenerator.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -29,19 +29,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 49,
+				"line" : 54,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 50,
+				"line" : 55,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 51,
+				"line" : 56,
 				"parent" : 0
 			}
 		]
@@ -89,7 +89,7 @@
 			]
 		}
 	],
-	"id" : "SceneTests::@6890427a1f51a3e7e1df",
+	"id" : "DatasetGenerator::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -105,8 +105,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "SceneTests",
-	"nameOnDisk" : "SceneTests.exe",
+	"name" : "DatasetGenerator",
+	"nameOnDisk" : "DatasetGenerator.exe",
 	"paths" : 
 	{
 		"build" : ".",
@@ -134,7 +134,7 @@
 				1
 			],
 			"compileGroupIndex" : 0,
-			"path" : "src/app/scene_tests.cpp",
+			"path" : "src/app/dataset_main.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
