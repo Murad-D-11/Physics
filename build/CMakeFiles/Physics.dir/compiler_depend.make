@@ -309,6 +309,7 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: C:/Coding\ Projects/GitHub/Physics/
   C:/msys64/ucrt64/include/c++/15.2.0/cmath \
   C:/msys64/ucrt64/include/c++/15.2.0/compare \
   C:/msys64/ucrt64/include/c++/15.2.0/concepts \
+  C:/msys64/ucrt64/include/c++/15.2.0/cstdarg \
   C:/msys64/ucrt64/include/c++/15.2.0/cstddef \
   C:/msys64/ucrt64/include/c++/15.2.0/cstdint \
   C:/msys64/ucrt64/include/c++/15.2.0/cstdio \
@@ -5033,6 +5034,8 @@ C:/Coding\ Projects/GitHub/Physics/vendor/imgui/imgui_internal.h:
 C:/msys64/ucrt64/include/c++/15.2.0/compare:
 
 C:/msys64/ucrt64/include/c++/15.2.0/concepts:
+
+C:/msys64/ucrt64/include/c++/15.2.0/cstdarg:
 
 C:/msys64/ucrt64/include/c++/15.2.0/cstddef:
 
