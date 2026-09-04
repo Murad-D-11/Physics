@@ -104,6 +104,7 @@ int main() {
     CableStayedBridgeScene cableStayedBridge;
     GyroscopeScene         gyroscope;
     ExplosionScene         explosion;
+    BoulderCastleScene     boulderCastle;
     SandboxScene         sandbox;
 
     SceneManager mgr(solver);
@@ -124,6 +125,7 @@ int main() {
     mgr.registerScene("Cable-Stayed Bridge",&cableStayedBridge);
     mgr.registerScene("Gyroscope",          &gyroscope);
     mgr.registerScene("Explosion",          &explosion);
+    mgr.registerScene("Boulder vs Castle",  &boulderCastle);
     mgr.registerScene("Sandbox",           &sandbox);
 
     const int steps = 360; // 6 s
@@ -519,6 +521,37 @@ int main() {
               "r0=" + std::to_string(r0) + " r1=" + std::to_string(r1));
         check("Explosion", "stays bounded (no runaway)", maxAbs < 60.0f,
               "maxAbsPos=" + std::to_string(maxAbs));
+    }
+
+    // ---- Boulder vs Castle: the boulder (last body, a big sphere) is hurled
+    //          into the stacked-brick castle and must actually DEMOLISH it --
+    //          a meaningful fraction of the bricks are knocked well away from
+    //          their starting positions. The boulder must reach the wall (its
+    //          X travels through the castle plane) rather than stopping short. ----
+    {
+        auto& bs = loadFresh("Boulder vs Castle");
+        const int n = static_cast<int>(bs.size());
+        const int boulderIdx = n - 1;               // boulder is the last body
+        // Record every brick's start position (all dynamic bodies except the
+        // boulder are bricks). The boulder is the only sphere.
+        std::vector<glm::vec3> start(n);
+        for (int i = 0; i < n; ++i) start[i] = bs[i].position;
+        const float boulderX0 = bs[boulderIdx].position.x;
+
+        simulate(solver, bs, 240); // 4 s: impact + scatter
+
+        // Count bricks displaced meaningfully from where they started.
+        int bricks = 0, knocked = 0;
+        for (int i = 0; i < n; ++i) {
+            if (i == boulderIdx) continue;
+            ++bricks;
+            if (glm::length(bs[i].position - start[i]) > 0.5f) ++knocked;
+        }
+        const float boulderTravelX = boulderX0 - bs[boulderIdx].position.x; // +ve = moved -X
+        check("Boulder vs Castle", "boulder reaches the castle", boulderTravelX > 8.0f,
+              "boulderTravelX=" + std::to_string(boulderTravelX));
+        check("Boulder vs Castle", "castle is demolished (bricks scattered)", knocked >= bricks / 4,
+              "knocked=" + std::to_string(knocked) + "/" + std::to_string(bricks));
     }
 
     // ---- 16. Gyroscope: the flywheel starts spinning fast and STAYS UP on its

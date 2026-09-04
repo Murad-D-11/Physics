@@ -321,9 +321,30 @@ static void logStatus() {
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (action != GLFW_PRESS) return;
-    // Don't fire scene hotkeys while ImGui is capturing keys (e.g. typing).
+    // Don't fire hotkeys while ImGui is capturing keys (e.g. typing in search).
     if (ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureKeyboard) return;
+
+    // --- Vertical nudge of the selected body (PageUp/PageDown) -------------
+    // Move the selected body straight up/down along world Y. Works while the
+    // sim is PAUSED (so the placement sticks) and repeats when the key is held.
+    // Handled before the PRESS-only guard below so key-repeat nudges smoothly.
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) &&
+        (key == GLFW_KEY_PAGE_UP || key == GLFW_KEY_PAGE_DOWN) &&
+        simulationPaused && activeSceneManager && selectedBody >= 0) {
+        std::vector<RigidBody>& bodies = activeSceneManager->bodies();
+        if (selectedBody < static_cast<int>(bodies.size())) {
+            const float step = 0.1f; // metres per nudge
+            RigidBody& b = bodies[selectedBody];
+            b.position.y += (key == GLFW_KEY_PAGE_UP) ? step : -step;
+            b.velocity = glm::vec3(0.0f);      // no residual motion from the nudge
+            b.angularVelocity = glm::vec3(0.0f);
+            b.asleep = false; b.sleepTimer = 0.0f;
+            resetRecordingForStructuralChange(); // moving a body changes geometry
+        }
+        return;
+    }
+
+    if (action != GLFW_PRESS) return;
 
     // --- Primary UI toggles (per task spec) --------------------------------
     // P = prediction on/off, R = recording on/off. Space pauses/resumes.
@@ -1226,14 +1247,30 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    const GLFWvidmode* VideoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* VideoMode = glfwGetVideoMode(primaryMonitor);
     const auto ScreenHeight = VideoMode->height;
-    GLFWwindow* window = glfwCreateWindow(ScreenHeight / 2, ScreenHeight / 2, "Physics Engine — OBB Demos", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(ScreenHeight, ScreenHeight, "Physics Engine : Simulation & ML Sandbox", NULL, NULL);
 
     if (window == NULL) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
+    }
+
+    // Position the window so its vertical centre lines up with the display's
+    // vertical centre (and centre it horizontally too). Account for the
+    // monitor's virtual-desktop origin so this is correct on multi-monitor
+    // setups. The window height equals the screen height, so vertical centring
+    // puts its top at the monitor's top edge.
+    {
+        int monX = 0, monY = 0;
+        glfwGetMonitorPos(primaryMonitor, &monX, &monY);
+        int winW = 0, winH = 0;
+        glfwGetWindowSize(window, &winW, &winH);
+        const int posX = monX + (VideoMode->width  - winW) / 2;
+        const int posY = monY + (VideoMode->height - winH) / 2;
+        glfwSetWindowPos(window, posX, posY);
     }
 
     glfwMakeContextCurrent(window);
@@ -1300,6 +1337,7 @@ int main() {
     CableStayedBridgeScene cableStayedBridge;
     GyroscopeScene         gyroscope;
     ExplosionScene         explosion;
+    BoulderCastleScene     boulderCastle;
     SandboxScene         sandbox;         // Interactive
 
     SceneManager sceneManager(physicsSolver);
@@ -1317,9 +1355,10 @@ int main() {
     sceneManager.registerScene("Ballistics",        &ballistics);       // N/B
     sceneManager.registerScene("Hanging Chain Wave", &hangingChainWave);
     sceneManager.registerScene("Object Volume",      &objectVolume);
-    sceneManager.registerScene("Cable-Stayed Bridge",&cableStayedBridge);
     sceneManager.registerScene("Gyroscope",          &gyroscope);
     sceneManager.registerScene("Explosion",          &explosion);
+    sceneManager.registerScene("Boulder vs Castle",  &boulderCastle);
+    sceneManager.registerScene("Sandbox",           &sandbox);          // N/B
     sceneManager.registerScene("Sandbox",           &sandbox);          // N/B
     activeSceneManager = &sceneManager;
 
@@ -1560,45 +1599,61 @@ int main() {
         {
             const TelemetryFrame& tel = physicsSolver.lastTelemetry;
 
-            // Contact normals (yellow): from the solved contact set.
+            // Draw a "thick" line by drawing it several times with small offsets
+            // in the two screen-facing directions, so markers read as bold even
+            // when the GL driver clamps glLineWidth to 1px. `t` is the half
+            // thickness in world units.
+            const glm::mat4 viewM = camera.getViewMatrix();
+            const glm::vec3 camRight(viewM[0][0], viewM[1][0], viewM[2][0]);
+            const glm::vec3 camUp   (viewM[0][1], viewM[1][1], viewM[2][1]);
+            auto drawThick = [&](const glm::vec3& a, const glm::vec3& b2,
+                                 const glm::vec3& col, float t) {
+                renderer.drawLine(camera, aspectRatio, a, b2, col);
+                const glm::vec3 offs[4] = { camRight * t, camRight * -t, camUp * t, camUp * -t };
+                for (const glm::vec3& o : offs)
+                    renderer.drawLine(camera, aspectRatio, a + o, b2 + o, col);
+            };
+            const float TK = 0.02f; // marker line half-thickness (world units)
+
+            // Contact normals (bright yellow): from the solved contact set.
             if (ovContactNormals) {
                 for (const auto& c : tel.contacts) {
-                    renderer.drawLine(camera, aspectRatio, c.point,
-                                      c.point + c.normal * 0.6f, glm::vec3(1.0f, 0.95f, 0.2f));
+                    drawThick(c.point, c.point + c.normal * 0.9f, glm::vec3(1.0f, 0.95f, 0.1f), TK);
                 }
             }
 
             for (const auto& b : bodies) {
-                // Center of mass (magenta cross).
+                // Center of mass (bright magenta cross), enlarged.
                 if (ovCenterOfMass) {
-                    const float s = 0.15f;
-                    renderer.drawLine(camera, aspectRatio, b.position - glm::vec3(s,0,0), b.position + glm::vec3(s,0,0), glm::vec3(1.0f, 0.2f, 1.0f));
-                    renderer.drawLine(camera, aspectRatio, b.position - glm::vec3(0,s,0), b.position + glm::vec3(0,s,0), glm::vec3(1.0f, 0.2f, 1.0f));
-                    renderer.drawLine(camera, aspectRatio, b.position - glm::vec3(0,0,s), b.position + glm::vec3(0,0,s), glm::vec3(1.0f, 0.2f, 1.0f));
+                    const float s = 0.28f;
+                    const glm::vec3 col(1.0f, 0.15f, 1.0f);
+                    drawThick(b.position - glm::vec3(s,0,0), b.position + glm::vec3(s,0,0), col, TK);
+                    drawThick(b.position - glm::vec3(0,s,0), b.position + glm::vec3(0,s,0), col, TK);
+                    drawThick(b.position - glm::vec3(0,0,s), b.position + glm::vec3(0,0,s), col, TK);
                 }
-                // Angular-velocity axis (orange): direction + magnitude.
+                // Angular-velocity axis (bright orange): direction + magnitude.
                 if (ovAngularAxis) {
                     const float w = glm::length(b.angularVelocity);
                     if (w > 1e-3f) {
                         const glm::vec3 axis = b.angularVelocity / w;
-                        renderer.drawLine(camera, aspectRatio, b.position,
-                                          b.position + axis * std::min(w * 0.2f, 1.5f),
-                                          glm::vec3(1.0f, 0.5f, 0.0f));
+                        drawThick(b.position,
+                                  b.position + axis * std::min(0.5f + w * 0.2f, 2.0f),
+                                  glm::vec3(1.0f, 0.55f, 0.0f), TK);
                     }
                 }
-                // Axis-aligned bounding volume (grey wireframe box).
+                // Axis-aligned bounding volume (bright cyan wireframe box).
                 if (ovBoundingVolume) {
                     const glm::vec3 he = (b.shape == ShapeType::Sphere) ? glm::vec3(b.radius) : b.scale * 0.5f;
                     glm::vec3 c[8]; int n = 0;
                     for (int sx=-1; sx<=1; sx+=2) for (int sy=-1; sy<=1; sy+=2) for (int sz=-1; sz<=1; sz+=2)
                         c[n++] = b.position + glm::vec3(sx*he.x, sy*he.y, sz*he.z);
                     static const int E[12][2] = {{0,1},{0,2},{0,4},{1,3},{1,5},{2,3},{2,6},{3,7},{4,5},{4,6},{5,7},{6,7}};
-                    for (auto& e : E) renderer.drawLine(camera, aspectRatio, c[e[0]], c[e[1]], glm::vec3(0.5f, 0.5f, 0.55f));
+                    for (auto& e : E) drawThick(c[e[0]], c[e[1]], glm::vec3(0.1f, 0.9f, 1.0f), TK * 0.5f);
                 }
-                // Sleeping bodies: small blue marker above them.
+                // Sleeping bodies: bold blue marker above them.
                 if (ovSleeping && b.asleep) {
-                    renderer.drawLine(camera, aspectRatio, b.position + glm::vec3(0, 0.3f, 0),
-                                      b.position + glm::vec3(0, 0.7f, 0), glm::vec3(0.3f, 0.5f, 1.0f));
+                    drawThick(b.position + glm::vec3(0, 0.4f, 0),
+                              b.position + glm::vec3(0, 1.0f, 0), glm::vec3(0.3f, 0.55f, 1.0f), TK);
                 }
             }
         }
@@ -1805,7 +1860,13 @@ int main() {
                 ImGui::SetNextWindowPos(ImVec2(vp->WorkPos.x + vp->WorkSize.x * 0.5f,
                                                vp->WorkPos.y + vp->WorkSize.y * 0.18f),
                                         ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-                ImGui::SetNextWindowBgAlpha(0.0f);
+                // Solid dark backing panel so the title stays legible over the
+                // floor grid. It is effectively opaque at full strength (0.92)
+                // and fades out together with the text via `alpha`, so the whole
+                // banner still disappears gracefully.
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.06f, 0.06f, 0.08f, 0.92f * alpha));
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(24.0f, 16.0f));
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0f);
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, alpha));
                 ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs
                                        | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing
@@ -1824,7 +1885,8 @@ int main() {
                 }
                 ImGui::SetWindowFontScale(1.0f);
                 ImGui::End();
-                ImGui::PopStyleColor();
+                ImGui::PopStyleColor(2);   // Text + WindowBg
+                ImGui::PopStyleVar(2);     // WindowPadding + WindowRounding
             }
         }
 

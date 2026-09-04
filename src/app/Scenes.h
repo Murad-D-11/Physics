@@ -22,12 +22,13 @@
 // ---------------------------------------------------------------------------
 class DominoSpiralScene : public Scene {
 public:
+    DominoSpiralScene() { addParam("dominoes", 150.0f, 10.0f, 3000.0f); }
     const char* name() const override { return "Domino Spiral"; }
     const char* description() const override { return "An Archimedean spiral of dominoes toppling in a cascade."; }
     const char* principle() const override { return "Sequential energy transfer; gravitational potential release."; }
 
     void load() override {
-        const int count = 150;
+        const int count = static_cast<int>(param("dominoes", 150.0f));
         const glm::vec3 dominoScale(0.15f, 0.9f, 0.45f); // thin, tall, wide
         const float halfHeight = dominoScale.y * 0.5f;
         const float halfThick  = dominoScale.x * 0.5f;
@@ -1666,5 +1667,104 @@ public:
             b.restitution = 0.2f;
             bodies.push_back(b);
         }
+    }
+};
+
+// ---------------------------------------------------------------------------
+// 21. Boulder vs Castle
+//
+// A heavy boulder (a large dense sphere) is launched horizontally into a small
+// castle built from loosely stacked brick cubes -- two corner towers joined by
+// a crenellated wall. The boulder's kinetic energy (KE = 1/2 m v^2) is
+// transferred through the contact manifold into the bricks, which topple and
+// scatter. Demonstrates momentum/energy transfer from a single fast, massive
+// body into a many-body stacked structure (and the engine's continuous
+// collision detection keeping the fast boulder from tunnelling through the
+// thin bricks).
+// ---------------------------------------------------------------------------
+class BoulderCastleScene : public Scene {
+public:
+    BoulderCastleScene() {
+        addParam("boulderSpeed", 22.0f, 5.0f, 60.0f);  // impact speed (m/s)
+        addParam("boulderMass",  40.0f, 5.0f, 120.0f); // boulder mass (kg)
+        addParam("wallRows",      6.0f, 3.0f, 10.0f);  // brick courses high
+    }
+    const char* name() const override { return "Boulder vs Castle"; }
+    const char* description() const override { return "A heavy boulder is hurled into a stacked-brick castle, toppling the walls and towers."; }
+    const char* principle() const override { return "Kinetic-energy transfer from one massive fast body into a many-body stacked structure."; }
+
+    void load() override {
+        const float speed = param("boulderSpeed", 22.0f);
+        const float bMass = param("boulderMass", 40.0f);
+        const int   rows  = static_cast<int>(param("wallRows", 6.0f));
+
+        // Brick geometry. Bricks are laid in a running-bond wall along Z, with
+        // alternate courses offset by half a brick so the wall interlocks like
+        // real masonry (and so a clean vertical seam doesn't let the boulder
+        // slip straight through). The castle faces -X; the boulder comes from
+        // +X and travels in -X.
+        const glm::vec3 brick(0.9f, 0.5f, 0.5f);      // full extents (L x H x D)
+        const float bh = brick.y;                     // course height
+        const float wallX = 0.0f;                     // wall plane (X)
+        const float wallLen = 6.0f;                   // wall span along Z
+        const int   perRow = static_cast<int>(wallLen / brick.z); // bricks per course
+
+        bodies.reserve(rows * perRow + 40);
+
+        auto addBrick = [&](const glm::vec3& pos) {
+            RigidBody b; b.scale = brick;
+            b.position = pos;
+            sceneSetCubeMass(b, 1.5f);
+            b.friction = 0.6f; b.restitution = 0.02f;
+            bodies.push_back(b);
+        };
+
+        // --- Main wall: `rows` courses of interlocking bricks --------------
+        const float z0 = -wallLen * 0.5f + brick.z * 0.5f;
+        for (int r = 0; r < rows; ++r) {
+            const float y = bh * 0.5f + r * bh;
+            // Alternate courses shift half a brick in Z (running bond).
+            const float zShift = (r % 2 == 0) ? 0.0f : brick.z * 0.5f;
+            for (int i = 0; i < perRow; ++i) {
+                const float z = z0 + i * brick.z + zShift;
+                if (z > wallLen * 0.5f - brick.z * 0.25f) continue; // keep inside span
+                addBrick(glm::vec3(wallX, y, z));
+            }
+        }
+
+        // --- Two corner towers: taller stacks of cubes at each wall end -----
+        const glm::vec3 towerBrick(0.7f, 0.7f, 0.7f);
+        const int towerH = rows + 2;
+        auto addTower = [&](float z) {
+            for (int r = 0; r < towerH; ++r) {
+                RigidBody b; b.scale = towerBrick;
+                b.position = glm::vec3(wallX, towerBrick.y * 0.5f + r * towerBrick.y, z);
+                sceneSetCubeMass(b, 1.5f);
+                b.friction = 0.6f; b.restitution = 0.02f;
+                bodies.push_back(b);
+            }
+        };
+        addTower(-wallLen * 0.5f - towerBrick.z * 0.5f);
+        addTower( wallLen * 0.5f + towerBrick.z * 0.5f);
+
+        // --- Crenellations (merlons) along the wall top --------------------
+        const float topY = bh * rows + towerBrick.y * 0.5f;
+        for (int i = 0; i < perRow; i += 2) {
+            RigidBody b; b.scale = glm::vec3(0.45f, 0.45f, 0.45f);
+            b.position = glm::vec3(wallX, topY, z0 + i * brick.z);
+            sceneSetCubeMass(b, 0.8f);
+            b.friction = 0.6f; b.restitution = 0.02f;
+            bodies.push_back(b);
+        }
+
+        // --- The boulder: heavy dense sphere, launched in -X at the wall ----
+        // MUST be the LAST body so a test/validator can find it as bodies.back().
+        const float boulderR = 1.1f;
+        RigidBody boulder;
+        boulder.position = glm::vec3(wallX + 12.0f, boulderR, 0.0f); // rolls in from +X
+        sceneSetSphereMass(boulder, bMass, boulderR);
+        boulder.velocity = glm::vec3(-speed, 0.0f, 0.0f);            // straight at the wall
+        boulder.friction = 0.5f; boulder.restitution = 0.1f;
+        bodies.push_back(boulder);
     }
 };
