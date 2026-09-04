@@ -158,59 +158,64 @@ Most actions are available both in the ImGui panels and via keyboard.
 
 Camera (mouse):
 
-  Left-drag (empty space) . orbit the camera around the origin
-  Scroll wheel ........... zoom in / out
+  - Left-drag (empty space) . orbit the camera around the origin
+  - Scroll wheel ........... zoom in / out
 
 Selection & sandbox editing (mouse):
 
-  Left-click ............. select the body under the cursor
-  Left-drag (on a body,
-    while paused) ........ reposition it on its horizontal plane
-  Right-drag ............. fling the selected body (drag direction + length set
+  - Left-click ............. select the body under the cursor
+  - Left-drag (on a body,
+    - while paused) ........ reposition it on its horizontal plane
+  - Right-drag ............. fling the selected body (drag direction + length set
                            the impulse)
 
   (Clicks over an ImGui panel are consumed by the UI and do not pick/orbit.)
 
 Simulation (keyboard):
 
-  Space .................. play / pause
-  . (period) ............. single-frame step (advance exactly one fixed step)
-  Backspace .............. restart the current scene (deterministic reset)
-  1 - 9 .................. jump to scenes 1-9 (see the scene list below)
-  N / B .................. next / previous scene (cycles through all of them)
+  - Space .................. play / pause
+  - . (period) ............. single-frame step (advance exactly one fixed step)
+  - Backspace .............. restart the current scene (deterministic reset)
+  - 1 - 9 .................. jump to scenes 1-9 (see the scene list below)
+  - N / B .................. next / previous scene (cycles through all of them)
 
 Sandbox object tools (keyboard):
 
-  C ...................... spawn a cube
-  V ...................... spawn a sphere
-  X or Delete ............ delete the selected body
+  - C ...................... spawn a cube
+  - V ...................... spawn a sphere
+  - X or Delete ............ delete the selected body
 
 Materials (keyboard, applied to the selected body):
 
-  F6 ..... Steel     F7 ..... Aluminum   F8 ..... Wood
-  F9 ..... Rubber    F10 .... Ice
+  - F6 ..... Steel
+  - F7 ..... Aluminum
+  - F8 ..... Wood
+  - F9 ..... Rubber
+  - F10 .... Ice
 
   Each preset sets realistic friction and restitution and derives the body's
   mass from the material density and its volume.
 
 Environment (keyboard, affects the running simulation):
 
-  G ...................... toggle aerodynamics
-  Shift+G ................ toggle gravity
-  [ / ] .................. decrease / increase air density
-  Left / Right arrows .... adjust wind strength along X
+  - G ...................... toggle aerodynamics
+  - Shift+G ................ toggle gravity
+  - [ / ] .................. decrease / increase air density
+  - Left / Right arrows .... adjust wind strength along X
 
 Debugging overlays (keyboard):
 
-  F1 ..... contact normals        F2 ..... angular-velocity axis
-  F3 ..... center of mass         F4 ..... bounding volumes
-  F5 ..... sleeping-body markers
+  - F1 ..... contact normals
+  - F2 ..... angular-velocity axis
+  - F3 ..... center of mass
+  - F4 ..... bounding volumes
+  - F5 ..... sleeping-body markers
 
 Data & prediction (keyboard):
 
-  R ...................... toggle recording (capture every timestep in memory)
-  E ...................... export the recording to recording.csv
-  P ...................... toggle path prediction for the selected body
+  - R ...................... toggle recording (capture every timestep in memory)
+  - E ...................... export the recording to recording.csv
+  - P ...................... toggle path prediction for the selected body
                            (solid green = physics ground truth,
                             dotted purple = model prediction)
 
@@ -275,11 +280,11 @@ before switching scenes if you want to keep the data.
 
 recording.csv columns (one row per step per body):
 
-  step, time, object_id, shape,
-  pos_x, pos_y, pos_z,
-  vel_x, vel_y, vel_z,
-  ang_vel_x, ang_vel_y, ang_vel_z,
-  quat_w, quat_x, quat_y, quat_z
+  - step, time, object_id, shape,
+  - pos_x, pos_y, pos_z,
+  - vel_x, vel_y, vel_z,
+  - ang_vel_x, ang_vel_y, ang_vel_z,
+  - quat_w, quat_x, quat_y, quat_z
 
 (shape: 0 = box, 1 = sphere.)
 
@@ -323,12 +328,12 @@ Generate a dataset:
 Options:
 
   output.csv .......... first positional argument (default dataset.csv)
-  --episodes N ........ number of random scenes
-  --frames N .......... simulated steps per episode
-  --horizon N ......... label = position this many frames ahead (default 30)
-  --seed N ............ master RNG seed (reproducible)
-  --min-bodies N ...... minimum bodies per scene (default 3)
-  --max-bodies N ...... maximum bodies per scene (default 20)
+  - --episodes N ........ number of random scenes
+  - --frames N .......... simulated steps per episode
+  - --horizon N ......... label = position this many frames ahead (default 30)
+  - --seed N ............ master RNG seed (reproducible)
+  - --min-bodies N ...... minimum bodies per scene (default 3)
+  - --max-bodies N ...... maximum bodies per scene (default 20)
 
 CSV columns: episode, frame, object_id, shape, material, mass, position (x,y,z),
 velocity (x,y,z), angular velocity (x,y,z), orientation quaternion (w,x,y,z),
