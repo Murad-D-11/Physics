@@ -3,6 +3,78 @@
 
 CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.obj
  C:/Coding Projects/GitHub/Physics/src/app/scene_tests.cpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/_fixes.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_integer.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_packing.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_trigonometric.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/qualifier.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/fwd.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/glm.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/integer.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/mat2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/packing.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/trigonometric.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/common.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/_fixes.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/_vectorize.hpp
@@ -12,16 +84,10 @@ CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_common.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_exponential.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_geometric.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_integer.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_matrix.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_packing.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_trigonometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_vector_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/qualifier.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_float.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x2.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x2.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x3.hpp
@@ -53,8 +119,6 @@ CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/exponential.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_clip_space.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_clip_space.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x4.hpp
@@ -71,8 +135,6 @@ CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x4.hpp
@@ -93,69 +155,15 @@ CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_projection.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_transform.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_geometric.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_geometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_relational.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_constants.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_constants.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_int_sized.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_uint_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/fwd.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/geometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/glm.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.inl
- C:/Coding Projects/GitHub/Physics/include/glm/integer.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/mat2x2.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat2x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat3x2.hpp
@@ -165,16 +173,8 @@ CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/mat4x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat4x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/matrix.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/packing.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/simd/platform.h
- C:/Coding Projects/GitHub/Physics/include/glm/trigonometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/vector_relational.hpp
- C:/Coding Projects/GitHub/Physics/src/app/Scene.h
- C:/Coding Projects/GitHub/Physics/src/app/SceneManager.h
- C:/Coding Projects/GitHub/Physics/src/app/Scenes.h
  C:/Coding Projects/GitHub/Physics/src/physics/Constraint.h
  C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.h
  C:/Coding Projects/GitHub/Physics/src/physics/Telemetry.h
@@ -380,9 +380,84 @@ CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.obj
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stddef.h
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h
+ C:/Coding Projects/GitHub/Physics/src/app/Scene.h
+ C:/Coding Projects/GitHub/Physics/src/app/SceneManager.h
+ C:/Coding Projects/GitHub/Physics/src/app/Scenes.h
 
 CMakeFiles/SceneTests.dir/src/physics/collision.cpp.obj
  C:/Coding Projects/GitHub/Physics/src/physics/collision.cpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/_fixes.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_integer.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_packing.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_trigonometric.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/qualifier.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/fwd.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/glm.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/integer.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/mat2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/packing.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/trigonometric.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/common.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/_fixes.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/_vectorize.hpp
@@ -392,16 +467,10 @@ CMakeFiles/SceneTests.dir/src/physics/collision.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_common.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_exponential.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_geometric.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_integer.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_matrix.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_packing.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_trigonometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_vector_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/qualifier.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_float.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x2.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x2.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x3.hpp
@@ -433,8 +502,6 @@ CMakeFiles/SceneTests.dir/src/physics/collision.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/exponential.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_clip_space.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_clip_space.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x4.hpp
@@ -451,8 +518,6 @@ CMakeFiles/SceneTests.dir/src/physics/collision.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x4.hpp
@@ -473,69 +538,15 @@ CMakeFiles/SceneTests.dir/src/physics/collision.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_projection.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_transform.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_geometric.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_geometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_relational.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_constants.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_constants.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_int_sized.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_uint_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/fwd.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/geometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/glm.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.inl
- C:/Coding Projects/GitHub/Physics/include/glm/integer.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/mat2x2.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat2x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat3x2.hpp
@@ -545,18 +556,8 @@ CMakeFiles/SceneTests.dir/src/physics/collision.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/mat4x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat4x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/matrix.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/packing.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/simd/platform.h
- C:/Coding Projects/GitHub/Physics/include/glm/trigonometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/vector_relational.hpp
- C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp
- C:/Coding Projects/GitHub/Physics/src/physics/CollisionInfo.h
- C:/Coding Projects/GitHub/Physics/src/physics/collision.h
- C:/Coding Projects/GitHub/Physics/src/physics/obb.h
- C:/Coding Projects/GitHub/Physics/src/physics/rigidbody.h
  C:/msys64/ucrt64/include/_mingw.h
  C:/msys64/ucrt64/include/_mingw_mac.h
  C:/msys64/ucrt64/include/_mingw_secapi.h
@@ -677,9 +678,85 @@ CMakeFiles/SceneTests.dir/src/physics/collision.cpp.obj
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stddef.h
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h
+ C:/Coding Projects/GitHub/Physics/src/physics/CollisionInfo.h
+ C:/Coding Projects/GitHub/Physics/src/physics/collision.h
+ C:/Coding Projects/GitHub/Physics/src/physics/obb.h
+ C:/Coding Projects/GitHub/Physics/src/physics/rigidbody.h
 
 CMakeFiles/SceneTests.dir/src/physics/obb.cpp.obj
  C:/Coding Projects/GitHub/Physics/src/physics/obb.cpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/_fixes.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_integer.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_packing.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_trigonometric.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/qualifier.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/fwd.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/glm.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/integer.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/mat2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/packing.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/trigonometric.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/common.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/_fixes.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/_vectorize.hpp
@@ -689,16 +766,10 @@ CMakeFiles/SceneTests.dir/src/physics/obb.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_common.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_exponential.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_geometric.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_integer.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_matrix.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_packing.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_trigonometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_vector_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/qualifier.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_float.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x2.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x2.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x3.hpp
@@ -730,8 +801,6 @@ CMakeFiles/SceneTests.dir/src/physics/obb.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/exponential.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_clip_space.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_clip_space.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x4.hpp
@@ -748,8 +817,6 @@ CMakeFiles/SceneTests.dir/src/physics/obb.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x4.hpp
@@ -770,69 +837,15 @@ CMakeFiles/SceneTests.dir/src/physics/obb.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_projection.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_transform.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_geometric.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_geometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_relational.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_constants.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_constants.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_int_sized.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_uint_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/fwd.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/geometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/glm.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.inl
- C:/Coding Projects/GitHub/Physics/include/glm/integer.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/mat2x2.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat2x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat3x2.hpp
@@ -842,16 +855,8 @@ CMakeFiles/SceneTests.dir/src/physics/obb.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/mat4x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat4x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/matrix.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/packing.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/simd/platform.h
- C:/Coding Projects/GitHub/Physics/include/glm/trigonometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/vector_relational.hpp
- C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp
- C:/Coding Projects/GitHub/Physics/src/physics/obb.h
- C:/Coding Projects/GitHub/Physics/src/physics/rigidbody.h
  C:/msys64/ucrt64/include/_mingw.h
  C:/msys64/ucrt64/include/_mingw_mac.h
  C:/msys64/ucrt64/include/_mingw_secapi.h
@@ -964,9 +969,83 @@ CMakeFiles/SceneTests.dir/src/physics/obb.cpp.obj
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stddef.h
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h
+ C:/Coding Projects/GitHub/Physics/src/physics/obb.h
+ C:/Coding Projects/GitHub/Physics/src/physics/rigidbody.h
 
 CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj
  C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.cpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4_sized.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/_fixes.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_integer.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_packing.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/func_trigonometric.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/qualifier.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/fwd.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/glm.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float_precision.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.inl
+ C:/Coding Projects/GitHub/Physics/include/glm/integer.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/mat2x2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/packing.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/trigonometric.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec2.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec3.hpp
+ C:/Coding Projects/GitHub/Physics/include/glm/vec4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/common.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/_fixes.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/_vectorize.hpp
@@ -976,16 +1055,10 @@ CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_common.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_exponential.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_geometric.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_integer.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_matrix.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_packing.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/func_trigonometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/func_vector_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/detail/qualifier.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/setup.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_float.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/detail/type_half.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x2.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x2.inl
  C:/Coding Projects/GitHub/Physics/include/glm/detail/type_mat2x3.hpp
@@ -1017,8 +1090,6 @@ CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/exponential.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_clip_space.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_clip_space.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x2_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double2x4.hpp
@@ -1035,8 +1106,6 @@ CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_double4x4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x2_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x3_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_float2x4.hpp
@@ -1057,69 +1126,15 @@ CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_projection.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_transform.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/matrix_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_common.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_double_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_float_precision.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_geometric.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_geometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_relational.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/quaternion_trigonometric.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_constants.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_constants.inl
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_int_sized.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/ext/scalar_uint_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_bool4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_double4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float2_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float3_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_float4_precision.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int2_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int3_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_int4_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_relational.inl
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint2_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint3_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/ext/vector_uint4_sized.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/fwd.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/geometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/glm.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/constants.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/epsilon.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/matrix_transform.inl
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/gtc/quaternion.inl
- C:/Coding Projects/GitHub/Physics/include/glm/integer.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/mat2x2.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat2x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat2x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat3x2.hpp
@@ -1129,21 +1144,8 @@ CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj
  C:/Coding Projects/GitHub/Physics/include/glm/mat4x3.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/mat4x4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/matrix.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/packing.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/simd/platform.h
- C:/Coding Projects/GitHub/Physics/include/glm/trigonometric.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec2.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec3.hpp
- C:/Coding Projects/GitHub/Physics/include/glm/vec4.hpp
  C:/Coding Projects/GitHub/Physics/include/glm/vector_relational.hpp
- C:/Coding Projects/GitHub/Physics/src/physics/Constraint.h
- C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp
- C:/Coding Projects/GitHub/Physics/src/physics/Telemetry.h
- C:/Coding Projects/GitHub/Physics/src/physics/collision.h
- C:/Coding Projects/GitHub/Physics/src/physics/collisioninfo.h
- C:/Coding Projects/GitHub/Physics/src/physics/obb.h
- C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.h
- C:/Coding Projects/GitHub/Physics/src/physics/rigidbody.h
  C:/msys64/ucrt64/include/_mingw.h
  C:/msys64/ucrt64/include/_mingw_mac.h
  C:/msys64/ucrt64/include/_mingw_off_t.h
@@ -1350,4 +1352,11 @@ CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stddef.h
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/syslimits.h
+ C:/Coding Projects/GitHub/Physics/src/physics/Constraint.h
+ C:/Coding Projects/GitHub/Physics/src/physics/Telemetry.h
+ C:/Coding Projects/GitHub/Physics/src/physics/collision.h
+ C:/Coding Projects/GitHub/Physics/src/physics/collisioninfo.h
+ C:/Coding Projects/GitHub/Physics/src/physics/obb.h
+ C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.h
+ C:/Coding Projects/GitHub/Physics/src/physics/rigidbody.h
 

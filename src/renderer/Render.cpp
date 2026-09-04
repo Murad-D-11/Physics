@@ -317,7 +317,10 @@ void Render::drawLine(const Camera& camera, float aspectRatio, glm::vec3 from, g
     glBindVertexArray(lineVAO);
     glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
-    glLineWidth(2.0f);
+    // Request a thick line. Many GL drivers clamp line width to 1px for the
+    // core profile, so debug markers ALSO enlarge their geometry (see the
+    // overlay code) rather than relying on this alone.
+    glLineWidth(3.0f);
     glDrawArrays(GL_LINES, 0, 2);
     glBindVertexArray(0);
 }

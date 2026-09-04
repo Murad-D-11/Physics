@@ -185,6 +185,11 @@ Sandbox object tools (keyboard):
   - V ...................... spawn a sphere
   - X or Delete ............ delete the selected body
 
+Selected-body placement (keyboard, while paused):
+
+  PageUp / PageDown ...... nudge the selected body up / down along Y
+                           (hold to repeat; left-drag still moves it in X/Z)
+
 Materials (keyboard, applied to the selected body):
 
   - F6 ..... Steel
