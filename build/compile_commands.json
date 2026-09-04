@@ -1,110 +1,194 @@
 [
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\app\\main.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\main.cpp\"",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\app\\main.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\main.cpp\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/app/main.cpp",
   "output": "CMakeFiles/Physics.dir/src/app/main.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\camera.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\camera.cpp\"",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\camera.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\camera.cpp\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/renderer/camera.cpp",
   "output": "CMakeFiles/Physics.dir/src/renderer/camera.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\cube.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\cube.cpp\"",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\cube.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\cube.cpp\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/renderer/cube.cpp",
   "output": "CMakeFiles/Physics.dir/src/renderer/cube.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Sphere.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\Sphere.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/Sphere.cpp",
-  "output": "CMakeFiles/Physics.dir/src/renderer/Sphere.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\sphere.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\sphere.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/sphere.cpp",
+  "output": "CMakeFiles/Physics.dir/src/renderer/sphere.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Render.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\Render.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/Render.cpp",
-  "output": "CMakeFiles/Physics.dir/src/renderer/Render.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\render.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\render.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/render.cpp",
+  "output": "CMakeFiles/Physics.dir/src/renderer/render.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe  @CMakeFiles/Physics.dir/includes_C.rsp -O3 -DNDEBUG -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\glad.c.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\glad.c\"",
+  "command": "C:\\msys64\\ucrt64\\bin\\cc.exe  @CMakeFiles\\Physics.dir\\includes_C.rsp -O3 -DNDEBUG -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\glad.c.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\glad.c\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/renderer/glad.c",
   "output": "CMakeFiles/Physics.dir/src/renderer/glad.c.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp",
-  "output": "CMakeFiles/Physics.dir/src/physics/PhysicsSolver.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\physicssolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\physicssolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.cpp",
+  "output": "CMakeFiles/Physics.dir/src/physics/physicssolver.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\OBB.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp",
-  "output": "CMakeFiles/Physics.dir/src/physics/OBB.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\obb.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\obb.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/obb.cpp",
+  "output": "CMakeFiles/Physics.dir/src/physics/obb.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
-  "output": "CMakeFiles/Physics.dir/src/physics/Collision.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\physics\\collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/collision.cpp",
+  "output": "CMakeFiles/Physics.dir/src/physics/collision.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/Physics.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\Ground.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\Ground.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/Ground.cpp",
-  "output": "CMakeFiles/Physics.dir/src/renderer/Ground.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\src\\renderer\\ground.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\renderer\\ground.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/renderer/ground.cpp",
+  "output": "CMakeFiles/Physics.dir/src/renderer/ground.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\app\\physics_tests.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\physics_tests.cpp\"",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\imgui.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\imgui.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/imgui.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\imgui_draw.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\imgui_draw.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_draw.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/imgui_draw.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\imgui_tables.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\imgui_tables.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_tables.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/imgui_tables.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\imgui_widgets.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\imgui_widgets.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/imgui_widgets.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/imgui_widgets.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\backends\\imgui_impl_glfw.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\backends\\imgui_impl_glfw.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/backends/imgui_impl_glfw.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_glfw.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\Physics.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\Physics.dir\\vendor\\imgui\\backends\\imgui_impl_opengl3.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\vendor\\imgui\\backends\\imgui_impl_opengl3.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/vendor/imgui/backends/imgui_impl_opengl3.cpp",
+  "output": "CMakeFiles/Physics.dir/vendor/imgui/backends/imgui_impl_opengl3.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\PhysicsTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\app\\physics_tests.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\physics_tests.cpp\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/app/physics_tests.cpp",
   "output": "CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp",
-  "output": "CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\PhysicsTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\physicssolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\physicssolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.cpp",
+  "output": "CMakeFiles/PhysicsTests.dir/src/physics/physicssolver.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\OBB.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp",
-  "output": "CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\PhysicsTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\obb.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\obb.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/obb.cpp",
+  "output": "CMakeFiles/PhysicsTests.dir/src/physics/obb.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/PhysicsTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
-  "output": "CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\PhysicsTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\PhysicsTests.dir\\src\\physics\\collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/collision.cpp",
+  "output": "CMakeFiles/PhysicsTests.dir/src/physics/collision.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/DatasetGenerator.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\app\\dataset_main.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\dataset_main.cpp\"",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\DatasetGenerator.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\app\\dataset_main.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\dataset_main.cpp\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/app/dataset_main.cpp",
   "output": "CMakeFiles/DatasetGenerator.dir/src/app/dataset_main.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/DatasetGenerator.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp",
-  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/PhysicsSolver.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\DatasetGenerator.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\physicssolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\physicssolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.cpp",
+  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/physicssolver.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/DatasetGenerator.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\OBB.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp",
-  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/OBB.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\DatasetGenerator.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\obb.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\obb.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/obb.cpp",
+  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/obb.cpp.obj"
 },
 {
   "directory": "C:/Coding Projects/GitHub/Physics/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/DatasetGenerator.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
-  "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
-  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/Collision.cpp.obj"
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\DatasetGenerator.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\DatasetGenerator.dir\\src\\physics\\collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/collision.cpp",
+  "output": "CMakeFiles/DatasetGenerator.dir/src/physics/collision.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\SceneTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\SceneTests.dir\\src\\app\\scene_tests.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\scene_tests.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/app/scene_tests.cpp",
+  "output": "CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\SceneTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\SceneTests.dir\\src\\physics\\physicssolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\physicssolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.cpp",
+  "output": "CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\SceneTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\SceneTests.dir\\src\\physics\\obb.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\obb.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/obb.cpp",
+  "output": "CMakeFiles/SceneTests.dir/src/physics/obb.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\SceneTests.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\SceneTests.dir\\src\\physics\\collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/collision.cpp",
+  "output": "CMakeFiles/SceneTests.dir/src/physics/collision.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\ValidationSuite.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\ValidationSuite.dir\\src\\app\\validation_suite.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\validation_suite.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/app/validation_suite.cpp",
+  "output": "CMakeFiles/ValidationSuite.dir/src/app/validation_suite.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\ValidationSuite.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\ValidationSuite.dir\\src\\physics\\physicssolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\physicssolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/physicssolver.cpp",
+  "output": "CMakeFiles/ValidationSuite.dir/src/physics/physicssolver.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\ValidationSuite.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\ValidationSuite.dir\\src\\physics\\obb.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\obb.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/obb.cpp",
+  "output": "CMakeFiles/ValidationSuite.dir/src/physics/obb.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles\\ValidationSuite.dir\\includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\ValidationSuite.dir\\src\\physics\\collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/collision.cpp",
+  "output": "CMakeFiles/ValidationSuite.dir/src/physics/collision.cpp.obj"
 }
 ]

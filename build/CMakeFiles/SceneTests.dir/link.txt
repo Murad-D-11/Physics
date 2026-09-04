@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\SceneTests.dir/objects.a
+C:\msys64\ucrt64\bin\ar.exe qc CMakeFiles\SceneTests.dir/objects.a @CMakeFiles\SceneTests.dir\objects1.rsp
+C:\msys64\ucrt64\bin\c++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\SceneTests.dir/objects.a -Wl,--no-whole-archive -o SceneTests.exe -Wl,--out-implib,libSceneTests.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\SceneTests.dir\linkLibs.rsp

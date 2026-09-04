@@ -1,5 +1,5 @@
-CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.obj: \
- C:\Coding\ Projects\GitHub\Physics\src\physics\OBB.cpp \
+CMakeFiles/PhysicsTests.dir/src/physics/obb.cpp.obj: \
+ C:\Coding\ Projects\GitHub\Physics\src\physics\obb.cpp \
  C:\Coding\ Projects\GitHub\Physics\src\physics\obb.h \
  C:/CODING~1/GitHub/Physics/include/glm/glm.hpp \
  C:/CODING~1/GitHub/Physics/include/glm/detail/_fixes.hpp \

@@ -1,0 +1,97 @@
+{
+	"configurations" : 
+	[
+		{
+			"abstractTargets" : [],
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Release-b5805d5c08fd3d92def4.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Physics",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "DatasetGenerator::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-DatasetGenerator-Release-9f590c486b107ad45bdb.json",
+					"name" : "DatasetGenerator",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Physics::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Physics-Release-78b1bc0536bb7f8c6ac5.json",
+					"name" : "Physics",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "PhysicsTests::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-PhysicsTests-Release-a19df4542407af9f63a8.json",
+					"name" : "PhysicsTests",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "SceneTests::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-SceneTests-Release-af9ec016e5f8334b5835.json",
+					"name" : "SceneTests",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ValidationSuite::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ValidationSuite-Release-0d926a5b4018ec040e89.json",
+					"name" : "ValidationSuite",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Coding Projects/GitHub/Physics/build",
+		"source" : "C:/Coding Projects/GitHub/Physics"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 11
+	}
+}

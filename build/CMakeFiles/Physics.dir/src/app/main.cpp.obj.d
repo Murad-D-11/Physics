@@ -419,4 +419,11 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: \
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++io.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/fstream.tcc \
  C:/Coding\ Projects/GitHub/Physics/src/ml/PathPredictor.h \
- C:/Coding\ Projects/GitHub/Physics/src/ml/Environment.h
+ C:/Coding\ Projects/GitHub/Physics/src/ml/Environment.h \
+ C:/CODING~1/GitHub/Physics/vendor/imgui/imgui.h \
+ C:/CODING~1/GitHub/Physics/vendor/imgui/imconfig.h \
+ C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdarg.h \
+ C:/msys64/ucrt64/include/stdarg.h \
+ C:/msys64/ucrt64/include/_mingw_stdarg.h \
+ C:/CODING~1/GitHub/Physics/vendor/imgui/backends/imgui_impl_glfw.h \
+ C:/CODING~1/GitHub/Physics/vendor/imgui/backends/imgui_impl_opengl3.h

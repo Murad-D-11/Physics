@@ -105,8 +105,14 @@ struct RopeConstraint {
     glm::vec3 worldAnchorB = glm::vec3(0.0f);
     glm::vec3 direction    = glm::vec3(0.0f); // unit vector A->B when taut
 
-    // Accumulated impulse for warm-starting
+    // Accumulated impulse solved THIS pass (reset each solve pass). `tension`
+    // reports this converged value -- the real per-step rope tension impulse.
     float accumulatedImpulse = 0.0f;
+    // Persisted converged impulse from the previous solve, re-applied by
+    // warmStartRopes() so the solver starts near the solution. Kept separate
+    // from accumulatedImpulse so a rope solved across multiple sub-passes in a
+    // single step does not double-count its reported tension.
+    float warmImpulse = 0.0f;
 };
 
 // ============================================================================

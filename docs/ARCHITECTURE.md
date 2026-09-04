@@ -49,6 +49,10 @@ points inward toward the solver.
 - **ML / Research** depends only on Physics. It has **no** rendering
   dependency, so it compiles and runs headless.
 - **Application** is the only layer allowed to wire the other three together.
+  It also owns the on-screen GUI: **Dear ImGui** (vendored under `vendor/imgui`,
+  GLFW + OpenGL3 backends) is linked into the `Physics` app target only. The
+  headless targets (`PhysicsTests`, `SceneTests`, `ValidationSuite`,
+  `DatasetGenerator`) do **not** link ImGui or any GL, so they stay pure.
 
 ---
 
@@ -136,7 +140,7 @@ A few things worth noting from the graph:
 
 | Module | Responsibility |
 | --- | --- |
-| `Render` | All draw calls: bodies, ground grid, lines, dotted/solid trajectory paths, status bars, pause icon. Holds the shaders and GL buffers. |
+| `Render` | All draw calls: bodies, static collision planes (ramps/tables drawn as thin slabs), ground grid, lines, dotted/solid trajectory paths, status bars, pause icon. Holds the shaders and GL buffers. |
 | `Camera` | Orbit camera: view/projection matrices, mouse-drag orbit, scroll zoom. |
 | `Cube`, `Sphere`, `Ground` | Mesh geometry for the three drawable primitives. |
 | `glad.c` | OpenGL function loader. |
@@ -145,8 +149,8 @@ A few things worth noting from the graph:
 
 | Module | Responsibility |
 | --- | --- |
-| `main.cpp` | Window/GL setup, the fixed-timestep loop, input callbacks, overlays, HUD, and the wiring of renderer + scenes + recorder + predictor. |
-| `Scene.h` | Base scene: `load()/update()/reset()`, owned bodies + constraints, name/description/principle metadata, and adjustable parameters. |
+| `main.cpp` | Window/GL setup, the fixed-timestep loop, input callbacks, overlays, HUD, the Dear ImGui **laboratory browser** (searchable scene list with per-scene body/constraint metadata + principle, play/pause/step, parameter sliders, and a live telemetry panel) plus the fading scene-title banner, and the wiring of renderer + scenes + recorder + predictor. |
+| `Scene.h` | Base scene: `load()/update()/reset()`, owned bodies + constraints, name/description/principle metadata, adjustable parameters, and reusable **apparatus builders** (`sceneAddStaticBox`, `sceneAddGuideShaft`, `sceneAddRampSlab`) for assembling scenes from real physical parts. `HingeDesc` exposes revolute angle-limits + motor. |
 | `SceneManager.h` | Registers scenes, switches between them, and re-points the solver's constraint lists at the active scene's stable storage. |
 | `Scenes.h` | The 13 concrete experiments (Mechanics / Structures / Dynamics / Sandbox). |
 | `SimulationRecorder.h` | Read-only per-step capture of body state into memory and CSV export. |

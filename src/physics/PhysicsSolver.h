@@ -190,7 +190,10 @@ class PhysicsSolver {
         void precomputeHinges();
         void solveHingeVelocities();
         void solveHingePositions();
+        void prepareRopes();
+        void warmStartRopes();
         void solveRopeVelocities();
+        void solveRopePositions();
         void preparePulleys();
         void warmStartPulleys();
         void solvePulleyVelocities();

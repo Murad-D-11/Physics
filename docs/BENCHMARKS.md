@@ -159,21 +159,40 @@ it.
 
 ## 6. Validation summary
 
-The full suite runs well over 200 individual assertions across 17 sections
+The full suite runs well over 300 individual assertions across 18 sections
 (linear/rotational mechanics, contacts, energy, stability, constraints, spheres,
-slopes, springs/hinges, ropes/pulleys, Atwood machine).
+slopes, springs/hinges, ropes/pulleys, a dedicated rope-tension battery, and the
+Atwood machine).
 
 | Result | Count |
 | --- | ---: |
-| Passed | 287 |
-| Failed | 7 |
+| Passed | 313 |
+| Failed | 2 |
 | Known limitations | 0 |
 
-**On the 7 failures:** these are the rope sub-cases (a known baseline in the
-rope/pulley section) that predate the recent research-platform work and are
-tracked separately. They are not regressions introduced by the scene library,
-materials, ML layer, or documentation. Every mechanics, contact, energy,
-momentum, rotational, sphere, slope, spring, hinge, and Atwood check passes.
+**Rope-tension battery (section 16b).** The rope constraint was rebuilt to
+carry real tension (prepare + warm-start + bias-free velocity solve + iterated,
+rotation-aware, one-sided position solve — no artificial damping). A dedicated
+battery now pins the behaviour to closed-form physics, and all of it passes:
+
+| Check | Result |
+| --- | --- |
+| Static hang holds at rope length, at rest, carrying weight-scale tension | pass |
+| Pendulum period vs `2*pi*sqrt(L/g)` (meas 3.467 s / exp 3.475 s, 0.2% error) | pass |
+| Taut-rope inextensibility (max length 3.003 m on a 3 m rope under load) | pass |
+| Swinging-pendulum energy conservation (drift 0.30 J, per-step <= 0.005 J) | pass |
+| Symmetric two-body hang settles symmetric and at rest | pass |
+| Hanging chain: finite, decaying toward rest, sagging under gravity | pass |
+| Newton's cradle: momentum bounded, no energy created, disturbance propagates | pass |
+| Determinism (identical setups produce identical trajectories) | pass |
+
+**On the 2 remaining failures:** both are the **Atwood-machine pulley** case
+(section 16, RP5), where the ideal-pulley constraint under-transmits the
+coupling so the masses do not reach the analytical acceleration. This is a
+distinct **pulley** constraint issue, separate from the rope solver that was
+just fixed, and it is not a regression (the pulley code was untouched). Every
+mechanics, contact, energy, momentum, rotational, sphere, slope, spring, hinge,
+and rope check passes.
 
 ### Why the pass/fail split is meaningful
 
