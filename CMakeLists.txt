@@ -49,3 +49,14 @@ target_include_directories(DatasetGenerator PRIVATE ${CMAKE_SOURCE_DIR}/include)
 add_executable(SceneTests src/app/scene_tests.cpp src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp)
 target_compile_options(SceneTests PRIVATE -O2)
 target_include_directories(SceneTests PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+# ---------------------------------------------------------------------------
+# Physics Validation Laboratory (no OpenGL). Runs analytic experiments through
+# the four validation layers (A numerical integrity, B constraint validation,
+# C physical-law analytical comparison with %% error, D randomized stress
+# testing). Deterministic; the scientific regression benchmark for the engine.
+# Build with:  cmake --build build --target ValidationSuite
+# ---------------------------------------------------------------------------
+add_executable(ValidationSuite src/app/validation_suite.cpp src/physics/physicssolver.cpp src/physics/obb.cpp src/physics/collision.cpp)
+target_compile_options(ValidationSuite PRIVATE -O2)
+target_include_directories(ValidationSuite PRIVATE ${CMAKE_SOURCE_DIR}/include)

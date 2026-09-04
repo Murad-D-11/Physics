@@ -63,4 +63,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/PhysicsTests.dir/DependInfo.cmake"
   "CMakeFiles/DatasetGenerator.dir/DependInfo.cmake"
   "CMakeFiles/SceneTests.dir/DependInfo.cmake"
+  "CMakeFiles/ValidationSuite.dir/DependInfo.cmake"
   )

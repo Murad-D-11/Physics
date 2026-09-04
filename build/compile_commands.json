@@ -130,5 +130,29 @@
   "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/SceneTests.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\SceneTests.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
   "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
   "output": "CMakeFiles/SceneTests.dir/src/physics/Collision.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/ValidationSuite.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\ValidationSuite.dir\\src\\app\\validation_suite.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\app\\validation_suite.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/app/validation_suite.cpp",
+  "output": "CMakeFiles/ValidationSuite.dir/src/app/validation_suite.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/ValidationSuite.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\ValidationSuite.dir\\src\\physics\\PhysicsSolver.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\PhysicsSolver.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp",
+  "output": "CMakeFiles/ValidationSuite.dir/src/physics/PhysicsSolver.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/ValidationSuite.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\ValidationSuite.dir\\src\\physics\\OBB.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\OBB.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp",
+  "output": "CMakeFiles/ValidationSuite.dir/src/physics/OBB.cpp.obj"
+},
+{
+  "directory": "C:/Coding Projects/GitHub/Physics/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe  @CMakeFiles/ValidationSuite.dir/includes_CXX.rsp -O3 -DNDEBUG -std=gnu++17 -O2 -o CMakeFiles\\ValidationSuite.dir\\src\\physics\\Collision.cpp.obj -c \"C:\\Coding Projects\\GitHub\\Physics\\src\\physics\\Collision.cpp\"",
+  "file": "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp",
+  "output": "CMakeFiles/ValidationSuite.dir/src/physics/Collision.cpp.obj"
 }
 ]

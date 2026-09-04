@@ -9,9 +9,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Coding Projects/GitHub/Physics/src/app/physics_tests.cpp" "CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj" "gcc" "CMakeFiles/PhysicsTests.dir/src/app/physics_tests.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp" "CMakeFiles/PhysicsTests.dir/src/physics/collision.cpp.obj" "gcc" "CMakeFiles/PhysicsTests.dir/src/physics/collision.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp" "CMakeFiles/PhysicsTests.dir/src/physics/obb.cpp.obj" "gcc" "CMakeFiles/PhysicsTests.dir/src/physics/obb.cpp.obj.d"
-  "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp" "CMakeFiles/PhysicsTests.dir/src/physics/physicssolver.cpp.obj" "gcc" "CMakeFiles/PhysicsTests.dir/src/physics/physicssolver.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/Collision.cpp" "CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.obj" "gcc" "CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/OBB.cpp" "CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.obj" "gcc" "CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.obj.d"
+  "C:/Coding Projects/GitHub/Physics/src/physics/PhysicsSolver.cpp" "CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj" "gcc" "CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -18,7 +18,8 @@
 						0,
 						1,
 						2,
-						3
+						3,
+						4
 					]
 				}
 			],
@@ -36,7 +37,8 @@
 						0,
 						1,
 						2,
-						3
+						3,
+						4
 					]
 				}
 			],
@@ -68,6 +70,13 @@
 					"id" : "SceneTests::@6890427a1f51a3e7e1df",
 					"jsonFile" : "target-SceneTests-Release-3a050ec1a2f2f36067e7.json",
 					"name" : "SceneTests",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ValidationSuite::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ValidationSuite-Release-36e1ffef47dfceb6708d.json",
+					"name" : "ValidationSuite",
 					"projectIndex" : 0
 				}
 			]

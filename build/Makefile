@@ -167,6 +167,19 @@ SceneTests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/build
 .PHONY : SceneTests/fast
 
+#=============================================================================
+# Target rules for targets named ValidationSuite
+
+# Build rule for target.
+ValidationSuite: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 ValidationSuite
+.PHONY : ValidationSuite
+
+# fast build rule for target.
+ValidationSuite/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/build
+.PHONY : ValidationSuite/fast
+
 src/app/dataset_main.obj: src/app/dataset_main.cpp.obj
 .PHONY : src/app/dataset_main.obj
 
@@ -263,6 +276,30 @@ src/app/scene_tests.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/app/scene_tests.cpp.s
 .PHONY : src/app/scene_tests.cpp.s
 
+src/app/validation_suite.obj: src/app/validation_suite.cpp.obj
+.PHONY : src/app/validation_suite.obj
+
+# target to build an object file
+src/app/validation_suite.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/app/validation_suite.cpp.obj
+.PHONY : src/app/validation_suite.cpp.obj
+
+src/app/validation_suite.i: src/app/validation_suite.cpp.i
+.PHONY : src/app/validation_suite.i
+
+# target to preprocess a source file
+src/app/validation_suite.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/app/validation_suite.cpp.i
+.PHONY : src/app/validation_suite.cpp.i
+
+src/app/validation_suite.s: src/app/validation_suite.cpp.s
+.PHONY : src/app/validation_suite.s
+
+# target to generate assembly for a file
+src/app/validation_suite.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/app/validation_suite.cpp.s
+.PHONY : src/app/validation_suite.cpp.s
+
 src/physics/Collision.obj: src/physics/Collision.cpp.obj
 .PHONY : src/physics/Collision.obj
 
@@ -272,6 +309,7 @@ src/physics/Collision.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/Collision.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/Collision.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/Collision.cpp.obj
 .PHONY : src/physics/Collision.cpp.obj
 
 src/physics/Collision.i: src/physics/Collision.cpp.i
@@ -283,6 +321,7 @@ src/physics/Collision.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/Collision.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/Collision.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/Collision.cpp.i
 .PHONY : src/physics/Collision.cpp.i
 
 src/physics/Collision.s: src/physics/Collision.cpp.s
@@ -294,6 +333,7 @@ src/physics/Collision.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/Collision.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/Collision.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/Collision.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/Collision.cpp.s
 .PHONY : src/physics/Collision.cpp.s
 
 src/physics/OBB.obj: src/physics/OBB.cpp.obj
@@ -305,6 +345,7 @@ src/physics/OBB.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/OBB.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/OBB.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/OBB.cpp.obj
 .PHONY : src/physics/OBB.cpp.obj
 
 src/physics/OBB.i: src/physics/OBB.cpp.i
@@ -316,6 +357,7 @@ src/physics/OBB.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/OBB.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/OBB.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/OBB.cpp.i
 .PHONY : src/physics/OBB.cpp.i
 
 src/physics/OBB.s: src/physics/OBB.cpp.s
@@ -327,6 +369,7 @@ src/physics/OBB.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/OBB.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/OBB.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/OBB.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/OBB.cpp.s
 .PHONY : src/physics/OBB.cpp.s
 
 src/physics/PhysicsSolver.obj: src/physics/PhysicsSolver.cpp.obj
@@ -338,6 +381,7 @@ src/physics/PhysicsSolver.cpp.obj:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/PhysicsSolver.cpp.obj
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/PhysicsSolver.cpp.obj
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/PhysicsSolver.cpp.obj
 .PHONY : src/physics/PhysicsSolver.cpp.obj
 
 src/physics/PhysicsSolver.i: src/physics/PhysicsSolver.cpp.i
@@ -349,6 +393,7 @@ src/physics/PhysicsSolver.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/PhysicsSolver.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/PhysicsSolver.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/PhysicsSolver.cpp.i
 .PHONY : src/physics/PhysicsSolver.cpp.i
 
 src/physics/PhysicsSolver.s: src/physics/PhysicsSolver.cpp.s
@@ -360,6 +405,7 @@ src/physics/PhysicsSolver.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\PhysicsTests.dir\build.make CMakeFiles/PhysicsTests.dir/src/physics/PhysicsSolver.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DatasetGenerator.dir\build.make CMakeFiles/DatasetGenerator.dir/src/physics/PhysicsSolver.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/src/physics/PhysicsSolver.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/src/physics/PhysicsSolver.cpp.s
 .PHONY : src/physics/PhysicsSolver.cpp.s
 
 src/renderer/Camera.obj: src/renderer/Camera.cpp.obj
@@ -518,6 +564,7 @@ help:
 	@echo ... Physics
 	@echo ... PhysicsTests
 	@echo ... SceneTests
+	@echo ... ValidationSuite
 	@echo ... src/app/dataset_main.obj
 	@echo ... src/app/dataset_main.i
 	@echo ... src/app/dataset_main.s
@@ -530,6 +577,9 @@ help:
 	@echo ... src/app/scene_tests.obj
 	@echo ... src/app/scene_tests.i
 	@echo ... src/app/scene_tests.s
+	@echo ... src/app/validation_suite.obj
+	@echo ... src/app/validation_suite.i
+	@echo ... src/app/validation_suite.s
 	@echo ... src/physics/Collision.obj
 	@echo ... src/physics/Collision.i
 	@echo ... src/physics/Collision.s

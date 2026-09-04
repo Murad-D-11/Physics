@@ -66,6 +66,7 @@ all: CMakeFiles/Physics.dir/all
 all: CMakeFiles/PhysicsTests.dir/all
 all: CMakeFiles/DatasetGenerator.dir/all
 all: CMakeFiles/SceneTests.dir/all
+all: CMakeFiles/ValidationSuite.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
@@ -73,6 +74,7 @@ codegen: CMakeFiles/Physics.dir/codegen
 codegen: CMakeFiles/PhysicsTests.dir/codegen
 codegen: CMakeFiles/DatasetGenerator.dir/codegen
 codegen: CMakeFiles/SceneTests.dir/codegen
+codegen: CMakeFiles/ValidationSuite.dir/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
@@ -84,6 +86,7 @@ clean: CMakeFiles/Physics.dir/clean
 clean: CMakeFiles/PhysicsTests.dir/clean
 clean: CMakeFiles/DatasetGenerator.dir/clean
 clean: CMakeFiles/SceneTests.dir/clean
+clean: CMakeFiles/ValidationSuite.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -213,6 +216,38 @@ CMakeFiles/SceneTests.dir/codegen:
 CMakeFiles/SceneTests.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\SceneTests.dir\build.make CMakeFiles/SceneTests.dir/clean
 .PHONY : CMakeFiles/SceneTests.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/ValidationSuite.dir
+
+# All Build rule for target.
+CMakeFiles/ValidationSuite.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=27,28,29,30,31 "Built target ValidationSuite"
+.PHONY : CMakeFiles/ValidationSuite.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/ValidationSuite.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Coding Projects\GitHub\Physics\build\CMakeFiles" 5
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/ValidationSuite.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start "C:\Coding Projects\GitHub\Physics\build\CMakeFiles" 0
+.PHONY : CMakeFiles/ValidationSuite.dir/rule
+
+# Convenience name for target.
+ValidationSuite: CMakeFiles/ValidationSuite.dir/rule
+.PHONY : ValidationSuite
+
+# codegen rule for target.
+CMakeFiles/ValidationSuite.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="C:\Coding Projects\GitHub\Physics\build\CMakeFiles" --progress-num=27,28,29,30,31 "Finished codegen for target ValidationSuite"
+.PHONY : CMakeFiles/ValidationSuite.dir/codegen
+
+# clean rule for target.
+CMakeFiles/ValidationSuite.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ValidationSuite.dir\build.make CMakeFiles/ValidationSuite.dir/clean
+.PHONY : CMakeFiles/ValidationSuite.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
