@@ -1256,6 +1256,7 @@ int main() {
     DoublePendulumScene  doublePendulum;  // Dynamics
     SpringPendulumScene  springPendulum;
     TrebuchetScene       trebuchet;
+    BallisticsScene      ballistics;      // Aerodynamics / kinematics
     SandboxScene         sandbox;         // Interactive
 
     SceneManager sceneManager(physicsSolver);
@@ -1271,6 +1272,7 @@ int main() {
     sceneManager.registerScene("Double Pendulum",   &doublePendulum);   // N/B
     sceneManager.registerScene("Spring Pendulum",   &springPendulum);   // N/B
     sceneManager.registerScene("Trebuchet",         &trebuchet);        // N/B
+    sceneManager.registerScene("Ballistics",        &ballistics);       // N/B
     sceneManager.registerScene("Sandbox",           &sandbox);          // N/B
     activeSceneManager = &sceneManager;
 

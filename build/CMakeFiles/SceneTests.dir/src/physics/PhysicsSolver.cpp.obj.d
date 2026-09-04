@@ -1,5 +1,5 @@
-CMakeFiles/SceneTests.dir/src/physics/PhysicsSolver.cpp.obj: \
- C:\Coding\ Projects\GitHub\Physics\src\physics\PhysicsSolver.cpp \
+CMakeFiles/SceneTests.dir/src/physics/physicssolver.cpp.obj: \
+ C:\Coding\ Projects\GitHub\Physics\src\physics\physicssolver.cpp \
  C:\Coding\ Projects\GitHub\Physics\src\physics\physicssolver.h \
  C:/CODING~1/GitHub/Physics/include/glm/glm.hpp \
  C:/CODING~1/GitHub/Physics/include/glm/detail/_fixes.hpp \

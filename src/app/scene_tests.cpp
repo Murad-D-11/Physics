@@ -98,6 +98,7 @@ int main() {
     DoublePendulumScene  doublePendulum;
     SpringPendulumScene  springPendulum;
     TrebuchetScene       trebuchet;
+    BallisticsScene      ballistics;
     SandboxScene         sandbox;
 
     SceneManager mgr(solver);
@@ -113,6 +114,7 @@ int main() {
     mgr.registerScene("Double Pendulum",   &doublePendulum);
     mgr.registerScene("Spring Pendulum",   &springPendulum);
     mgr.registerScene("Trebuchet",         &trebuchet);
+    mgr.registerScene("Ballistics",        &ballistics);
     mgr.registerScene("Sandbox",           &sandbox);
 
     const int steps = 360; // 6 s
