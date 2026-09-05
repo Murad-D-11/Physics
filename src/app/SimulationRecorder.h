@@ -87,8 +87,17 @@ public:
                "ang_vel_x,ang_vel_y,ang_vel_z,"
                "quat_w,quat_x,quat_y,quat_z\n";
 
+        // Group the output BY OBJECT ID: emit every frame for object 0 (in
+        // chronological step order), then every frame for object 1, and so on.
+        // We iterate object ids from 0 up to the largest id seen, and for each
+        // id walk `frames_` in its original capture order (which is already
+        // time-ordered), so each object's block is contiguous and sorted by
+        // step. Object ids are body indices, so they are small and contiguous.
+        int maxId = -1;
+        for (const Frame& f : frames_) if (f.objectId > maxId) maxId = f.objectId;
+
         char line[512];
-        for (const Frame& f : frames_) {
+        auto writeFrame = [&](const Frame& f) {
             std::snprintf(line, sizeof(line),
                 "%llu,%.6f,%d,%d,"
                 "%.6f,%.6f,%.6f,"
@@ -101,6 +110,12 @@ public:
                 f.angularVelocity.x, f.angularVelocity.y, f.angularVelocity.z,
                 f.orientation.w, f.orientation.x, f.orientation.y, f.orientation.z);
             out << line;
+        };
+
+        for (int id = 0; id <= maxId; ++id) {
+            for (const Frame& f : frames_) {
+                if (f.objectId == id) writeFrame(f);
+            }
         }
         return out.good();
     }

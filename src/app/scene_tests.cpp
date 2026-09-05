@@ -102,7 +102,6 @@ int main() {
     HangingChainWaveScene  hangingChainWave;
     ObjectVolumeScene      objectVolume;
     CableStayedBridgeScene cableStayedBridge;
-    GyroscopeScene         gyroscope;
     ExplosionScene         explosion;
     BoulderCastleScene     boulderCastle;
     SandboxScene         sandbox;
@@ -123,7 +122,6 @@ int main() {
     mgr.registerScene("Hanging Chain Wave", &hangingChainWave);
     mgr.registerScene("Object Volume",      &objectVolume);
     mgr.registerScene("Cable-Stayed Bridge",&cableStayedBridge);
-    mgr.registerScene("Gyroscope",          &gyroscope);
     mgr.registerScene("Explosion",          &explosion);
     mgr.registerScene("Boulder vs Castle",  &boulderCastle);
     mgr.registerScene("Sandbox",           &sandbox);
@@ -554,26 +552,9 @@ int main() {
               "knocked=" + std::to_string(knocked) + "/" + std::to_string(bricks));
     }
 
-    // ---- 16. Gyroscope: the flywheel starts spinning fast and STAYS UP on its
-    //          support (does not fall/collapse). We do NOT assert that it keeps
-    //          its spin or precesses: the sequential-impulse angular integrator
-    //          dissipates gyroscopic angular momentum, so spin decays and there
-    //          is no precession. This is a documented limitation (see
-    //          docs/VALIDATION.md) -- the scene ships as a stable demonstrator
-    //          and standing regression benchmark, not a validated precession
-    //          lab. The test therefore verifies exactly what the engine can
-    //          honestly deliver today. ----
-    {
-        auto& bs = loadFresh("Gyroscope");
-        RigidBody* wheel = nullptr; float mmax = 0.0f;
-        for (auto& b : bs) if (b.inverseMass > 0.0f && b.mass > mmax) { mmax = b.mass; wheel = &b; }
-        const float spin0 = wheel ? glm::length(wheel->angularVelocity) : 0.0f;
-        RunStats st = simulate(solver, bs, 300);
-        check("Gyroscope", "flywheel is spun up at start", spin0 > 10.0f,
-              "spin0=" + std::to_string(spin0));
-        check("Gyroscope", "assembly stays up (no collapse)", wheel && wheel->position.y > 3.0f && st.allFinite,
-              "wheelY=" + std::to_string(wheel ? wheel->position.y : 0.0f));
-    }
+    // ---- Gyroscope REMOVED (see Scenes.h): the solver does not carry real
+    //      gyroscopic coupling, so a genuine spin-stabilised gyroscope can't be
+    //      done without faking it. Scene dropped rather than shipped misleading. ----
 
     // ---- Cable-Stayed Bridge: deck stays suspended and roughly level. ----
     {

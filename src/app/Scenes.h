@@ -868,7 +868,13 @@ public:
 // ---------------------------------------------------------------------------
 class DoublePendulumScene : public Scene {
 public:
-    DoublePendulumScene() { addParam("startAngleDeg", 90.0f, 0.0f, 170.0f); }
+    DoublePendulumScene() {
+        addParam("startAngleDeg", 90.0f, 0.0f, 170.0f);
+        // Sideways launch kick (m/s) applied to both bobs at release. Range is
+        // wide enough to drive the pendulum over the top so it completes full
+        // loops rather than just swinging.
+        addParam("launchForce", 0.0f, 0.0f, 80.0f);
+    }
     const char* name() const override { return "Double Pendulum"; }
     const char* description() const override { return "Two balls on inextensible strings swinging from a fixed pivot."; }
     const char* principle() const override { return "Chaotic dynamics: sensitivity to initial conditions."; }
@@ -879,10 +885,11 @@ public:
         // are one-sided inextensible distance constraints, so each string holds
         // its exact length in tension -- the classic double-pendulum idealisation
         // of two bobs on rigid, massless links. Released off-vertical so the
-        // motion is chaotic.
+        // motion is chaotic; the launch kick can drive it over the top.
         const float startAngle = glm::radians(param("startAngleDeg", 90.0f));
-        const glm::vec3 pivot(0.0f, 7.0f, 0.0f);
-        const float len1 = 2.0f, len2 = 2.0f;
+        const float launch     = param("launchForce", 0.0f);   // sideways kick (m/s)
+        const glm::vec3 pivot(0.0f, 17.0f, 0.0f);
+        const float len1 = 10.0f, len2 = 2.0f;
         const float r = 0.3f;
 
         bodies.reserve(2);
@@ -893,6 +900,7 @@ public:
         bob1.position = pivot + dir1 * len1;
         sceneSetSphereMass(bob1, 1.0f, r);
         bob1.friction = 0.0f; bob1.restitution = 0.0f;
+        bob1.velocity = glm::vec3(launch, 0.0f, 0.0f);          // sideways launch kick
         bodies.push_back(bob1);                                 // index 0
 
         // Ball 2: hangs straight down from ball 1 (string 2 taut).
@@ -900,6 +908,7 @@ public:
         bob2.position = bob1.position + glm::vec3(0.0f, -len2, 0.0f);
         sceneSetSphereMass(bob2, 1.0f, r);
         bob2.friction = 0.0f; bob2.restitution = 0.0f;
+        bob2.velocity = glm::vec3(launch, 0.0f, 0.0f);          // sideways launch kick
         bodies.push_back(bob2);                                 // index 1
 
         // String 1: fixed pivot -> ball 1 (inextensible, length len1).
@@ -1516,96 +1525,15 @@ public:
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// 19. Gyroscope
+// 19. Gyroscope -- REMOVED
 //
-// A flywheel (a flat, disk-like box) mounted on an offset hinge and spun up to a
-// high angular velocity. A real gyroscope with an off-centre support precesses:
-// its spin axis slowly rotates about the vertical under gravity's torque,
-// Omega = tau / (I*omega).
-//
-// HONEST NOTE: the validation lab (EXPERIMENT 8) measured this engine's
-// precession rate at ~0 rad/s versus a theoretical ~1.0 rad/s — the sequential
-// impulse solver dissipates the gyroscopic coupling, so the flywheel here spins
-// and stays up but does NOT reproduce quantitative precession. It is included
-// as a stable, deterministic demonstrator and a standing regression benchmark
-// for future angular-dynamics work, not as a validated precession lab.
+// Removed by request. This engine's sequential-impulse solver does not carry
+// real gyroscopic coupling (the validation lab measured precession ~0 vs ~1
+// rad/s theory), so a genuine spin-stabilised gyroscope is not achievable
+// without faking the physics. Rather than ship a scene whose stability is a
+// motor-torque stand-in for effects the solver cannot reproduce, the scene was
+// dropped.
 // ---------------------------------------------------------------------------
-class GyroscopeScene : public Scene {
-public:
-    GyroscopeScene() {
-        addParam("rpm", 600.0f, 0.0f, 1500.0f);
-    }
-    const char* name() const override { return "Gyroscope"; }
-    const char* description() const override { return "A spinning flywheel on an offset support (precession is not yet reproduced)."; }
-    const char* principle() const override { return "Angular momentum of a spinning rotor; ideal precession Omega = tau/(I*omega)."; }
-
-    void load() override {
-        // Laboratory gyroscope apparatus: a wide pedestal base carries a bearing
-        // housing; the axle runs on a fixed bearing (a world hinge) and a disk
-        // flywheel spins at its tip inside a gimbal ring. The support stays put.
-        //
-        // HONEST LIMITATION: this engine's sequential-impulse angular integrator
-        // dissipates gyroscopic coupling (the validation lab measured precession
-        // ~0 vs ~1 rad/s theory), and there is no cylinder primitive (the wheel
-        // is a thin disk-like box). So the flywheel spins and the rig stays
-        // upright, but it does NOT reproduce quantitative precession. It ships
-        // as a stable demonstrator + standing regression benchmark, not a
-        // validated precession lab. The success test asserts only that.
-        const float rpm   = param("rpm", 600.0f);
-        const float omega = rpm * 2.0f * 3.14159265f / 60.0f;   // rad/s about spin axis
-        const float pivotY = 4.5f;
-        const glm::vec3 pivot(0.0f, pivotY, 0.0f);
-        const float axleLen = 1.6f;
-
-        bodies.reserve(10);
-
-        // --- Dynamic parts FIRST so the wheel (heaviest) is easy to find ------
-        // Axle (index 0): from the bearing out to the flywheel.
-        RigidBody axle;
-        axle.scale = glm::vec3(axleLen, 0.15f, 0.15f);
-        axle.position = pivot + glm::vec3(axleLen * 0.5f, 0.0f, 0.0f);
-        sceneSetCubeMass(axle, 0.3f); axle.friction = 0.0f; axle.restitution = 0.0f;
-        const int axleIdx = 0; bodies.push_back(axle);
-
-        // Flywheel (index 1): a thick disk-like box at the axle tip, spinning
-        // about the axle (X) axis. Heaviest dynamic body.
-        RigidBody wheel;
-        wheel.scale = glm::vec3(0.3f, 1.8f, 1.8f);
-        wheel.position = pivot + glm::vec3(axleLen, 0.0f, 0.0f);
-        sceneSetCubeMass(wheel, 5.0f); wheel.friction = 0.0f; wheel.restitution = 0.0f;
-        wheel.angularVelocity = glm::vec3(omega, 0.0f, 0.0f);
-        const int wheelIdx = 1; bodies.push_back(wheel);
-
-        // Axle on a FIXED bearing: world hinge at the pivot (Y axis = the
-        // vertical precession axis of an ideal gyro).
-        HingeDesc h; h.bodyA = -1; h.localAnchorA = pivot;
-        h.bodyB = axleIdx; h.localAnchorB = glm::vec3(-axleLen * 0.5f, 0.0f, 0.0f);
-        h.localAxisA = glm::vec3(0, 1, 0); h.localAxisB = glm::vec3(0, 1, 0);
-        hinges.push_back(h);
-
-        // Keep the spinning wheel located at the axle tip (short taut rope; the
-        // solver has no weld joint, so the wheel spins freely about its own axis
-        // while staying attached).
-        RopeDesc weld; weld.bodyA = axleIdx; weld.localAnchorA = glm::vec3(axleLen * 0.5f, 0.0f, 0.0f);
-        weld.bodyB = wheelIdx; weld.localAnchorB = glm::vec3(-0.15f, 0.0f, 0.0f);
-        weld.maxLength = 0.05f; ropes.push_back(weld);
-
-        // --- Apparatus (static, rendered) -------------------------------------
-        // Wide pedestal base + column + bearing housing at the pivot.
-        sceneAddStaticBox(bodies, glm::vec3(-0.3f, 0.4f, 0.0f), glm::vec3(2.4f, 0.8f, 2.4f)); // base
-        sceneAddStaticBox(bodies, glm::vec3(-0.3f, pivotY * 0.5f + 0.4f, 0.0f),
-                          glm::vec3(0.5f, pivotY, 0.5f));                                     // column
-        sceneAddStaticBox(bodies, glm::vec3(-0.3f, pivotY, 0.0f), glm::vec3(0.7f, 0.6f, 0.7f)); // bearing housing
-        // Gimbal ring around the flywheel: four thin static bars framing it (a
-        // suggested ring; the wheel spins freely inside).
-        const glm::vec3 wc = pivot + glm::vec3(axleLen, 0.0f, 0.0f);
-        const float rr = 1.15f;
-        sceneAddStaticBox(bodies, wc + glm::vec3(0.0f,  rr, 0.0f), glm::vec3(0.1f, 0.1f, 2.2f)); // top bar
-        sceneAddStaticBox(bodies, wc + glm::vec3(0.0f, -rr, 0.0f), glm::vec3(0.1f, 0.1f, 2.2f)); // bottom bar
-        sceneAddStaticBox(bodies, wc + glm::vec3(0.0f, 0.0f,  rr), glm::vec3(0.1f, 2.2f, 0.1f)); // front bar
-        sceneAddStaticBox(bodies, wc + glm::vec3(0.0f, 0.0f, -rr), glm::vec3(0.1f, 2.2f, 0.1f)); // back bar
-    }
-};
 
 // ---------------------------------------------------------------------------
 // 20. Explosion

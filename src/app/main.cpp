@@ -2,7 +2,10 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <cstdarg>
+#include <cstdio>
 #include <iomanip>
+#include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -41,6 +44,26 @@ static void markSceneTitle(const char* nm, const char* pr) {
     sceneTitleStamp = glfwGetTime();
     sceneTitleName = nm ? nm : "";
     sceneTitlePrinciple = pr ? pr : "";
+}
+
+// --- Transient on-screen "toast" for user actions -------------------------
+// A short message that pops in the bottom-centre of the window and fades out,
+// giving visual feedback for environment/material/spawn/etc. changes that would
+// otherwise only print to the console. Set via showToast(); drawn each frame.
+static std::string gToastMsg;
+static double      gToastStamp = -100.0; // glfwGetTime() when last set
+static void showToast(const std::string& msg) {
+    gToastMsg   = msg;
+    gToastStamp = glfwGetTime();
+}
+// printf-style convenience so callers can format values inline.
+static void showToastf(const char* fmt, ...) {
+    char buf[256];
+    va_list args;
+    va_start(args, fmt);
+    std::vsnprintf(buf, sizeof(buf), fmt, args);
+    va_end(args);
+    showToast(std::string(buf));
 }
 
 Camera* activeCamera = nullptr;
@@ -237,19 +260,36 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         } else if (action == GLFW_RELEASE && applyingImpulse) {
             applyingImpulse = false;
             if (selectedBody >= 0 && selectedBody < static_cast<int>(bodies.size())) {
-                // Convert the screen drag into a world-space velocity along the
-                // camera's right/up axes. Dragging further = stronger impulse.
+                // Convert the screen drag into a world-space push along the
+                // camera's right/up axes. Dragging further = stronger flick.
                 const float dx = static_cast<float>(mx - impulseStartX);
                 const float dy = static_cast<float>(my - impulseStartY);
                 const glm::mat4 view = activeCamera->getViewMatrix();
                 // Camera basis rows of the view matrix give world axes.
                 const glm::vec3 right(view[0][0], view[1][0], view[2][0]);
                 const glm::vec3 up   (view[0][1], view[1][1], view[2][1]);
-                const float scale = 0.05f; // pixels -> m/s
-                glm::vec3 impulse = right * (dx * scale) + up * (-dy * scale);
+                // Stronger flick: 0.25 m/s per pixel (was 0.05). This lets a
+                // user really shove a body -- e.g. to test whether the spinning
+                // gyroscope's bearing/angular momentum keeps it up under a hard
+                // knock.
+                const float scale = 0.25f; // pixels -> m/s
+                const glm::vec3 push = right * (dx * scale) + up * (-dy * scale);
                 RigidBody& b = bodies[selectedBody];
                 if (b.inverseMass > 0.0f) {
-                    b.velocity += impulse;   // apply as a velocity change (impulse / mass)
+                    // Linear kick.
+                    b.velocity += push;
+                    // Angular kick: the same drag also applies a TIPPING torque
+                    // about the axis perpendicular to the push and the view
+                    // direction, so a hinged/anchored body (like the gyroscope
+                    // wheel, whose centre is pinned so a pure linear push is
+                    // absorbed by the bearing) still gets a real disturbance to
+                    // test its stability. Scaled by the push magnitude.
+                    const glm::vec3 fwd(view[0][2], view[1][2], view[2][2]);
+                    const float pushMag = glm::length(push);
+                    if (pushMag > 1e-4f) {
+                        const glm::vec3 tipAxis = glm::normalize(glm::cross(fwd, push));
+                        b.angularVelocity += tipAxis * (pushMag * 0.6f);
+                    }
                     b.asleep = false;        // wake it so the impulse takes effect
                     b.sleepTimer = 0.0f;
                 }
@@ -340,6 +380,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             b.angularVelocity = glm::vec3(0.0f);
             b.asleep = false; b.sleepTimer = 0.0f;
             resetRecordingForStructuralChange(); // moving a body changes geometry
+            showToastf("Body %d Y: %.2f", selectedBody, b.position.y);
         }
         return;
     }
@@ -351,32 +392,36 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_P) {
         predictionEnabled = !predictionEnabled;
         logStatus();
+        showToastf("Path prediction: %s", predictionEnabled ? "ON" : "OFF");
         return;
     }
     if (key == GLFW_KEY_R) {
         recordingEnabled = !recordingEnabled;
         if (activeRecorder) activeRecorder->setEnabled(recordingEnabled);
         logStatus();
+        showToastf("Recording: %s", recordingEnabled ? "ON" : "OFF");
         return;
     }
     if (key == GLFW_KEY_SPACE) {
         simulationPaused = !simulationPaused;
         logStatus();
+        showToast(simulationPaused ? "Paused" : "Running");
         return;
     }
 
     // Single-frame step (advance exactly one fixed step while paused).
     if (key == GLFW_KEY_PERIOD) {
         stepOnce = true;
+        showToast("Stepped one frame");
         return;
     }
 
     // --- Physics inspector overlay toggles (F1-F5) -------------------------
-    if (key == GLFW_KEY_F1) { ovContactNormals = !ovContactNormals; std::cout << "[Overlay] contact normals "  << (ovContactNormals?"ON":"OFF") << "\n"; return; }
-    if (key == GLFW_KEY_F2) { ovAngularAxis    = !ovAngularAxis;    std::cout << "[Overlay] angular axis "     << (ovAngularAxis?"ON":"OFF")    << "\n"; return; }
-    if (key == GLFW_KEY_F3) { ovCenterOfMass   = !ovCenterOfMass;   std::cout << "[Overlay] center of mass "   << (ovCenterOfMass?"ON":"OFF")   << "\n"; return; }
-    if (key == GLFW_KEY_F4) { ovBoundingVolume = !ovBoundingVolume; std::cout << "[Overlay] bounding volume " << (ovBoundingVolume?"ON":"OFF") << "\n"; return; }
-    if (key == GLFW_KEY_F5) { ovSleeping       = !ovSleeping;       std::cout << "[Overlay] sleeping markers " << (ovSleeping?"ON":"OFF")       << "\n"; return; }
+    if (key == GLFW_KEY_F1) { ovContactNormals = !ovContactNormals; std::cout << "[Overlay] contact normals "  << (ovContactNormals?"ON":"OFF") << "\n"; showToastf("Overlay - contact normals: %s", ovContactNormals?"ON":"OFF"); return; }
+    if (key == GLFW_KEY_F2) { ovAngularAxis    = !ovAngularAxis;    std::cout << "[Overlay] angular axis "     << (ovAngularAxis?"ON":"OFF")    << "\n"; showToastf("Overlay - angular axis: %s", ovAngularAxis?"ON":"OFF"); return; }
+    if (key == GLFW_KEY_F3) { ovCenterOfMass   = !ovCenterOfMass;   std::cout << "[Overlay] center of mass "   << (ovCenterOfMass?"ON":"OFF")   << "\n"; showToastf("Overlay - center of mass: %s", ovCenterOfMass?"ON":"OFF"); return; }
+    if (key == GLFW_KEY_F4) { ovBoundingVolume = !ovBoundingVolume; std::cout << "[Overlay] bounding volume " << (ovBoundingVolume?"ON":"OFF") << "\n"; showToastf("Overlay - bounding volume: %s", ovBoundingVolume?"ON":"OFF"); return; }
+    if (key == GLFW_KEY_F5) { ovSleeping       = !ovSleeping;       std::cout << "[Overlay] sleeping markers " << (ovSleeping?"ON":"OFF")       << "\n"; showToastf("Overlay - sleeping markers: %s", ovSleeping?"ON":"OFF"); return; }
 
     if (activeSceneManager == nullptr) return;
 
@@ -387,16 +432,18 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         if (mods & GLFW_MOD_SHIFT) {
             activeSolver->gravityEnabled = !activeSolver->gravityEnabled;
             std::cout << "[Env] gravity " << (activeSolver->gravityEnabled?"ON":"OFF") << "\n";
+            showToastf("Gravity: %s", activeSolver->gravityEnabled ? "ON" : "OFF");
         } else {
             activeSolver->aerodynamicsEnabled = !activeSolver->aerodynamicsEnabled;
             std::cout << "[Env] aerodynamics " << (activeSolver->aerodynamicsEnabled?"ON":"OFF") << "\n";
+            showToastf("Aerodynamics: %s", activeSolver->aerodynamicsEnabled ? "ON" : "OFF");
         }
         return;
     }
-    if (activeSolver && key == GLFW_KEY_LEFT_BRACKET)  { activeSolver->airDensity = std::max(0.0f, activeSolver->airDensity - 0.2f); std::cout << "[Env] air density " << activeSolver->airDensity << " kg/m^3\n"; return; }
-    if (activeSolver && key == GLFW_KEY_RIGHT_BRACKET) { activeSolver->airDensity += 0.2f; std::cout << "[Env] air density " << activeSolver->airDensity << " kg/m^3\n"; return; }
-    if (activeSolver && key == GLFW_KEY_LEFT)  { activeSolver->windVelocity.x -= 1.0f; std::cout << "[Env] wind (" << activeSolver->windVelocity.x << ",0,0) m/s\n"; return; }
-    if (activeSolver && key == GLFW_KEY_RIGHT) { activeSolver->windVelocity.x += 1.0f; std::cout << "[Env] wind (" << activeSolver->windVelocity.x << ",0,0) m/s\n"; return; }
+    if (activeSolver && key == GLFW_KEY_LEFT_BRACKET)  { activeSolver->airDensity = std::max(0.0f, activeSolver->airDensity - 0.2f); std::cout << "[Env] air density " << activeSolver->airDensity << " kg/m^3\n"; showToastf("Air density: %.2f kg/m^3%s", activeSolver->airDensity, activeSolver->aerodynamicsEnabled ? "" : "  (aero OFF - press G)"); return; }
+    if (activeSolver && key == GLFW_KEY_RIGHT_BRACKET) { activeSolver->airDensity += 0.2f; std::cout << "[Env] air density " << activeSolver->airDensity << " kg/m^3\n"; showToastf("Air density: %.2f kg/m^3%s", activeSolver->airDensity, activeSolver->aerodynamicsEnabled ? "" : "  (aero OFF - press G)"); return; }
+    if (activeSolver && key == GLFW_KEY_LEFT)  { activeSolver->windVelocity.x -= 1.0f; std::cout << "[Env] wind (" << activeSolver->windVelocity.x << ",0,0) m/s\n"; showToastf("Wind X: %.0f m/s%s", activeSolver->windVelocity.x, activeSolver->aerodynamicsEnabled ? "" : "  (aero OFF - press G)"); return; }
+    if (activeSolver && key == GLFW_KEY_RIGHT) { activeSolver->windVelocity.x += 1.0f; std::cout << "[Env] wind (" << activeSolver->windVelocity.x << ",0,0) m/s\n"; showToastf("Wind X: %.0f m/s%s", activeSolver->windVelocity.x, activeSolver->aerodynamicsEnabled ? "" : "  (aero OFF - press G)"); return; }
 
     // --- Material assignment to the selected body (Part 3) -----------------
     // Keys 6..0 would collide with scene switching; use F6-F10 for materials.
@@ -406,8 +453,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             applyMaterial(bs[selectedBody], mt);
             std::cout << "[Material] body " << selectedBody << " -> " << materialName(mt)
                       << "  (mass=" << bs[selectedBody].mass << " kg)\n";
+            showToastf("Material: %s  (body %d, mass %.2f kg)", materialName(mt), selectedBody, bs[selectedBody].mass);
         } else {
             std::cout << "[Material] no body selected\n";
+            showToast("Material: select a body first");
         }
     };
     if (key == GLFW_KEY_F6)  { assignMaterial(MaterialType::Steel);    return; }
@@ -457,8 +506,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                 std::cout << "[Recorder] exported " << activeRecorder->rowCount()
                           << " rows (" << activeRecorder->stepCount() << " steps) to "
                           << path << "\n";
+                showToastf("Exported %zu rows to %s", activeRecorder->rowCount(), path);
             } else {
                 std::cerr << "[Recorder] failed to write " << path << "\n";
+                showToastf("Export FAILED: could not write %s", path);
             }
         }
         return;
@@ -471,18 +522,23 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         // Spawn a cube slightly above the ground near the origin.
         activeSandbox->spawnCube(glm::vec3(0.0f, 3.0f, 0.0f));
         resetRecordingForStructuralChange();
+        showToast("Spawned cube");
         return;
     }
     if (key == GLFW_KEY_V) {
         activeSandbox->spawnSphere(glm::vec3(0.0f, 3.0f, 0.0f));
         resetRecordingForStructuralChange();
+        showToast("Spawned sphere");
         return;
     }
     if (key == GLFW_KEY_X || key == GLFW_KEY_DELETE) {
         if (selectedBody >= 0 && activeSandbox->deleteBody(selectedBody)) {
+            showToastf("Deleted body %d", selectedBody);
             selectedBody = -1;
             draggingBody = false;
             resetRecordingForStructuralChange();
+        } else {
+            showToast("Delete: select a body first");
         }
         return;
     }
@@ -1335,7 +1391,6 @@ int main() {
     HangingChainWaveScene  hangingChainWave;  // Waves / structures
     ObjectVolumeScene      objectVolume;
     CableStayedBridgeScene cableStayedBridge;
-    GyroscopeScene         gyroscope;
     ExplosionScene         explosion;
     BoulderCastleScene     boulderCastle;
     SandboxScene         sandbox;         // Interactive
@@ -1355,10 +1410,8 @@ int main() {
     sceneManager.registerScene("Ballistics",        &ballistics);       // N/B
     sceneManager.registerScene("Hanging Chain Wave", &hangingChainWave);
     sceneManager.registerScene("Object Volume",      &objectVolume);
-    sceneManager.registerScene("Gyroscope",          &gyroscope);
     sceneManager.registerScene("Explosion",          &explosion);
     sceneManager.registerScene("Boulder vs Castle",  &boulderCastle);
-    sceneManager.registerScene("Sandbox",           &sandbox);          // N/B
     sceneManager.registerScene("Sandbox",           &sandbox);          // N/B
     activeSceneManager = &sceneManager;
 
@@ -1808,10 +1861,12 @@ int main() {
                     ImGui::Separator();
                     ImGui::TextUnformatted("Parameters:");
                     bool changed = false;
+                    std::string changedName; float changedVal = 0.0f;
                     for (auto& p : s->params) {
                         float v = p.value;
                         if (ImGui::SliderFloat(p.name.c_str(), &v, p.minValue, p.maxValue)) {
                             s->setParam(p.name, v); changed = true;
+                            changedName = p.name; changedVal = v;
                         }
                     }
                     if (changed) {
@@ -1819,6 +1874,7 @@ int main() {
                         simulationPaused = true; selectedBody = -1; draggingBody = false;
                         activeSandbox = dynamic_cast<SandboxScene*>(activeSceneManager->activeScene());
                         resetRecordingForStructuralChange();
+                        showToastf("%s = %.2f", changedName.c_str(), changedVal);
                     }
                 }
             }
@@ -1887,6 +1943,39 @@ int main() {
                 ImGui::End();
                 ImGui::PopStyleColor(2);   // Text + WindowBg
                 ImGui::PopStyleVar(2);     // WindowPadding + WindowRounding
+            }
+        }
+
+        // --- Transient action toast (bottom-centre, dark panel, fades out) ---
+        // Shows the most recent user action (environment/material/spawn/etc.).
+        {
+            const float tage = static_cast<float>(glfwGetTime() - gToastStamp);
+            const float thold = 2.0f;   // fully opaque
+            const float tfade = 1.0f;   // then fade out
+            if (tage >= 0.0f && tage < thold + tfade && !gToastMsg.empty()) {
+                float talpha = (tage <= thold) ? 1.0f : 1.0f - (tage - thold) / tfade;
+                talpha = std::clamp(talpha, 0.0f, 1.0f);
+
+                const ImGuiViewport* vp = ImGui::GetMainViewport();
+                ImGui::SetNextWindowPos(ImVec2(vp->WorkPos.x + vp->WorkSize.x * 0.5f,
+                                               vp->WorkPos.y + vp->WorkSize.y - 40.0f),
+                                        ImGuiCond_Always, ImVec2(0.5f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.06f, 0.06f, 0.08f, 0.9f * talpha));
+                ImGui::PushStyleColor(ImGuiCol_Border,   ImVec4(0.35f, 0.6f, 1.0f, 0.8f * talpha));
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(16.0f, 10.0f));
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 6.0f);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.5f);
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, talpha));
+                ImGuiWindowFlags tflags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs
+                                        | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing
+                                        | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
+                ImGui::Begin("##actiontoast", nullptr, tflags);
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::TextUnformatted(gToastMsg.c_str());
+                ImGui::SetWindowFontScale(1.0f);
+                ImGui::End();
+                ImGui::PopStyleColor(3);   // Text + Border + WindowBg
+                ImGui::PopStyleVar(3);     // padding + rounding + border size
             }
         }
 

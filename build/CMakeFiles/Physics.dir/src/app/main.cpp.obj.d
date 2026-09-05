@@ -163,6 +163,10 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: \
  C:/msys64/ucrt64/include/c++/15.2.0/tr1/poly_hermite.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/tr1/poly_laguerre.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/tr1/riemann_zeta.tcc \
+ C:/msys64/ucrt64/include/c++/15.2.0/cstdarg \
+ C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdarg.h \
+ C:/msys64/ucrt64/include/stdarg.h \
+ C:/msys64/ucrt64/include/_mingw_stdarg.h \
  C:/msys64/ucrt64/include/c++/15.2.0/iomanip \
  C:/msys64/ucrt64/include/c++/15.2.0/locale \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_facets_nonio.h \
@@ -422,8 +426,5 @@ CMakeFiles/Physics.dir/src/app/main.cpp.obj: \
  C:/Coding\ Projects/GitHub/Physics/src/ml/Environment.h \
  C:/CODING~1/GitHub/Physics/vendor/imgui/imgui.h \
  C:/CODING~1/GitHub/Physics/vendor/imgui/imconfig.h \
- C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdarg.h \
- C:/msys64/ucrt64/include/stdarg.h \
- C:/msys64/ucrt64/include/_mingw_stdarg.h \
  C:/CODING~1/GitHub/Physics/vendor/imgui/backends/imgui_impl_glfw.h \
  C:/CODING~1/GitHub/Physics/vendor/imgui/backends/imgui_impl_opengl3.h

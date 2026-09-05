@@ -7,7 +7,7 @@ dashdamirov.murad11@gmail.com | [LinkedIn](https://www.linkedin.com/in/murad-das
 ## 3D Rigid-Body Physics Engine & Simulation Lab
 
 *C++17 · OpenGL · GLM · Dear ImGui · CMake · Python*
-[GitHub repository](https://github.com/Murad-D-11) &nbsp;·&nbsp; [Technical docs (README / Architecture / Benchmarks)](https://github.com/Murad-D-11)
+[GitHub repository](https://github.com/Murad-D-11/Physics) &nbsp;·&nbsp; [Technical docs (README / Architecture / Benchmarks)](https://github.com/Murad-D-11/Physics/docs)
 
 A 3D rigid-body physics engine written from scratch in C++ — no physics
 libraries. The solver, collision detection, constraints, and continuous
@@ -18,21 +18,65 @@ interactive OpenGL + Dear ImGui laboratory, a renderer-independent machine-
 learning data layer, and three headless validation harnesses.
 
 <!-- ===================================================================== -->
-<!-- IMAGES: replace the placeholders below with real screenshots/GIFs.    -->
-<!-- Suggested captures (each ~half the row, side by side):                -->
-<!--  1. The ImGui "Physics Laboratory" browser + a scene mid-simulation   -->
-<!--     (e.g. Newton's Cradle or the Explosion), with the Telemetry panel  -->
-<!--     visible showing energy/momentum.                                   -->
-<!--  2. A second scene that reads as visually distinct (Domino Spiral,     -->
-<!--     Object Volume pile, or Hanging Chain Wave) + a debug overlay on    -->
-<!--     (F1 contact normals or F4 bounding volumes).                       -->
-<!-- A short GIF of a cascade or the explosion expanding is very strong     -->
-<!-- here since the project is inherently visual.                           -->
+<!-- SHOWCASE. Four curated blocks, most-impressive-first. Drop your        -->
+<!-- media into the docs/img/ paths below (still frames for a PDF; use the  -->
+<!-- clips directly if this becomes a web portfolio). Each block leads with -->
+<!-- one strong visual and folds the rest in via its caption -- do NOT add  -->
+<!-- a separate entry per screenshot/clip.                                  -->
 <!-- ===================================================================== -->
 
-| ![Physics Laboratory GUI with a scene running and live telemetry](docs/img/portfolio_lab.png) | ![A second scene with a debug overlay enabled](docs/img/portfolio_scene.png) |
+### Showcase
+
+**Validated against real physics — simulated vs. predicted trajectory.**
+The ballistics scene runs the true simulated path (solid) alongside a
+real-time predicted trajectory (dotted) from the rollout predictor. The two
+tracking each other is direct visual proof the solver reproduces the analytic
+parabola.
+
+<!-- MEDIA: ballistics recording — actual path vs. real-time prediction overlay. -->
+![Ballistics: simulated path (solid) vs. real-time predicted path (dotted)](docs/img/path_prediction.gif)
+
+**Instrumented for verification — physics-inspector overlays.**
+Every internal quantity can be drawn live, so behaviour is inspected. 
+Shown: contact normals erupting as a boulder demolishes a stacked
+brick castle. Also available: sleeping-body markers (watch them wink out along
+a toppling domino cascade), center-of-mass, bounding volumes, and
+angular-velocity axes.
+
+<!-- MEDIA (pick the 2 strongest; contact-normals + sleeping-cascade recommended): -->
+<!--  left  = contact normals on boulder-vs-castle impact                          -->
+<!--  right = sleeping markers across the domino spiral (or angular-velocity beads) -->
+| ![Contact normals on the boulder-vs-castle impact](docs/img/contact_normals.gif) | ![Sleeping-body markers across the domino cascade](docs/img/sleeping_markers.gif) |
 | :---: | :---: |
-| *Dear ImGui laboratory: searchable scene list, live parameter sliders, and an energy/momentum telemetry panel.* | *A scene mid-simulation with a physics-inspector overlay (contact normals / bounding volumes).* |
+| *Contact normals during the boulder-vs-castle impact.* | *Sleeping markers clearing ahead of a domino cascade.* |
+
+**Analyzable output — recorded data + plotted motion.**
+Every run can be recorded to CSV (per-body position, velocity, orientation per
+step, grouped by object). Here the two bobs of the double pendulum are recorded
+and their Y-positions plotted over time — the chaotic, non-repeating traces are
+the signature of a double pendulum.
+
+<!-- MEDIA: left = the live double-pendulum scene in the program (the source   -->
+<!-- of the data); right = the y-position-over-time graph plotted from its CSV. -->
+| ![The double-pendulum scene running in the program](docs/img/recording_csv.gif) | ![Double-pendulum bob Y-positions over time, plotted from the exported CSV](docs/img/double_pendulum_graph.png) |
+| :---: | :---: |
+| *The double-pendulum scene in the program -- the motion being recorded.* | *The two bobs' Y-positions over time, plotted from the exported CSV.* |
+
+**Interactive & real-time — live sliders, materials, and environment.**
+Scene parameters, material presets, and the environment are all adjustable
+mid-simulation. Shown: an energy-controlled blast expanding under different
+environment settings, and a block on the incline that slides as steel but grips
+as rubber — the same scene, different physics, driven live.
+
+<!-- MEDIA (pick 2): explosion reacting to environment (wind/air density) on the  -->
+<!-- left; a material-change clip (incline steel-vs-rubber, or Newton's cradle)    -->
+<!-- on the right. The full set of scene + slider recordings is supporting         -->
+<!-- material — link a demo reel rather than embedding every clip.                 -->
+| ![Explosion reacting to environment settings](docs/img/environment_change.gif) | ![Material change on the incline: steel slides, rubber grips](docs/img/material_change.gif) |
+| :---: | :---: |
+| *Explosion under changed environment (no change / wind / air density / no gravity).* | *Same incline, different material preset -- rubber grips, ice slides.* |
+
+---
 
 **Engine & architecture**
 
@@ -77,17 +121,18 @@ learning data layer, and three headless validation harnesses.
   from 0.05 m to 5 m bodies, and Coulomb-correct slope slide/hold behaviour
   across friction coefficients.
 - Documented the engine's real limits honestly rather than faking them — e.g.
-  the gyroscope stays upright but the sequential-impulse integrator dissipates
-  gyroscopic precession, and a cantilever scene was removed because the solver
-  has no bending-stiffness primitive.
+  the sequential-impulse integrator dissipates gyroscopic coupling (so a true
+  precessing gyroscope isn't reproduced), and a cantilever scene was removed
+  because the solver has no bending-stiffness primitive.
 
 **Tooling & machine-learning layer**
 
-- Built an interactive Dear ImGui laboratory: a searchable browser of **18
+- Built an interactive Dear ImGui laboratory: a searchable browser of **~17
   tunable, deterministic scenes** (Newton's cradle, Atwood machine, trebuchet,
   domino spiral, a many-body contact stress test, an energy-controlled
-  explosion, and more), each with live parameter sliders, a real-time
-  energy/momentum/contacts telemetry panel, and five physics-inspector overlays.
+  explosion, a boulder-vs-castle demolition, and more), each with live parameter
+  sliders, a real-time energy/momentum/contacts telemetry panel, and five
+  physics-inspector overlays.
 - Engineered a rendering-independent research layer: a gym-style `Environment`
   (`reset` / `step` / `observe` / `act`), a **deterministic CSV dataset
   generator** that emits supervised state → future-position samples reproducible
