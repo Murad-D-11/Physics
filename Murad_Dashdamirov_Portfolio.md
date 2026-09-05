@@ -27,11 +27,13 @@ learning data layer, and three headless validation harnesses.
 
 ### Showcase
 
-**Validated against real physics — simulated vs. predicted trajectory.**
+**Validated against real physics -- simulated vs. predicted trajectory.**
 The ballistics scene runs the true simulated path (solid) alongside a
 real-time predicted trajectory (dotted) from the rollout predictor. The two
 tracking each other is direct visual proof the solver reproduces the analytic
-parabola.
+parabola. Before the drag is added as a variable, the dotted and the solid
+line almost always intersect each other. After the drag is presented, the dotted
+line restructures itself with respect to the recent change in real time.
 
 <!-- MEDIA: ballistics recording — actual path vs. real-time prediction overlay. -->
 ![Ballistics: simulated path (solid) vs. real-time predicted path (dotted)](docs/img/path_prediction.gif)
