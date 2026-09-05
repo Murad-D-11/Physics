@@ -36,7 +36,7 @@ parabola.
 <!-- MEDIA: ballistics recording — actual path vs. real-time prediction overlay. -->
 ![Ballistics: simulated path (solid) vs. real-time predicted path (dotted)](docs/img/path_prediction.gif)
 
-**Instrumented for verification — physics-inspector overlays.**
+**Instrumented for verification -- physics-inspector overlays.**
 Every internal quantity can be drawn live, so behaviour is inspected. 
 Shown: contact normals erupting as a boulder demolishes a stacked
 brick castle. Also available: sleeping-body markers (watch them wink out along
@@ -46,7 +46,7 @@ angular-velocity axes.
 <!-- MEDIA (pick the 2 strongest; contact-normals + sleeping-cascade recommended): -->
 <!--  left  = contact normals on boulder-vs-castle impact                          -->
 <!--  right = sleeping markers across the domino spiral (or angular-velocity beads) -->
-| ![Contact normals on the boulder-vs-castle impact](docs/img/contact_normals.gif) | ![Sleeping-body markers across the domino cascade](docs/img/sleeping_markers.gif) |
+| ![Contact normals (yellow lines) on the boulder-vs-castle impact](docs/img/contact_normals.gif) | ![Sleeping-body markers across the domino cascade](docs/img/sleeping_markers.gif) |
 | :---: | :---: |
 | *Contact normals during the boulder-vs-castle impact.* | *Sleeping markers clearing ahead of a domino cascade.* |
 
@@ -62,7 +62,7 @@ the signature of a double pendulum.
 | :---: | :---: |
 | *The double-pendulum scene in the program -- the motion being recorded.* | *The two bobs' Y-positions over time, plotted from the exported CSV.* |
 
-**Interactive & real-time — live sliders, materials, and environment.**
+**Interactive & real-time -- live sliders, materials, and environment.**
 Scene parameters, material presets, and the environment are all adjustable
 mid-simulation. Shown: an energy-controlled blast expanding under different
 environment settings, and a block on the incline that slides as steel but grips
