@@ -9,7 +9,7 @@ dashdamirov.murad11@gmail.com | [LinkedIn](https://www.linkedin.com/in/murad-das
 *C++17 · OpenGL · GLM · Dear ImGui · CMake*
 [GitHub repository](https://github.com/Murad-D-11/Physics) &nbsp;·&nbsp; [Technical docs (README / Architecture / Benchmarks)](https://github.com/Murad-D-11/Physics/tree/main/docs)
 
-A 3D rigid-body physics engine written from scratch in C++ — no physics
+A 3D rigid-body physics engine written from scratch in C++ -- no physics
 libraries. The solver, collision detection, constraints, and continuous
 collision detection are all hand-implemented, with correctness prioritized over
 shortcuts (artificial damping and snapping were deliberately removed in favor of
