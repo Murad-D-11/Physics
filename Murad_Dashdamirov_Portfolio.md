@@ -1,4 +1,4 @@
-# Murad Dashdamirov — Portfolio
+# Murad Dashdamirov -- Portfolio
 
 dashdamirov.murad11@gmail.com | [LinkedIn](https://www.linkedin.com/in/murad-dashdamirov-90461934a) | [GitHub](https://github.com/Murad-D-11)
 
@@ -16,14 +16,6 @@ shortcuts (artificial damping and snapping were deliberately removed in favor of
 implementations that are actually correct). Around the solver sits an
 interactive OpenGL + Dear ImGui laboratory, a renderer-independent machine-
 learning data layer, and three headless validation harnesses.
-
-<!-- ===================================================================== -->
-<!-- SHOWCASE. Four curated blocks, most-impressive-first. Drop your        -->
-<!-- media into the docs/img/ paths below (still frames for a PDF; use the  -->
-<!-- clips directly if this becomes a web portfolio). Each block leads with -->
-<!-- one strong visual and folds the rest in via its caption -- do NOT add  -->
-<!-- a separate entry per screenshot/clip.                                  -->
-<!-- ===================================================================== -->
 
 ### Showcase
 
@@ -144,8 +136,3 @@ as rubber — the same scene, different physics, driven live.
 
 ---
 
-<!-- Add your next portfolio project below, following the same structure:   -->
-<!--   ## Project Title                                                      -->
-<!--   *tech stack* + links                                                  -->
-<!--   1–2 sentence description                                              -->
-<!--   images (half the space) + bullets grouped by concern                  -->
