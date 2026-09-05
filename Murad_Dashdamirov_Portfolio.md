@@ -46,9 +46,9 @@ angular-velocity axes.
 <!-- MEDIA (pick the 2 strongest; contact-normals + sleeping-cascade recommended): -->
 <!--  left  = contact normals on boulder-vs-castle impact                          -->
 <!--  right = sleeping markers across the domino spiral (or angular-velocity beads) -->
-| ![Contact normals (yellow lines) on the boulder-vs-castle impact](docs/img/contact_normals.gif) | ![Sleeping-body markers across the domino cascade](docs/img/sleeping_markers.gif) |
+| ![Contact normals on the boulder-vs-castle impact](docs/img/contact_normals.gif) | ![Sleeping-body markers across the domino cascade](docs/img/sleeping_markers.gif) |
 | :---: | :---: |
-| *Contact normals during the boulder-vs-castle impact.* | *Sleeping markers clearing ahead of a domino cascade.* |
+| *Contact normals (yellow rods) during the boulder-vs-castle impact.* | *Sleeping markers (blue rods) clearing ahead of a domino cascade.* |
 
 **Analyzable output — recorded data + plotted motion.**
 Every run can be recorded to CSV (per-body position, velocity, orientation per
